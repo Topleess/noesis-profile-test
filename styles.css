@@ -513,6 +513,11 @@ h1 {
   max-width: 1180px;
 }
 
+.pricing-grid-two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-width: 920px;
+}
+
 .price-card {
   padding: 30px;
 }
@@ -836,6 +841,97 @@ select:focus {
   background: #fffaf0;
 }
 
+.paid-verdict {
+  margin-bottom: 18px;
+}
+
+.verdict-card {
+  padding: 22px;
+  border: 1px solid rgba(127, 46, 60, 0.25);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(135deg, rgba(127, 46, 60, 0.08), rgba(15, 106, 98, 0.05)),
+    var(--porcelain);
+}
+
+.verdict-card > span,
+.verdict-warning,
+.type-grid b {
+  font-family: "IBM Plex Mono", monospace;
+  text-transform: uppercase;
+}
+
+.verdict-card > span {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--burgundy);
+  font-size: 12px;
+}
+
+.verdict-card h3 {
+  max-width: 820px;
+  margin-bottom: 14px;
+  font-family: Literata, Georgia, serif;
+  font-size: 30px;
+  line-height: 1.14;
+}
+
+.verdict-card p {
+  max-width: 860px;
+}
+
+.verdict-warning {
+  padding: 12px;
+  border: 1px solid rgba(180, 138, 69, 0.32);
+  border-radius: var(--radius);
+  color: #7b5b23;
+  background: rgba(180, 138, 69, 0.08);
+  font-size: 12px;
+}
+
+.type-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 18px 0;
+}
+
+.type-grid div {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fffaf0;
+}
+
+.type-grid b,
+.type-grid strong,
+.type-grid small {
+  display: block;
+}
+
+.type-grid b {
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.type-grid strong {
+  font-size: 18px;
+}
+
+.type-grid small {
+  margin-top: 6px;
+  color: var(--muted);
+}
+
+.sharp-line {
+  margin: 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  color: var(--ink);
+  font-weight: 700;
+}
+
 .unlocked-report.full-report {
   border-color: rgba(127, 46, 60, 0.22);
   background: #fff8f4;
@@ -973,6 +1069,61 @@ select:focus {
   font-size: 14px;
 }
 
+.answer-archive {
+  margin-top: 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--porcelain);
+}
+
+.answer-archive summary {
+  cursor: pointer;
+  padding: 16px;
+  color: var(--ink);
+  font-weight: 800;
+}
+
+.answer-list {
+  display: grid;
+  gap: 8px;
+  max-height: 520px;
+  overflow: auto;
+  padding: 0 16px 16px;
+}
+
+.answer-row {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) minmax(160px, 0.35fr);
+  gap: 12px;
+  align-items: start;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fffaf0;
+}
+
+.answer-row span {
+  color: var(--burgundy);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12px;
+}
+
+.answer-row p {
+  margin: 0;
+  color: var(--ink);
+  font-size: 14px;
+}
+
+.answer-row strong {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.answer-empty {
+  margin: 0;
+  padding: 16px;
+}
+
 .disclaimer {
   padding-top: 34px;
   padding-bottom: 34px;
@@ -1038,7 +1189,8 @@ select:focus {
   .answers,
   .basic-insights,
   .recommendation-grid,
-  .life-map {
+  .life-map,
+  .type-grid {
     grid-template-columns: 1fr;
   }
 }
@@ -1088,5 +1240,9 @@ select:focus {
 
   .score-row b {
     text-align: left;
+  }
+
+  .answer-row {
+    grid-template-columns: 1fr;
   }
 }

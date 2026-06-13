@@ -215,12 +215,12 @@ const elements = {
   refLink: document.querySelector("[data-ref-link]"),
   copy: document.querySelector("[data-copy]"),
   upgrade: document.querySelector("[data-upgrade]"),
-  extended: document.querySelector("[data-extended]"),
   middleReport: document.querySelector("[data-middle-report]"),
-  fullReport: document.querySelector("[data-full-report]"),
+  paidVerdict: document.querySelector("[data-paid-verdict]"),
   scoreList: document.querySelector("[data-score-list]"),
   middleRecommendations: document.querySelector("[data-middle-recommendations]"),
-  lifeMap: document.querySelector("[data-life-map]")
+  lifeMap: document.querySelector("[data-life-map]"),
+  answerList: document.querySelector("[data-answer-list]")
 };
 
 function renderQuestion() {
@@ -301,7 +301,8 @@ function makeResultUrl(tier = state.latestTier) {
     v: 1,
     code: state.profileCode,
     tier,
-    scores: state.latestScores.map((item) => [item.scale, item.score])
+    scores: state.latestScores.map((item) => [item.scale, item.score]),
+    answers: state.answers.map((answer) => answer || 0).join("")
   };
 
   url.searchParams.delete("ref");
@@ -323,14 +324,13 @@ function hydrateScores(compactScores) {
 
 function resetUnlockedReports() {
   elements.middleReport.hidden = true;
-  elements.fullReport.hidden = true;
+  elements.paidVerdict.innerHTML = "";
   elements.scoreList.innerHTML = "";
   elements.middleRecommendations.innerHTML = "";
   elements.lifeMap.innerHTML = "";
+  elements.answerList.innerHTML = "";
   elements.upgrade.classList.remove("is-unlocked");
-  elements.extended.classList.remove("is-unlocked");
   elements.upgrade.innerHTML = '<i data-lucide="lock-keyhole" aria-hidden="true"></i> Открыть за $40';
-  elements.extended.innerHTML = '<i data-lucide="plus" aria-hidden="true"></i> Открыть за $80';
 }
 
 function renderBasicResult(scores, code) {
@@ -363,7 +363,7 @@ function resultTone(topScores) {
     return {
       title: "Ваш базовый профиль имеет выраженный ведущий вектор",
       summary:
-        "Одна динамика заметно сильнее остальных, поэтому в стрессовых и важных ситуациях она может определять ваш способ реагирования. Полный отчет покажет, где это становится преимуществом, а где создает трение."
+        "Одна динамика заметно сильнее остальных, поэтому в стрессовых и важных ситуациях она может определять ваш способ реагирования. Платный отчет покажет, где это становится преимуществом, а где создает трение."
     };
   }
   if (topScores[0].score >= 64) {
@@ -388,6 +388,262 @@ function levelLabel(score) {
   return "спокойно";
 }
 
+function scoreMap(scores) {
+  return Object.fromEntries(scores.map((item) => [item.scale, item.score]));
+}
+
+function modelScore(map, criteria) {
+  const totalWeight = criteria.reduce((sum, item) => sum + item.weight, 0);
+  const total = criteria.reduce((sum, item) => {
+    const raw = map[item.scale] ?? 50;
+    const value = item.inverse ? 100 - raw : raw;
+    return sum + value * item.weight;
+  }, 0);
+  return Math.round(total / totalWeight);
+}
+
+function rankModels(scores, models) {
+  const map = scoreMap(scores);
+  return models
+    .map((model) => ({
+      ...model,
+      score: modelScore(map, model.criteria)
+    }))
+    .sort((a, b) => b.score - a.score);
+}
+
+function getAccentuationModels() {
+  return [
+    {
+      name: "шизоидной акцентуации",
+      compact: "шизоидный профиль",
+      criteria: [
+        { scale: "S3", weight: 1.5 },
+        { scale: "S9", weight: 0.4 },
+        { scale: "S5", weight: 0.5, inverse: true },
+        { scale: "S2", weight: 0.4, inverse: true }
+      ],
+      sharp:
+        "Вы держите дистанцию не потому, что ничего не чувствуете, а потому что близость быстро начинает требовать слишком много доступа к вам."
+    },
+    {
+      name: "демонстративно-нарциссической акцентуации",
+      compact: "демонстративно-нарциссический профиль",
+      criteria: [
+        { scale: "S4", weight: 1.25 },
+        { scale: "S5", weight: 1 },
+        { scale: "S11", weight: 0.45 },
+        { scale: "S10", weight: 0.25, inverse: true }
+      ],
+      sharp:
+        "Вам важно не просто быть хорошим человеком, а быть заметным, выбранным и признанным. Игнор вы можете переживать как скрытое обесценивание."
+    },
+    {
+      name: "лабильно-зависимой акцентуации",
+      compact: "лабильно-зависимый профиль",
+      criteria: [
+        { scale: "S1", weight: 1.25 },
+        { scale: "S2", weight: 1.2 },
+        { scale: "S10", weight: 0.5 },
+        { scale: "S3", weight: 0.3, inverse: true }
+      ],
+      sharp:
+        "Ваше состояние слишком сильно зависит от качества контакта. Когда человек становится холоднее, психика быстро пытается вернуть ясность."
+    },
+    {
+      name: "психастенически-сенситивной акцентуации",
+      compact: "психастенически-сенситивный профиль",
+      criteria: [
+        { scale: "S9", weight: 1.15 },
+        { scale: "S10", weight: 1.1 },
+        { scale: "S6", weight: 0.35 },
+        { scale: "S8", weight: 0.35, inverse: true }
+      ],
+      sharp:
+        "Вы слишком хорошо видите последствия, поэтому можете тормозить там, где другим легче рискнуть. Ошибка для вас часто ощущается не как факт, а как удар по самооценке."
+    },
+    {
+      name: "эпилептоидно-контролирующей акцентуации",
+      compact: "контролирующий профиль",
+      criteria: [
+        { scale: "S6", weight: 1.2 },
+        { scale: "S7", weight: 0.75 },
+        { scale: "S11", weight: 0.7 },
+        { scale: "S8", weight: 0.25, inverse: true }
+      ],
+      sharp:
+        "Вы плохо переносите хаос, слабые договоренности и чужую беспечность. Контроль для вас не каприз, а способ не дать миру развалиться."
+    },
+    {
+      name: "паранойяльно-застревающей акцентуации",
+      compact: "застревающий профиль",
+      criteria: [
+        { scale: "S7", weight: 1.25 },
+        { scale: "S6", weight: 0.8 },
+        { scale: "S4", weight: 0.35 }
+      ],
+      sharp:
+        "Вы быстро замечаете несправедливость и скрытые мотивы. Проблема в том, что психика может продолжать расследование даже там, где уже пора выйти из ситуации."
+    },
+    {
+      name: "гипертимно-импульсивной акцентуации",
+      compact: "гипертимно-импульсивный профиль",
+      criteria: [
+        { scale: "S12", weight: 1.15 },
+        { scale: "S8", weight: 1 },
+        { scale: "S9", weight: 0.35, inverse: true },
+        { scale: "S3", weight: 0.25, inverse: true }
+      ],
+      sharp:
+        "Вы оживаете от движения, новизны и возможности действовать. Риск в том, что интерес может закончиться быстрее, чем обязательства."
+    },
+    {
+      name: "конформно-зависимой акцентуации",
+      compact: "конформно-зависимый профиль",
+      criteria: [
+        { scale: "S2", weight: 1.1 },
+        { scale: "S10", weight: 0.7 },
+        { scale: "S3", weight: 0.7, inverse: true },
+        { scale: "S4", weight: 0.25, inverse: true }
+      ],
+      sharp:
+        "Вам легче быть устойчивым, когда есть принятие и понятная роль. Без опоры на людей вы можете терять уверенность быстрее, чем показываете."
+    }
+  ];
+}
+
+function getPatternModels() {
+  return [
+    {
+      name: "шизоидными чертами",
+      compact: "шизоидные черты",
+      criteria: [
+        { scale: "S3", weight: 1.4 },
+        { scale: "S5", weight: 0.5, inverse: true },
+        { scale: "S2", weight: 0.35, inverse: true }
+      ]
+    },
+    {
+      name: "нарциссическими чертами",
+      compact: "нарциссические черты",
+      criteria: [
+        { scale: "S4", weight: 1.25 },
+        { scale: "S5", weight: 0.8 },
+        { scale: "S11", weight: 0.45 }
+      ]
+    },
+    {
+      name: "пограничным паттерном",
+      compact: "пограничные черты",
+      criteria: [
+        { scale: "S1", weight: 1.15 },
+        { scale: "S2", weight: 1.1 },
+        { scale: "S8", weight: 0.55 }
+      ]
+    },
+    {
+      name: "ананкастными чертами",
+      compact: "ананкастные черты",
+      criteria: [
+        { scale: "S6", weight: 1.1 },
+        { scale: "S9", weight: 0.8 },
+        { scale: "S8", weight: 0.35, inverse: true }
+      ]
+    },
+    {
+      name: "параноидными чертами",
+      compact: "параноидные черты",
+      criteria: [
+        { scale: "S7", weight: 1.2 },
+        { scale: "S6", weight: 0.65 }
+      ]
+    },
+    {
+      name: "избегающими чертами",
+      compact: "избегающие черты",
+      criteria: [
+        { scale: "S10", weight: 1.1 },
+        { scale: "S9", weight: 0.85 },
+        { scale: "S3", weight: 0.35 }
+      ]
+    },
+    {
+      name: "зависимыми чертами",
+      compact: "зависимые черты",
+      criteria: [
+        { scale: "S2", weight: 1.15 },
+        { scale: "S10", weight: 0.65 },
+        { scale: "S3", weight: 0.65, inverse: true }
+      ]
+    },
+    {
+      name: "диссоциальными чертами",
+      compact: "диссоциальные черты",
+      criteria: [
+        { scale: "S11", weight: 1.05 },
+        { scale: "S8", weight: 0.75 },
+        { scale: "S2", weight: 0.45, inverse: true },
+        { scale: "S10", weight: 0.45, inverse: true }
+      ]
+    }
+  ];
+}
+
+function classifyProfile(scores) {
+  const accentuations = rankModels(scores, getAccentuationModels());
+  const patterns = rankModels(scores, getPatternModels());
+  const primaryAccent = accentuations[0];
+  const secondaryAccent = accentuations[1];
+  const primaryPattern = patterns[0];
+  const secondaryPattern = patterns[1];
+  const range = scores[0].score - scores[scores.length - 1].score;
+  const confidence = range < 10 ? "низкая" : primaryAccent.score >= 65 ? "высокая" : "средняя";
+
+  return {
+    primaryAccent,
+    secondaryAccent,
+    primaryPattern,
+    secondaryPattern,
+    confidence,
+    range,
+    headline: `Скорее всего, ваш профиль ближе к ${primaryAccent.name} с ${primaryPattern.name}.`
+  };
+}
+
+function renderPaidVerdict(scores) {
+  const profile = classifyProfile(scores);
+  const flatWarning =
+    profile.range < 10
+      ? `<p class="verdict-warning">Ответы выглядят слишком ровными. Типологический вывод можно читать как предварительный: для точности лучше отвечать не из позиции "как надо", а из позиции "как обычно бывает".</p>`
+      : "";
+
+  elements.paidVerdict.innerHTML = `
+    <article class="verdict-card">
+      <span>Главный вывод</span>
+      <h3>${profile.headline}</h3>
+      <p>
+        Это не диагноз и не медицинское заключение. Но по самооценке видно:
+        ваш основной сценарий — ${profile.primaryAccent.compact}, а в стрессовых отношениях
+        заметнее всего могут включаться ${profile.primaryPattern.compact}.
+      </p>
+      ${flatWarning}
+      <div class="type-grid">
+        <div>
+          <b>Система акцентуаций</b>
+          <strong>${profile.primaryAccent.compact}</strong>
+          <small>второй слой: ${profile.secondaryAccent.compact}</small>
+        </div>
+        <div>
+          <b>Система личностных паттернов</b>
+          <strong>${profile.primaryPattern.compact}</strong>
+          <small>второй слой: ${profile.secondaryPattern.compact}</small>
+        </div>
+      </div>
+      <p class="sharp-line">${profile.primaryAccent.sharp}</p>
+    </article>
+  `;
+}
+
 function renderScoreList(scores) {
   elements.scoreList.innerHTML = scores
     .map(
@@ -410,18 +666,19 @@ function renderScoreList(scores) {
 function renderMiddleRecommendations(scores) {
   const top = scores.slice(0, 3);
   const low = [...scores].sort((a, b) => a.score - b.score).slice(0, 1)[0];
+  const profile = classifyProfile(scores);
   const cards = [
     {
-      title: "Главный ресурс",
-      text: `${top[0].label}: ${top[0].insight}`
+      title: "Что видно сразу",
+      text: `Ведущая линия — ${profile.primaryAccent.compact}. Это значит, что ваш характер не случайный набор реакций, а довольно устойчивый сценарий.`
     },
     {
-      title: "Зона внимания",
-      text: `${top[1].label}: эта линия поведения может включаться сильнее в близости, стрессе или ситуации оценки.`
+      title: "Где может ломать",
+      text: `${top[1].label} может включаться сильнее в близости, стрессе или ситуации оценки. Там вы рискуете реагировать жестче, чем планировали.`
     },
     {
-      title: "Баланс",
-      text: `${low.label} выражена спокойнее остальных. Это может быть точкой устойчивости или зоной, которую стоит развивать осознанно.`
+      title: "Слепая зона",
+      text: `${low.label} выражена спокойнее остальных. Иногда это ресурс, а иногда место, где другие ждут от вас реакции, которой у вас просто меньше.`
     }
   ];
 
@@ -440,6 +697,7 @@ function renderMiddleRecommendations(scores) {
 function renderLifeMap(scores) {
   const top = scores.slice(0, 3);
   const byScale = Object.fromEntries(scores.map((item) => [item.scale, item]));
+  const profile = classifyProfile(scores);
   const autonomy = byScale.S3?.score ?? 50;
   const emotion = byScale.S1?.score ?? 50;
   const clarity = byScale.S2?.score ?? 50;
@@ -452,63 +710,63 @@ function renderLifeMap(scores) {
     {
       title: "Личное",
       icon: "user-round",
-      text: `Ваш профиль сильнее всего строится вокруг "${top[0].label}". Это дает узнаваемый внутренний стиль: вы быстрее замечаете именно эту сторону жизни и чаще опираетесь на нее в решениях.`
+      text: `Ваш базовый стиль — ${profile.primaryAccent.compact}. Это значит, что вы не просто "так реагируете", а повторяете устойчивый способ защищать себя и управлять близостью.`
     },
     {
       title: "Отношения",
       icon: "heart",
       text:
         clarity >= 60
-          ? "В близости вам особенно важны ясность, регулярность контакта и понятные сигналы надежности. Молчание или неопределенность лучше проговаривать раньше, чем копить напряжение."
-          : "В отношениях вы можете сохранять больше самостоятельности и не требовать постоянных подтверждений. Важно объяснять это партнеру, чтобы дистанция не считывалась как холодность."
+          ? "В отношениях вы можете требовать ясности сильнее, чем признаете. Если человек молчит, психика быстро достраивает худший сценарий, и это может превращать обычную паузу в драму."
+          : "В отношениях вы можете казаться самодостаточнее, чем есть внутри. Риск в том, что партнер видит дистанцию и перестает пытаться подойти ближе."
     },
     {
       title: "Конфликты",
       icon: "messages-square",
       text:
         emotion >= 60
-          ? "В споре эмоция может включаться быстрее логики. Помогает пауза, короткое обозначение состояния и возвращение к разговору после снижения накала."
-          : "В конфликте вы, вероятно, стараетесь держать форму и смысл. Следите, чтобы спокойный тон не превращался в недоступность для другого человека."
+          ? "В споре вы можете сначала ударить эмоцией, а потом объяснять себе, что вас вынудили. Главная задача — не доказывать боль, а вовремя остановить эскалацию."
+          : "В конфликте вы можете выглядеть спокойным, но это не всегда зрелость. Иногда это способ не подпустить человека к тому, что реально задело."
     },
     {
       title: "Коммуникация",
       icon: "message-circle",
       text:
         sensitivity >= 60
-          ? "С вами лучше говорить бережно и конкретно: меньше обобщений, больше фактов и признания намерений. Резкая критика может закрывать контакт."
-          : "В коммуникации вам подходят прямые формулировки и ясные договоренности. Слишком размытые намеки могут быстрее раздражать, чем помогать."
+          ? "С вами нельзя грубо и обобщенно: вы запоминаете тон, а не только смысл. Но вам важно не превращать каждое неудачное слово другого человека в доказательство отвержения."
+          : "С вами лучше говорить прямо. Намеки, эмоциональные игры и пассивная агрессия быстро вызывают раздражение или холодную отстраненность."
     },
     {
       title: "Стресс",
       icon: "activity",
       text:
         analysis >= 60
-          ? "Под давлением вы можете уходить в просчет сценариев. Это полезно для рисков, но восстановление требует телесного режима, сна и ограничения бесконечного анализа."
-          : "В стрессе вам помогает действие и смена состояния. Важно не перескакивать слишком быстро через чувства, если ситуация требует проживания."
+          ? "Под стрессом вы можете думать вместо того, чтобы жить. Анализ дает иллюзию контроля, но если он не заканчивается действием, он становится клеткой."
+          : "В стрессе вы быстрее уходите в действие или переключение. Это спасает от застревания, но может мешать честно признать, что вам больно или страшно."
     },
     {
       title: "Карьера",
       icon: "briefcase-business",
       text:
         control >= 60
-          ? "В работе вам подходят роли, где есть ответственность, структура и право улучшать систему. Хаос без полномочий будет быстро забирать ресурс."
-          : "Вам может быть комфортнее среда с гибкостью, быстрыми циклами и свободой выбора. Слишком жесткая регламентация снижает интерес."
+          ? "В работе вы сильны там, где можно навести порядок и держать стандарт. Но если вы не делегируете, люди рядом начинают чувствовать себя не партнерами, а исполнителями."
+          : "Вам нужна среда с воздухом, свободой и быстрыми циклами. Риск — бросать скучную часть раньше, чем она начинает приносить результат."
     },
     {
       title: "Совместимость",
       icon: "link",
       text:
         autonomy >= 60
-          ? "Лучше подходят люди, которые уважают личное пространство и не воспринимают паузы как отвержение. Совместимость держится на ясных границах."
-          : "Лучше подходят люди, которые умеют давать эмоциональную включенность и не исчезают в неопределенность. Совместимость держится на регулярном контакте."
+          ? "Вам подходят люди, которые не ломятся в вашу закрытость и не требуют постоянного слияния. Но слишком похожий партнер может превратить пару в двух соседей."
+          : "Вам подходят люди, которые дают тепло, ясность и регулярный контакт. Но если человек слишком доступен, вы можете начать проверять его на прочность."
     },
     {
       title: "Как со мной общаться",
       icon: "sparkles",
       text:
         initiative >= 60
-          ? "Давайте пространство для инициативы, признавайте вклад и обсуждайте ограничения как договоренности, а не как контроль."
-          : "Давайте время на обработку, не торопите с реакцией и фиксируйте договоренности письменно, если тема важная."
+          ? "С вами лучше не разговаривать как с ребенком. Дайте пространство для решения, признайте вклад и обсуждайте ограничения как договор, а не как контроль."
+          : "Вам нужно время на обработку. Если вас торопят с реакцией, вы можете согласиться внешне, но внутренне закрыться и выйти из контакта."
     }
   ];
 
@@ -529,29 +787,47 @@ function renderLifeMap(scores) {
   if (window.lucide) window.lucide.createIcons();
 }
 
-function unlockReport(type, options = {}) {
-  if (!state.latestScores.length) return;
-  const tier = type === "full" ? "full" : state.latestTier === "full" ? "full" : "middle";
-  state.latestTier = tier;
+function renderAnswerArchive() {
+  const hasAnswers = state.answers.some(Boolean);
+  if (!hasAnswers) {
+    elements.answerList.innerHTML = `
+      <p class="answer-empty">В этой ссылке нет сохраненных ответов на отдельные вопросы. Пройдите тест заново и скопируйте новую ссылку результата.</p>
+    `;
+    return;
+  }
 
+  elements.answerList.innerHTML = questions
+    .map((question, index) => {
+      const value = state.answers[index] || 0;
+      const label = value ? answerLabels[value - 1] : "Нет ответа";
+      return `
+        <article class="answer-row">
+          <span>${question.id}</span>
+          <p>${question.text}</p>
+          <strong>${value || "—"} · ${label}</strong>
+        </article>
+      `;
+    })
+    .join("");
+}
+
+function unlockReport(options = {}) {
+  if (!state.latestScores.length) return;
+  state.latestTier = "paid";
+
+  renderPaidVerdict(state.latestScores);
   renderScoreList(state.latestScores);
   renderMiddleRecommendations(state.latestScores);
+  renderLifeMap(state.latestScores);
+  renderAnswerArchive();
   elements.middleReport.hidden = false;
   elements.upgrade.classList.add("is-unlocked");
-  elements.upgrade.innerHTML = '<i data-lucide="check" aria-hidden="true"></i> Средний отчет открыт';
-
-  if (type === "full") {
-    renderLifeMap(state.latestScores);
-    elements.fullReport.hidden = false;
-    elements.extended.classList.add("is-unlocked");
-    elements.extended.innerHTML = '<i data-lucide="check" aria-hidden="true"></i> Полный отчет открыт';
-  }
+  elements.upgrade.innerHTML = '<i data-lucide="check" aria-hidden="true"></i> Платный отчет открыт';
 
   elements.refLink.value = makeResultUrl(state.latestTier);
   if (window.lucide) window.lucide.createIcons();
-  const target = type === "full" ? elements.fullReport : elements.middleReport;
   if (options.scroll !== false) {
-    target.scrollIntoView({ behavior: "smooth", block: "start" });
+    elements.middleReport.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 }
 
@@ -579,17 +855,25 @@ function showSharedResultFromUrl() {
     if (!scores.length) return;
 
     state.latestScores = scores;
-    state.latestTier = payload.tier === "full" || payload.tier === "middle" ? payload.tier : "basic";
+    state.latestTier = payload.tier === "paid" || payload.tier === "middle" || payload.tier === "full" ? "paid" : "basic";
     state.profileCode = payload.code || makeProfileCode(scores);
+    if (typeof payload.answers === "string") {
+      state.answers = payload.answers
+        .slice(0, questions.length)
+        .split("")
+        .map((value) => {
+          const answer = Number(value);
+          return answer >= 1 && answer <= 5 ? answer : null;
+        });
+      while (state.answers.length < questions.length) {
+        state.answers.push(null);
+      }
+    }
     resetUnlockedReports();
     renderBasicResult(scores, state.profileCode);
 
-    if (state.latestTier === "middle") {
-      unlockReport("middle", { scroll: false });
-    }
-
-    if (state.latestTier === "full") {
-      unlockReport("full", { scroll: false });
+    if (state.latestTier === "paid") {
+      unlockReport({ scroll: false });
     }
 
     document.querySelector("#test")?.scrollIntoView({ block: "start" });
@@ -641,9 +925,7 @@ elements.copy.addEventListener("click", async () => {
   }, 1600);
 });
 
-[elements.upgrade, elements.extended].forEach((button) => {
-  button.addEventListener("click", () => unlockReport(button === elements.extended ? "full" : "middle"));
-});
+elements.upgrade.addEventListener("click", () => unlockReport());
 
 if (window.lucide) {
   window.lucide.createIcons();
