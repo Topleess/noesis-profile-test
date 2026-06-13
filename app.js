@@ -180,6 +180,12 @@ const answerLabels = [
   "Очень точно про меня"
 ];
 
+const submissionsConfig = {
+  url: "https://ooxuclhybyiapkhgekph.supabase.co",
+  key: "sb_publishable_ldOiB6YjhLlwBUaDjNbW4A_6qdnmC47",
+  table: "test_submissions"
+};
+
 const questions = rawQuestions
   .trim()
   .split("\n")
@@ -194,7 +200,8 @@ const state = {
   answers: new Array(questions.length).fill(null),
   latestScores: [],
   latestTier: "basic",
-  profileCode: ""
+  profileCode: "",
+  submittedEvents: new Set()
 };
 
 const elements = {
@@ -309,6 +316,89 @@ function makeResultUrl(tier = state.latestTier) {
   url.searchParams.set("result", encodeResultPayload(payload));
   url.hash = "test";
   return url.toString();
+}
+
+function cleanText(value) {
+  const trimmed = String(value || "").trim();
+  return trimmed || null;
+}
+
+function hasConsent() {
+  return state.lead.consent === "on" || state.lead.consent === true;
+}
+
+function getReferralSource() {
+  const params = new URLSearchParams(window.location.search);
+  return cleanText(params.get("ref")) || cleanText(state.lead.partnerCode);
+}
+
+function buildSubmissionPayload(eventType, tier) {
+  const answers = questions.map((question, index) => {
+    const value = state.answers[index] || null;
+    return {
+      question_id: question.id,
+      scale: question.scale,
+      reverse: question.reverse,
+      value,
+      label: value ? answerLabels[value - 1] : null,
+      text: question.text
+    };
+  });
+
+  return {
+    profile_code: state.profileCode,
+    event_type: eventType,
+    tier,
+    source: getReferralSource(),
+    name: cleanText(state.lead.name),
+    email: cleanText(state.lead.email),
+    goal: cleanText(state.lead.goal),
+    occupation: cleanText(state.lead.occupation),
+    partner_code: cleanText(state.lead.partnerCode),
+    result_url: makeResultUrl(tier),
+    page_url: window.location.href,
+    user_agent: navigator.userAgent,
+    scores: state.latestScores.map((item) => ({
+      scale: item.scale,
+      label: item.label,
+      score: item.score
+    })),
+    answers,
+    consent: hasConsent(),
+    metadata: {
+      viewport: `${window.innerWidth}x${window.innerHeight}`,
+      language: navigator.language || null
+    }
+  };
+}
+
+async function submitResult(eventType = "result", tier = state.latestTier) {
+  const hasCompleteAnswers = state.answers.every((answer) => answer >= 1 && answer <= 5);
+  if (!hasConsent() || !state.profileCode || !state.latestScores.length || !hasCompleteAnswers) return;
+
+  const eventKey = `${state.profileCode}:${eventType}:${tier}`;
+  if (state.submittedEvents.has(eventKey)) return;
+  state.submittedEvents.add(eventKey);
+
+  try {
+    const response = await fetch(`${submissionsConfig.url}/rest/v1/${submissionsConfig.table}`, {
+      method: "POST",
+      headers: {
+        apikey: submissionsConfig.key,
+        Authorization: `Bearer ${submissionsConfig.key}`,
+        "Content-Type": "application/json",
+        Prefer: "return=minimal"
+      },
+      body: JSON.stringify(buildSubmissionPayload(eventType, tier))
+    });
+
+    if (!response.ok) {
+      throw new Error(`Submission failed with ${response.status}`);
+    }
+  } catch (error) {
+    state.submittedEvents.delete(eventKey);
+    console.warn("Could not submit result", error);
+  }
 }
 
 function hydrateScores(compactScores) {
@@ -825,6 +915,7 @@ function unlockReport(options = {}) {
   elements.upgrade.innerHTML = '<i data-lucide="check" aria-hidden="true"></i> Платный отчет открыт';
 
   elements.refLink.value = makeResultUrl(state.latestTier);
+  if (options.submit !== false) submitResult("paid_unlock", state.latestTier);
   if (window.lucide) window.lucide.createIcons();
   if (options.scroll !== false) {
     elements.middleReport.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -838,6 +929,7 @@ function showResult() {
   state.profileCode = makeProfileCode(scores);
   resetUnlockedReports();
   renderBasicResult(scores, state.profileCode);
+  submitResult("result", state.latestTier);
 
   window.requestAnimationFrame(() => {
     elements.progressBar.style.width = "100%";
@@ -873,7 +965,7 @@ function showSharedResultFromUrl() {
     renderBasicResult(scores, state.profileCode);
 
     if (state.latestTier === "paid") {
-      unlockReport({ scroll: false });
+      unlockReport({ scroll: false, submit: false });
     }
 
     document.querySelector("#test")?.scrollIntoView({ block: "start" });
