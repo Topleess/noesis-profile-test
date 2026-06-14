@@ -224,6 +224,7 @@ const elements = {
   upgrade: document.querySelector("[data-upgrade]"),
   middleReport: document.querySelector("[data-middle-report]"),
   paidVerdict: document.querySelector("[data-paid-verdict]"),
+  passportShare: document.querySelector("[data-passport-share]"),
   attachmentStyle: document.querySelector("[data-attachment-style]"),
   darkRadicals: document.querySelector("[data-dark-radicals]"),
   resultDecoder: document.querySelector("[data-result-decoder]"),
@@ -425,6 +426,7 @@ function hydrateScores(compactScores) {
 function resetUnlockedReports() {
   elements.middleReport.hidden = true;
   elements.paidVerdict.innerHTML = "";
+  elements.passportShare.innerHTML = "";
   elements.attachmentStyle.innerHTML = "";
   elements.darkRadicals.innerHTML = "";
   elements.resultDecoder.innerHTML = "";
@@ -969,6 +971,22 @@ function classifyProfile(scores) {
   };
 }
 
+function getBrandType(profile, radicals) {
+  const topRadical = radicals[0]?.id;
+  const accent = profile.primaryAccent.compact;
+
+  if (accent.includes("демонстративно") && topRadical === "machiavellian") return "Опасный харизматик";
+  if (accent.includes("демонстративно") && topRadical === "narcissistic") return "Зеркальный стратег";
+  if (accent.includes("шизоид")) return "Закрытый наблюдатель";
+  if (accent.includes("лабильно")) return "Эмоциональный магнит";
+  if (accent.includes("психастен")) return "Тревожный аналитик";
+  if (accent.includes("контролир")) return "Доминантный архитектор";
+  if (accent.includes("застрева")) return "Холодный детектор";
+  if (accent.includes("гипертим")) return "Импульсивный двигатель";
+  if (accent.includes("конформ")) return "Чуткий адаптер";
+  return "Контрастный профиль";
+}
+
 function renderPaidVerdict(scores) {
   const profile = classifyProfile(scores);
   const flatWarning =
@@ -1003,6 +1021,216 @@ function renderPaidVerdict(scores) {
       <p class="sharp-line">${profile.primaryAccent.sharp}</p>
     </article>
   `;
+}
+
+function renderPassportShare(scores) {
+  const profile = classifyProfile(scores);
+  const radicals = selectDarkRadicals(scores);
+  const attachment = getAttachmentProfile(scores);
+  const brandType = getBrandType(profile, radicals);
+  const topRadical = radicals[0];
+  const topScores = scores.slice(0, 3);
+
+  elements.passportShare.innerHTML = `
+    <article class="passport-card" data-passport-card>
+      <div class="passport-top">
+        <span>NOESIS Personality Passport</span>
+        <b>Full Profile Unlocked</b>
+      </div>
+      <h4>${brandType}</h4>
+      <div class="passport-meta">
+        <span>Serial ${state.profileCode}</span>
+        <span>${new Date().toLocaleDateString("ru-RU")}</span>
+        <span>Private details hidden</span>
+      </div>
+      <div class="passport-lines">
+        <div>
+          <small>Identity class</small>
+          <strong>${profile.primaryAccent.compact}</strong>
+        </div>
+        <div>
+          <small>Attachment mode</small>
+          <strong>${attachment.compact}</strong>
+        </div>
+        <div>
+          <small>Shadow signature</small>
+          <strong>${topRadical.title} · ${topRadical.score}%</strong>
+        </div>
+      </div>
+      <div class="passport-score-strip">
+        ${topScores
+          .map(
+            (item) => `
+          <div>
+            <span>${item.score}%</span>
+            <small>${item.label}</small>
+          </div>
+        `
+          )
+          .join("")}
+      </div>
+      <div class="passport-footer-line">
+        <span>Public status card</span>
+        <span>Self-assessment, not a diagnosis</span>
+      </div>
+    </article>
+    <div class="passport-actions">
+      <button class="price-button dark" type="button" data-download-passport>
+        <i data-lucide="download" aria-hidden="true"></i>
+        Скачать паспорт для сторис
+      </button>
+      <p>Публичная fashion-карточка без ответов на вопросы и без личных данных. Можно показать в сторис или отправить другу.</p>
+    </div>
+  `;
+}
+
+function drawWrappedText(ctx, text, x, y, maxWidth, lineHeight, maxLines = 2) {
+  const words = text.split(" ");
+  const lines = [];
+  let line = "";
+
+  words.forEach((word) => {
+    const testLine = line ? `${line} ${word}` : word;
+    if (ctx.measureText(testLine).width > maxWidth && line) {
+      lines.push(line);
+      line = word;
+    } else {
+      line = testLine;
+    }
+  });
+  if (line) lines.push(line);
+
+  lines.slice(0, maxLines).forEach((currentLine, index) => {
+    const suffix = index === maxLines - 1 && lines.length > maxLines ? "..." : "";
+    ctx.fillText(`${currentLine}${suffix}`, x, y + index * lineHeight);
+  });
+
+  return y + Math.min(lines.length, maxLines) * lineHeight;
+}
+
+function roundRect(ctx, x, y, width, height, radius) {
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.lineTo(x + width - radius, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+  ctx.lineTo(x + width, y + height - radius);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+  ctx.lineTo(x + radius, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+  ctx.lineTo(x, y + radius);
+  ctx.quadraticCurveTo(x, y, x + radius, y);
+  ctx.closePath();
+}
+
+function downloadPassportImage() {
+  const profile = classifyProfile(state.latestScores);
+  const radicals = selectDarkRadicals(state.latestScores);
+  const attachment = getAttachmentProfile(state.latestScores);
+  const brandType = getBrandType(profile, radicals);
+  const topRadical = radicals[0];
+  const topScores = state.latestScores.slice(0, 3);
+  const canvas = document.createElement("canvas");
+  const scale = 2;
+  canvas.width = 1080 * scale;
+  canvas.height = 1350 * scale;
+  const ctx = canvas.getContext("2d");
+  ctx.scale(scale, scale);
+
+  ctx.fillStyle = "#111311";
+  ctx.fillRect(0, 0, 1080, 1350);
+
+  ctx.strokeStyle = "#b48a45";
+  ctx.lineWidth = 3;
+  ctx.strokeRect(42, 42, 996, 1266);
+
+  ctx.fillStyle = "#fff8ec";
+  roundRect(ctx, 76, 76, 928, 1198, 28);
+  ctx.fill();
+  ctx.strokeStyle = "#d5c4aa";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  ctx.fillStyle = "#111311";
+  ctx.font = "700 34px Inter, Arial, sans-serif";
+  ctx.fillText("NOESIS", 124, 150);
+  ctx.font = "500 20px Inter, Arial, sans-serif";
+  ctx.fillStyle = "#7f2e3c";
+  ctx.fillText("PERSONALITY PASSPORT", 124, 184);
+
+  ctx.fillStyle = "#0f6a62";
+  roundRect(ctx, 676, 118, 260, 54, 8);
+  ctx.fill();
+  ctx.fillStyle = "#fff8ec";
+  ctx.font = "700 17px Inter, Arial, sans-serif";
+  ctx.fillText("FULL PROFILE", 704, 141);
+  ctx.fillText("UNLOCKED", 704, 163);
+
+  ctx.strokeStyle = "#d5c4aa";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(124, 230);
+  ctx.lineTo(936, 230);
+  ctx.stroke();
+
+  ctx.fillStyle = "#111311";
+  ctx.font = "650 74px Georgia, serif";
+  drawWrappedText(ctx, brandType, 124, 330, 790, 82, 2);
+
+  ctx.fillStyle = "#6d6258";
+  ctx.font = "500 22px Inter, Arial, sans-serif";
+  ctx.fillText(`SERIAL ${state.profileCode}  ·  ${new Date().toLocaleDateString("ru-RU")}  ·  PRIVATE DETAILS HIDDEN`, 124, 500);
+
+  const blocks = [
+    ["IDENTITY CLASS", profile.primaryAccent.compact],
+    ["ATTACHMENT MODE", attachment.compact],
+    ["SHADOW SIGNATURE", `${topRadical.title} · ${topRadical.score}%`]
+  ];
+
+  let y = 600;
+  blocks.forEach(([label, value]) => {
+    ctx.fillStyle = "#fffdfa";
+    roundRect(ctx, 124, y - 56, 812, 120, 12);
+    ctx.fill();
+    ctx.strokeStyle = "#d5c4aa";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.fillStyle = "#7f2e3c";
+    ctx.font = "700 20px IBM Plex Mono, monospace";
+    ctx.fillText(label, 154, y - 18);
+    ctx.fillStyle = "#111311";
+    ctx.font = "700 32px Inter, Arial, sans-serif";
+    drawWrappedText(ctx, value, 154, y + 28, 730, 38, 2);
+    y += 146;
+  });
+
+  ctx.fillStyle = "#111311";
+  ctx.font = "700 26px Inter, Arial, sans-serif";
+  ctx.fillText("TOP SIGNALS", 124, 1055);
+
+  topScores.forEach((item, index) => {
+    const x = 124 + index * 274;
+    ctx.fillStyle = "#111311";
+    roundRect(ctx, x, 1084, 246, 140, 12);
+    ctx.fill();
+    ctx.strokeStyle = "#b48a45";
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    ctx.fillStyle = "#b48a45";
+    ctx.font = "700 42px IBM Plex Mono, monospace";
+    ctx.fillText(`${item.score}%`, x + 24, 1122);
+    ctx.fillStyle = "#fff8ec";
+    ctx.font = "700 21px Inter, Arial, sans-serif";
+    drawWrappedText(ctx, item.label, x + 24, 1166, 190, 27, 2);
+  });
+
+  ctx.fillStyle = "#6d6258";
+  ctx.font = "500 20px Inter, Arial, sans-serif";
+  ctx.fillText("PUBLIC STATUS CARD · SELF-ASSESSMENT, NOT A DIAGNOSIS", 124, 1248);
+
+  const link = document.createElement("a");
+  link.download = `${state.profileCode || "noesis"}-personality-passport.png`;
+  link.href = canvas.toDataURL("image/png");
+  link.click();
 }
 
 function renderAttachmentStyle(scores) {
@@ -1338,6 +1566,7 @@ function unlockReport(options = {}) {
   state.latestTier = "paid";
 
   renderPaidVerdict(state.latestScores);
+  renderPassportShare(state.latestScores);
   renderAttachmentStyle(state.latestScores);
   renderDarkRadicals(state.latestScores);
   renderResultDecoder(state.latestScores);
@@ -1453,6 +1682,12 @@ elements.copy.addEventListener("click", async () => {
 });
 
 elements.upgrade.addEventListener("click", () => unlockReport());
+
+document.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-download-passport]");
+  if (!button) return;
+  downloadPassportImage();
+});
 
 if (window.lucide) {
   window.lucide.createIcons();
