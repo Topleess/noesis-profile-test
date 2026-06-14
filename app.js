@@ -201,7 +201,9 @@ const state = {
   latestScores: [],
   latestTier: "basic",
   profileCode: "",
-  submittedEvents: new Set()
+  submittedEvents: new Set(),
+  teasersShown: new Set(),
+  teaserTimer: null
 };
 
 const elements = {
@@ -213,6 +215,15 @@ const elements = {
   questionText: document.querySelector("[data-question-text]"),
   progressBar: document.querySelector("[data-progress-bar]"),
   answers: document.querySelector("[data-answers]"),
+  quizTeaser: document.querySelector("[data-quiz-teaser]"),
+  teaserTitle: document.querySelector("[data-teaser-title]"),
+  teaserPercent: document.querySelector("[data-teaser-percent]"),
+  signalDock: document.querySelector("[data-signal-dock]"),
+  signalStatus: document.querySelector("[data-signal-status]"),
+  signalChips: document.querySelector("[data-signal-chips]"),
+  teaserToast: document.querySelector("[data-teaser-toast]"),
+  toastTitle: document.querySelector("[data-toast-title]"),
+  toastText: document.querySelector("[data-toast-text]"),
   back: document.querySelector("[data-back]"),
   reset: document.querySelector("[data-reset]"),
   resultTitle: document.querySelector("[data-result-title]"),
@@ -239,7 +250,7 @@ function renderQuestion() {
   const answered = state.answers[state.current];
   elements.stepLabel.textContent = `Шаг ${state.current + 1}`;
   elements.questionText.textContent = question.text;
-  elements.progressBar.style.width = `${(state.current / questions.length) * 100}%`;
+  elements.progressBar.style.width = `${getCompletionPercent()}%`;
   elements.back.disabled = state.current === 0;
   elements.answers.innerHTML = answerLabels
     .map((label, index) => {
@@ -253,6 +264,7 @@ function renderQuestion() {
       `;
     })
     .join("");
+  renderLiveSignals();
 }
 
 function showQuiz() {
@@ -277,6 +289,143 @@ function calculateScores() {
     const score = Math.round(((average - 1) / 4) * 100);
     return { scale, score, ...publicDimensions[scale] };
   });
+}
+
+function getCompletionPercent() {
+  const answeredCount = state.answers.filter((answer) => answer !== null).length;
+  return Math.round((answeredCount / questions.length) * 100);
+}
+
+function calculatePartialScores() {
+  const totals = {};
+  const counts = {};
+
+  questions.forEach((question, index) => {
+    const raw = state.answers[index];
+    if (raw === null) return;
+    const value = question.reverse ? 6 - raw : raw;
+    totals[question.scale] = (totals[question.scale] || 0) + value;
+    counts[question.scale] = (counts[question.scale] || 0) + 1;
+  });
+
+  return Object.keys(totals)
+    .filter((scale) => counts[scale] >= 3)
+    .map((scale) => {
+      const average = totals[scale] / counts[scale];
+      const score = Math.round(((average - 1) / 4) * 100);
+      return { scale, score, count: counts[scale], ...publicDimensions[scale] };
+    })
+    .sort((a, b) => b.score - a.score);
+}
+
+function getLiveSignalCopy(answeredCount, partialScores) {
+  if (answeredCount < 10 || !partialScores.length) {
+    return {
+      status: "Нужно еще несколько ответов",
+      title: "Первые сигналы появятся скоро",
+      chips: []
+    };
+  }
+
+  const top = partialScores.slice(0, 3);
+  const strongest = top[0];
+  const contrast = top.length > 1 ? Math.abs(top[0].score - top[top.length - 1].score) : 0;
+  const status =
+    answeredCount < 40
+      ? "Черновой контур"
+      : answeredCount < 80
+        ? "Профиль проявляется"
+        : "Паспорт почти собран";
+  const title =
+    contrast >= 18
+      ? `Уже виден сильный вектор: ${strongest.label.toLowerCase()}`
+      : `Пока проявляется смешанный профиль`;
+
+  return {
+    status,
+    title,
+    chips: top.map((item) => ({
+      label: item.label,
+      score: item.score,
+      text: item.score >= 70 ? "сильный сигнал" : item.score >= 55 ? "заметный сигнал" : "ситуативно"
+    }))
+  };
+}
+
+function renderLiveSignals() {
+  const answeredCount = state.answers.filter((answer) => answer !== null).length;
+  const completion = getCompletionPercent();
+  const partialScores = calculatePartialScores();
+  const signal = getLiveSignalCopy(answeredCount, partialScores);
+
+  elements.quizTeaser.hidden = answeredCount < 3;
+  elements.signalDock.hidden = answeredCount < 10;
+  elements.teaserTitle.textContent = signal.title;
+  elements.teaserPercent.textContent = `${completion}%`;
+  elements.signalStatus.textContent = signal.status;
+  elements.signalChips.innerHTML = signal.chips
+    .map(
+      (chip) => `
+        <article class="signal-chip">
+          <div>
+            <strong>${chip.label}</strong>
+            <span>${chip.text}</span>
+          </div>
+          <b>${chip.score}%</b>
+        </article>
+      `
+    )
+    .join("");
+}
+
+function getTeaserMilestone(answeredCount) {
+  const milestones = {
+    12: {
+      title: "Первые контуры уже видны",
+      text: "Паспорт начал собирать не ответы по отдельности, а повторяющиеся реакции."
+    },
+    24: {
+      title: "Профиль становится контрастнее",
+      text: "Уже можно заметить, где вы чаще тянетесь к контролю, близости или дистанции."
+    },
+    40: {
+      title: "Скоро появится первый слой",
+      text: "Еще немного, и алгоритм сможет точнее отделить случайные ответы от устойчивого сценария."
+    },
+    60: {
+      title: "Половина паспорта собрана",
+      text: "Сейчас проявляются не только сильные стороны, но и защитные стратегии."
+    },
+    80: {
+      title: "Темные радикалы уже намечены",
+      text: "Финальный отчет покажет, где ваша сила может превращаться в давление."
+    },
+    100: {
+      title: "Финальный слой близко",
+      text: "Остались последние вопросы. После них откроется базовый результат и паспорт личности."
+    }
+  };
+
+  return milestones[answeredCount] || null;
+}
+
+function showTeaserToast(answeredCount) {
+  const milestone = getTeaserMilestone(answeredCount);
+  if (!milestone || state.teasersShown.has(answeredCount)) return;
+  state.teasersShown.add(answeredCount);
+
+  elements.toastTitle.textContent = milestone.title;
+  elements.toastText.textContent = milestone.text;
+  elements.teaserToast.hidden = false;
+  elements.teaserToast.classList.add("is-visible");
+
+  window.clearTimeout(state.teaserTimer);
+  state.teaserTimer = window.setTimeout(() => {
+    elements.teaserToast.classList.remove("is-visible");
+    window.setTimeout(() => {
+      elements.teaserToast.hidden = true;
+    }, 250);
+  }, 4200);
 }
 
 function makeProfileCode(scores) {
@@ -1649,6 +1798,9 @@ elements.answers.addEventListener("click", (event) => {
   const button = event.target.closest("[data-value]");
   if (!button) return;
   state.answers[state.current] = Number(button.dataset.value);
+  const answeredCount = state.answers.filter((answer) => answer !== null).length;
+  renderLiveSignals();
+  showTeaserToast(answeredCount);
 
   if (state.current === questions.length - 1) {
     showResult();
@@ -1668,6 +1820,10 @@ elements.back.addEventListener("click", () => {
 elements.reset.addEventListener("click", () => {
   state.current = 0;
   state.answers.fill(null);
+  state.teasersShown.clear();
+  elements.quizTeaser.hidden = true;
+  elements.signalDock.hidden = true;
+  elements.teaserToast.hidden = true;
   renderQuestion();
 });
 

@@ -707,6 +707,48 @@ select:focus {
   transition: width 0.25s ease;
 }
 
+.quiz-teaser {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 14px;
+  align-items: center;
+  margin: -12px 0 22px;
+  padding: 14px 16px;
+  border: 1px solid rgba(15, 106, 98, 0.18);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(135deg, rgba(15, 106, 98, 0.07), rgba(180, 138, 69, 0.07)),
+    #fffaf0;
+}
+
+.quiz-teaser span,
+.signal-dock-head span,
+.signal-chip span,
+.teaser-toast span {
+  font-family: "IBM Plex Mono", monospace;
+  text-transform: uppercase;
+}
+
+.quiz-teaser span,
+.signal-dock-head span {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.quiz-teaser strong,
+.signal-dock-head strong {
+  display: block;
+  line-height: 1.25;
+}
+
+.quiz-teaser b {
+  color: var(--teal);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 24px;
+}
+
 .answers {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -742,6 +784,108 @@ select:focus {
   transform: translateY(-2px);
   border-color: var(--teal);
   background: rgba(15, 106, 98, 0.08);
+}
+
+.signal-dock {
+  margin-top: 16px;
+  padding: 16px;
+  border: 1px solid rgba(31, 35, 35, 0.14);
+  border-radius: var(--radius);
+  background: #fffdf7;
+}
+
+.signal-dock-head {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: end;
+  margin-bottom: 12px;
+}
+
+.signal-dock-head strong {
+  color: var(--burgundy);
+  font-size: 14px;
+}
+
+.signal-chips {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.signal-chip {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: center;
+  min-height: 74px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fffaf0;
+}
+
+.signal-chip strong,
+.signal-chip span {
+  display: block;
+}
+
+.signal-chip strong {
+  margin-bottom: 4px;
+  font-size: 14px;
+  line-height: 1.18;
+}
+
+.signal-chip span {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.signal-chip b {
+  color: var(--teal);
+  font-family: "IBM Plex Mono", monospace;
+}
+
+.teaser-toast {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 20;
+  width: min(360px, calc(100vw - 32px));
+  padding: 18px;
+  border: 1px solid rgba(180, 138, 69, 0.44);
+  border-radius: var(--radius);
+  color: #fffdf7;
+  background: linear-gradient(135deg, #161817, #2a2420);
+  box-shadow: 0 18px 60px rgba(31, 35, 35, 0.24);
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+.teaser-toast.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.teaser-toast span {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--brass);
+  font-size: 11px;
+}
+
+.teaser-toast strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+.teaser-toast p {
+  margin: 0;
+  color: rgba(255, 253, 247, 0.76);
+  font-size: 14px;
 }
 
 .quiz-actions {
@@ -1649,6 +1793,7 @@ select:focus {
   .basic-insights,
   .dark-radical-grid,
   .recommendation-grid,
+  .signal-chips,
   .life-map,
   .type-grid {
     grid-template-columns: 1fr;
@@ -1684,6 +1829,8 @@ select:focus {
 
   .quiz-actions,
   .passport-actions,
+  .quiz-teaser,
+  .signal-dock-head,
   .upgrade-wall,
   .share-box {
     align-items: stretch;
@@ -1702,6 +1849,11 @@ select:focus {
 
   .passport-top b {
     width: fit-content;
+  }
+
+  .teaser-toast {
+    right: 16px;
+    bottom: 16px;
   }
 
   .score-row {
