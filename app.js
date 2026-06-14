@@ -224,6 +224,9 @@ const elements = {
   upgrade: document.querySelector("[data-upgrade]"),
   middleReport: document.querySelector("[data-middle-report]"),
   paidVerdict: document.querySelector("[data-paid-verdict]"),
+  attachmentStyle: document.querySelector("[data-attachment-style]"),
+  darkRadicals: document.querySelector("[data-dark-radicals]"),
+  resultDecoder: document.querySelector("[data-result-decoder]"),
   scoreList: document.querySelector("[data-score-list]"),
   middleRecommendations: document.querySelector("[data-middle-recommendations]"),
   lifeMap: document.querySelector("[data-life-map]"),
@@ -367,7 +370,14 @@ function buildSubmissionPayload(eventType, tier) {
     consent: hasConsent(),
     metadata: {
       viewport: `${window.innerWidth}x${window.innerHeight}`,
-      language: navigator.language || null
+      language: navigator.language || null,
+      attachment_style: getAttachmentProfile(state.latestScores),
+      dark_radicals: summarizeDarkRadicals(state.latestScores).map((item) => ({
+        id: item.id,
+        title: item.title,
+        score: item.score,
+        level: darkRadicalLevel(item.score)
+      }))
     }
   };
 }
@@ -415,6 +425,9 @@ function hydrateScores(compactScores) {
 function resetUnlockedReports() {
   elements.middleReport.hidden = true;
   elements.paidVerdict.innerHTML = "";
+  elements.attachmentStyle.innerHTML = "";
+  elements.darkRadicals.innerHTML = "";
+  elements.resultDecoder.innerHTML = "";
   elements.scoreList.innerHTML = "";
   elements.middleRecommendations.innerHTML = "";
   elements.lifeMap.innerHTML = "";
@@ -679,6 +692,262 @@ function getPatternModels() {
   ];
 }
 
+function getDarkRadicalModels() {
+  return [
+    {
+      id: "dissocial",
+      title: "Психопатический / диссоциальный радикал",
+      compact: "психопатический / диссоциальный слой",
+      criteria: [
+        { scale: "S11", weight: 1.25 },
+        { scale: "S8", weight: 0.65 },
+        { scale: "S2", weight: 0.35, inverse: true },
+        { scale: "S10", weight: 0.35, inverse: true }
+      ],
+      text:
+        "В ситуациях цели, конкуренции или конфликта вы можете становиться холоднее, жестче и расчетливее, чем люди ожидают.",
+      decode:
+        "Это про способность временно отключать мягкость, сочувствие и вину, если на первом месте стоит результат, победа или контроль.",
+      example:
+        "В жизни это может выглядеть как давление в споре, обход правил, использование слабых мест человека или фраза: \"если это работает, значит это оправдано\".",
+      risk:
+        "Риск: давление начинает казаться нормальным способом решать вопросы, а чужой дискомфорт - слабостью или помехой."
+    },
+    {
+      id: "narcissistic",
+      title: "Нарциссический радикал",
+      compact: "нарциссический слой",
+      criteria: [
+        { scale: "S4", weight: 1.2 },
+        { scale: "S5", weight: 0.65 },
+        { scale: "S11", weight: 0.35 }
+      ],
+      text:
+        "Вам важно быть выбранным, заметным и признанным. Игнор может переживаться не как нейтральность, а как скрытое обесценивание.",
+      decode:
+        "Это про чувствительность к статусу, восхищению, особому отношению и ощущению собственной ценности в глазах других.",
+      example:
+        "В жизни это может выглядеть как болезненная реакция на равнодушие, желание доказать уровень или быстрое обесценивание тех, кто не оценил ваш вклад.",
+      risk:
+        "Риск: вы можете быстро обесценивать людей, если они не подтверждают ваш уровень или не дают нужного восхищения."
+    },
+    {
+      id: "paranoid",
+      title: "Параноидный радикал",
+      compact: "параноидный слой",
+      criteria: [
+        { scale: "S7", weight: 1.25 },
+        { scale: "S6", weight: 0.5 },
+        { scale: "S4", weight: 0.25 }
+      ],
+      text:
+        "Вы быстро считываете мотивы, выгоду и потенциальную угрозу. Это дает точность, но не всегда дает покой.",
+      decode:
+        "Это про настороженность: психика ищет, где скрытый мотив, подвох, неуважение, предательство или попытка получить выгоду за ваш счет.",
+      example:
+        "В жизни это может выглядеть как проверка слов поступками, память на старые обиды и привычка заранее понимать, кто что хочет.",
+      risk:
+        "Риск: отношения могут превращаться в проверку, где человек сначала должен доказать, что он не против вас."
+    },
+    {
+      id: "machiavellian",
+      title: "Макиавеллистический радикал",
+      compact: "макиавеллистический слой",
+      criteria: [
+        { scale: "S11", weight: 0.75 },
+        { scale: "S7", weight: 0.7 },
+        { scale: "S5", weight: 0.55 },
+        { scale: "S4", weight: 0.35 },
+        { scale: "S10", weight: 0.2, inverse: true }
+      ],
+      text:
+        "Вы можете видеть коммуникацию как шахматную доску: кто чего хочет, где слабое место, каким образом получить нужную реакцию.",
+      decode:
+        "Это про стратегическое влияние: умение читать людей, выбирать роль, управлять впечатлением и добиваться нужного поведения через точные ходы.",
+      example:
+        "В жизни это может выглядеть как обаяние по задаче, продуманная подача себя, мягкое давление или расчет, что именно заставит человека согласиться.",
+      risk:
+        "Риск: обаяние и чтение людей становятся инструментом контроля, а не способом настоящего контакта."
+    },
+    {
+      id: "risk",
+      title: "Импульсивно-рисковый радикал",
+      compact: "импульсивно-рисковый слой",
+      criteria: [
+        { scale: "S8", weight: 1.15 },
+        { scale: "S12", weight: 0.75 },
+        { scale: "S9", weight: 0.3, inverse: true }
+      ],
+      text:
+        "Вас может заряжать скорость, новизна и ощущение свободы. Решение иногда появляется раньше, чем полный расчет последствий.",
+      decode:
+        "Это про тягу к действию, риску, быстрым решениям и живому ощущению \"я могу\". Рамки и рутина быстро снижают энергию.",
+      example:
+        "В жизни это может выглядеть как резкие сообщения, траты, обещания, смена планов или запуск нового дела до того, как понятны последствия.",
+      risk:
+        "Риск: интерес заканчивается быстрее, чем обязательства, а резкое действие приходится объяснять уже после."
+    },
+    {
+      id: "dominant",
+      title: "Контролирующе-доминантный радикал",
+      compact: "контролирующе-доминантный слой",
+      criteria: [
+        { scale: "S6", weight: 1.1 },
+        { scale: "S11", weight: 0.7 },
+        { scale: "S7", weight: 0.45 }
+      ],
+      text:
+        "Вы можете держать систему, правила и людей в жестком контуре. Это дает порядок, но рядом может ощущаться как давление.",
+      decode:
+        "Это про потребность управлять хаосом: задать правила, распределить ответственность, убрать слабые места и заставить систему работать.",
+      example:
+        "В жизни это может выглядеть как жесткость к ошибкам, нетерпимость к беспорядку и желание, чтобы люди делали не \"как-нибудь\", а правильно.",
+      risk:
+        "Риск: люди начинают бояться ошибки и перестают быть партнерами, превращаясь в исполнителей."
+    },
+    {
+      id: "destructive",
+      title: "Эмоционально-разрушительный радикал",
+      compact: "эмоционально-разрушительный слой",
+      criteria: [
+        { scale: "S1", weight: 1.1 },
+        { scale: "S2", weight: 0.85 },
+        { scale: "S8", weight: 0.45 },
+        { scale: "S3", weight: 0.25, inverse: true }
+      ],
+      text:
+        "В близости эмоции могут быстро переходить в резкие слова, проверки, угрозу разрыва или попытку срочно вернуть контроль.",
+      decode:
+        "Это про эмоциональную эскалацию: когда боль, страх отвержения или неопределенность быстро превращаются в сильную реакцию.",
+      example:
+        "В жизни это может выглядеть как качели \"подойди ближе - уйди\", резкие сообщения, проверка чувств или желание немедленно закрыть тревогу.",
+      risk:
+        "Риск: конфликт становится способом доказать боль, хотя на деле разрушает безопасность контакта."
+    }
+  ];
+}
+
+function darkRadicalLevel(score) {
+  if (score >= 85) return "очень высокий";
+  if (score >= 70) return "высокий";
+  if (score >= 55) return "заметный";
+  if (score >= 40) return "умеренный";
+  return "спокойный";
+}
+
+function summarizeDarkRadicals(scores) {
+  return rankModels(scores, getDarkRadicalModels());
+}
+
+function selectDarkRadicals(scores) {
+  const ranked = summarizeDarkRadicals(scores);
+  const selected = ranked.slice(0, 3);
+  const dissocial = ranked.find((item) => item.id === "dissocial");
+
+  if (dissocial && dissocial.score >= 70 && !selected.some((item) => item.id === dissocial.id)) {
+    selected[selected.length - 1] = dissocial;
+  }
+
+  return selected.sort((a, b) => b.score - a.score);
+}
+
+function getAttachmentProfile(scores) {
+  const map = scoreMap(scores);
+  const anxiety = modelScoreFromMap(map, [
+    { scale: "S2", weight: 1.05 },
+    { scale: "S1", weight: 0.8 },
+    { scale: "S10", weight: 0.75 },
+    { scale: "S9", weight: 0.45 },
+    { scale: "S4", weight: 0.35 },
+    { scale: "S7", weight: 0.25 },
+    { scale: "S8", weight: 0.25 },
+    { scale: "S3", weight: 0.2, inverse: true }
+  ]);
+  const avoidance = modelScoreFromMap(map, [
+    { scale: "S3", weight: 1.05 },
+    { scale: "S7", weight: 0.75 },
+    { scale: "S11", weight: 0.45 },
+    { scale: "S6", weight: 0.3 },
+    { scale: "S2", weight: 0.35, inverse: true },
+    { scale: "S5", weight: 0.25, inverse: true },
+    { scale: "S1", weight: 0.2, inverse: true }
+  ]);
+  const highAnxiety = anxiety >= 55;
+  const highAvoidance = avoidance >= 55;
+
+  if (highAnxiety && highAvoidance) {
+    return {
+      id: "fearful",
+      name: "тревожно-избегающий стиль привязанности",
+      compact: "тревожно-избегающий стиль",
+      anxiety,
+      avoidance,
+      summary:
+        "Вам может быть нужна близость, но когда человек становится значимым, близость одновременно начинает пугать. Поэтому возможны качели: приблизиться, проверить, почувствовать угрозу, отстраниться или начать давить.",
+      risk:
+        "Главный риск - путать спокойную близость с потерей контроля, а паузу партнера с отвержением или скрытой угрозой.",
+      need:
+        "Помогает медленная ясность: проговаривать правила контакта, не проверять человека через боль и не исчезать в момент тревоги."
+    };
+  }
+
+  if (highAnxiety) {
+    return {
+      id: "anxious",
+      name: "тревожный стиль привязанности",
+      compact: "тревожный стиль",
+      anxiety,
+      avoidance,
+      summary:
+        "Контакт может становиться главным источником безопасности. Молчание, холодный тон или неопределенность быстро запускают попытку вернуть ясность и подтверждение.",
+      risk:
+        "Главный риск - начинать искать доказательства любви там, где нужна спокойная просьба или прямой разговор.",
+      need:
+        "Помогают регулярные договоренности, ясные сигналы близости и способность выдерживать паузу без мгновенной проверки."
+    };
+  }
+
+  if (highAvoidance) {
+    return {
+      id: "avoidant",
+      name: "избегающий стиль привязанности",
+      compact: "избегающий стиль",
+      anxiety,
+      avoidance,
+      summary:
+        "Близость может ощущаться как давление, потеря свободы или вторжение. Поэтому психика выбирает дистанцию, контроль, рациональность и самостоятельную обработку чувств.",
+      risk:
+        "Главный риск - выглядеть холоднее, чем вы есть, и обрывать контакт как раз тогда, когда партнеру нужна понятность.",
+      need:
+        "Помогает заранее обозначать границы и объяснять дистанцию словами, а не тишиной или резким уходом."
+    };
+  }
+
+  return {
+    id: "secure",
+    name: "надежный стиль привязанности",
+    compact: "надежный стиль",
+    anxiety,
+    avoidance,
+    summary:
+      "Вам в целом доступна близость без сильной потери себя. Вы можете просить, говорить, выдерживать паузы и возвращаться к контакту после напряжения.",
+    risk:
+      "Главный риск появляется не из базового стиля, а из перегруза: при сильном стрессе могут временно включаться тревожные или избегающие защиты.",
+    need:
+      "Помогают честные договоренности, спокойная обратная связь и партнеры, которые не превращают близость в контроль."
+  };
+}
+
+function modelScoreFromMap(map, criteria) {
+  const totalWeight = criteria.reduce((sum, item) => sum + item.weight, 0);
+  const total = criteria.reduce((sum, item) => {
+    const raw = map[item.scale] ?? 50;
+    const value = item.inverse ? 100 - raw : raw;
+    return sum + value * item.weight;
+  }, 0);
+  return Math.round(total / totalWeight);
+}
+
 function classifyProfile(scores) {
   const accentuations = rankModels(scores, getAccentuationModels());
   const patterns = rankModels(scores, getPatternModels());
@@ -722,14 +991,176 @@ function renderPaidVerdict(scores) {
           <b>Система акцентуаций</b>
           <strong>${profile.primaryAccent.compact}</strong>
           <small>второй слой: ${profile.secondaryAccent.compact}</small>
+          <p class="type-note">Акцентуация - это не диагноз, а усиленная черта характера. Она показывает, какой стиль поведения становится особенно заметным в стрессе, близости, конкуренции или ситуации оценки.</p>
         </div>
         <div>
           <b>Система личностных паттернов</b>
           <strong>${profile.primaryPattern.compact}</strong>
           <small>второй слой: ${profile.secondaryPattern.compact}</small>
+          <p class="type-note">Паттерн - это повторяющийся сценарий: как человек защищается, ищет признание, строит контакт, реагирует на угрозу и объясняет себе свое поведение.</p>
         </div>
       </div>
       <p class="sharp-line">${profile.primaryAccent.sharp}</p>
+    </article>
+  `;
+}
+
+function renderAttachmentStyle(scores) {
+  const attachment = getAttachmentProfile(scores);
+  const axisText = [
+    {
+      title: "Тревога привязанности",
+      value: attachment.anxiety,
+      text: "Насколько сильно неопределенность, пауза, холодный тон или дистанция запускают страх потери контакта."
+    },
+    {
+      title: "Избегание близости",
+      value: attachment.avoidance,
+      text: "Насколько быстро близость начинает ощущаться как давление, потеря свободы или вторжение в личное пространство."
+    }
+  ];
+
+  elements.attachmentStyle.innerHTML = `
+    <article class="attachment-card">
+      <div class="attachment-head">
+        <span>Стиль привязанности</span>
+        <h4>${attachment.name}</h4>
+        <p>${attachment.summary}</p>
+      </div>
+      <div class="attachment-axis-grid">
+        ${axisText
+          .map(
+            (axis) => `
+              <article class="attachment-axis">
+                <div class="attachment-axis-top">
+                  <strong>${axis.title}</strong>
+                  <b>${axis.value}%</b>
+                </div>
+                <div class="attachment-meter" aria-label="${axis.title}: ${axis.value}%">
+                  <span style="width: ${axis.value}%"></span>
+                </div>
+                <p>${axis.text}</p>
+              </article>
+            `
+          )
+          .join("")}
+      </div>
+      <div class="attachment-note-grid">
+        <div>
+          <b>Главный риск</b>
+          <p>${attachment.risk}</p>
+        </div>
+        <div>
+          <b>Что помогает</b>
+          <p>${attachment.need}</p>
+        </div>
+      </div>
+    </article>
+  `;
+}
+
+function renderDarkRadicals(scores) {
+  const selected = selectDarkRadicals(scores);
+  const leading = selected[0];
+  const dissocial = summarizeDarkRadicals(scores).find((item) => item.id === "dissocial");
+  const dissocialLine =
+    dissocial && dissocial.score >= 70 && leading.id !== "dissocial"
+      ? `Психопатический / диссоциальный радикал не стал главным типом, но имеет ${darkRadicalLevel(dissocial.score)} уровень: ${dissocial.score}%. Это значит, что жесткость может включаться как инструмент давления, защиты или достижения цели.`
+      : `Главный жесткий слой сейчас: ${leading.compact}. Он показывает не диагноз, а способ, которым психика может защищаться, давить, контролировать или ускорять события.`;
+
+  elements.darkRadicals.innerHTML = `
+    <article class="dark-radicals-card">
+      <div class="dark-radicals-head">
+        <span>Темные радикалы профиля</span>
+        <h4>${leading.title}: ${leading.score}%</h4>
+        <p>${dissocialLine}</p>
+      </div>
+      <div class="dark-radical-grid">
+        ${selected
+          .map(
+            (item) => `
+              <article class="dark-radical">
+                <div class="dark-radical-top">
+                  <strong>${item.title}</strong>
+                  <b>${item.score}%</b>
+                </div>
+                <div class="dark-meter" aria-label="${item.title}: ${item.score}%">
+                  <span style="width: ${item.score}%"></span>
+                </div>
+                <small>${darkRadicalLevel(item.score)}</small>
+                <p>${item.text}</p>
+                <dl class="radical-explain">
+                  <div>
+                    <dt>Что это значит</dt>
+                    <dd>${item.decode}</dd>
+                  </div>
+                  <div>
+                    <dt>Как проявляется</dt>
+                    <dd>${item.example}</dd>
+                  </div>
+                </dl>
+                <p class="dark-risk">${item.risk}</p>
+              </article>
+            `
+          )
+          .join("")}
+      </div>
+    </article>
+  `;
+}
+
+function renderResultDecoder(scores) {
+  const profile = classifyProfile(scores);
+  const radicals = selectDarkRadicals(scores);
+  const attachment = getAttachmentProfile(scores);
+  const topScores = scores.slice(0, 3).map((item) => `${item.label} ${item.score}%`).join(", ");
+  const cards = [
+    {
+      title: "Как читать проценты",
+      text:
+        "Процент показывает выраженность признака внутри этого теста, а не медицинскую норму. 85%+ значит, что черта часто управляет реакциями; 70%+ - заметно включается; 55%+ - проявляется ситуативно."
+    },
+    {
+      title: "Главный тип",
+      text: `Главный тип - это самый вероятный центр профиля. Здесь это ${profile.primaryAccent.compact}: через него чаще всего собираются реакции, защита, самооценка и стиль контакта.`
+    },
+    {
+      title: "Второй слой",
+      text: `Второй слой - не менее важная примесь, которая усиливается в отдельных ситуациях. У вас по системам рядом стоят ${profile.secondaryAccent.compact} и ${profile.secondaryPattern.compact}.`
+    },
+    {
+      title: "Привязанность",
+      text: `Стиль привязанности показывает, что происходит в близости: человек тянется к контакту, тревожится, отстраняется или делает и то и другое. Здесь вероятнее всего ${attachment.compact}.`
+    },
+    {
+      title: "Темный радикал",
+      text: `Темный радикал - это жесткая стратегия, которая может помогать выживать, побеждать или защищаться, но портить доверие. Ведущие радикалы сейчас: ${radicals.map((item) => item.compact).join(", ")}.`
+    },
+    {
+      title: "Что смотреть первым",
+      text: `Сначала смотрите не все шкалы подряд, а тройку самых высоких: ${topScores}. Именно их сочетание обычно создает главный характер результата.`
+    }
+  ];
+
+  elements.resultDecoder.innerHTML = `
+    <article class="decoder-card">
+      <div class="decoder-head">
+        <span>Расшифровка результата</span>
+        <h4>Как понимать основные термины</h4>
+        <p>Этот блок переводит психологические слова на обычный язык, чтобы отчет был понятен без подготовки.</p>
+      </div>
+      <div class="decoder-grid">
+        ${cards
+          .map(
+            (card) => `
+              <article class="decoder-item">
+                <strong>${card.title}</strong>
+                <p>${card.text}</p>
+              </article>
+            `
+          )
+          .join("")}
+      </div>
     </article>
   `;
 }
@@ -742,6 +1173,7 @@ function renderScoreList(scores) {
           <div>
             <strong>${item.label}</strong>
             <span>${levelLabel(item.score)}</span>
+            <p>${item.insight}</p>
           </div>
           <div class="score-meter" aria-label="${item.label}: ${item.score}%">
             <span style="width: ${item.score}%"></span>
@@ -906,6 +1338,9 @@ function unlockReport(options = {}) {
   state.latestTier = "paid";
 
   renderPaidVerdict(state.latestScores);
+  renderAttachmentStyle(state.latestScores);
+  renderDarkRadicals(state.latestScores);
+  renderResultDecoder(state.latestScores);
   renderScoreList(state.latestScores);
   renderMiddleRecommendations(state.latestScores);
   renderLifeMap(state.latestScores);

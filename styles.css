@@ -924,12 +924,310 @@ select:focus {
   color: var(--muted);
 }
 
+.type-note {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
 .sharp-line {
   margin: 0;
   padding-top: 16px;
   border-top: 1px solid var(--line);
   color: var(--ink);
   font-weight: 700;
+}
+
+.attachment-style {
+  margin-bottom: 18px;
+}
+
+.attachment-card {
+  padding: 22px;
+  border: 1px solid rgba(15, 106, 98, 0.24);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(135deg, rgba(15, 106, 98, 0.08), rgba(180, 138, 69, 0.06)),
+    var(--porcelain);
+}
+
+.attachment-head {
+  max-width: 860px;
+  margin-bottom: 16px;
+}
+
+.attachment-head span {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--teal);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.attachment-head h4 {
+  margin: 0 0 10px;
+  font-family: Literata, Georgia, serif;
+  font-size: 26px;
+  line-height: 1.16;
+}
+
+.attachment-head p {
+  margin-bottom: 0;
+}
+
+.attachment-axis-grid,
+.attachment-note-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.attachment-axis-grid {
+  grid-template-columns: repeat(2, 1fr);
+  margin-bottom: 12px;
+}
+
+.attachment-note-grid {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.attachment-axis,
+.attachment-note-grid div {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fffaf0;
+}
+
+.attachment-axis-top {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: start;
+  margin-bottom: 10px;
+}
+
+.attachment-axis-top strong,
+.attachment-note-grid b {
+  display: block;
+  line-height: 1.2;
+}
+
+.attachment-axis-top b {
+  color: var(--teal);
+  font-family: "IBM Plex Mono", monospace;
+}
+
+.attachment-meter {
+  height: 8px;
+  margin-bottom: 10px;
+  border-radius: 999px;
+  background: #e8dfd0;
+  overflow: hidden;
+}
+
+.attachment-meter span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--teal), var(--brass));
+}
+
+.attachment-axis p,
+.attachment-note-grid p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.attachment-note-grid b {
+  margin-bottom: 8px;
+}
+
+.dark-radicals {
+  margin-bottom: 18px;
+}
+
+.dark-radicals-card {
+  padding: 22px;
+  border: 1px solid rgba(127, 46, 60, 0.3);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(135deg, rgba(40, 34, 30, 0.08), rgba(127, 46, 60, 0.08)),
+    #fff8f4;
+}
+
+.dark-radicals-head {
+  max-width: 860px;
+  margin-bottom: 16px;
+}
+
+.dark-radicals-head span,
+.dark-radical small {
+  color: var(--burgundy);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.dark-radicals-head span {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.dark-radicals-head h4 {
+  margin: 0 0 10px;
+  font-family: Literata, Georgia, serif;
+  font-size: 26px;
+  line-height: 1.16;
+}
+
+.dark-radicals-head p {
+  margin-bottom: 0;
+}
+
+.dark-radical-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.dark-radical {
+  padding: 16px;
+  border: 1px solid rgba(127, 46, 60, 0.18);
+  border-radius: var(--radius);
+  background: var(--porcelain);
+}
+
+.dark-radical-top {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: start;
+  margin-bottom: 10px;
+}
+
+.dark-radical-top strong {
+  line-height: 1.2;
+}
+
+.dark-radical-top b {
+  color: var(--burgundy);
+  font-family: "IBM Plex Mono", monospace;
+}
+
+.dark-meter {
+  height: 8px;
+  margin-bottom: 10px;
+  border-radius: 999px;
+  background: #eaded3;
+  overflow: hidden;
+}
+
+.dark-meter span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--brass), var(--burgundy));
+}
+
+.dark-radical p {
+  margin: 10px 0 0;
+  font-size: 14px;
+}
+
+.radical-explain {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0 0;
+}
+
+.radical-explain div {
+  padding-top: 10px;
+  border-top: 1px solid rgba(127, 46, 60, 0.14);
+}
+
+.radical-explain dt {
+  margin-bottom: 4px;
+  color: var(--muted);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.radical-explain dd {
+  margin: 0;
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.dark-risk {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.result-decoder {
+  margin-bottom: 18px;
+}
+
+.decoder-card {
+  padding: 22px;
+  border: 1px solid rgba(15, 106, 98, 0.22);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(135deg, rgba(15, 106, 98, 0.07), rgba(180, 138, 69, 0.07)),
+    var(--porcelain);
+}
+
+.decoder-head {
+  max-width: 860px;
+  margin-bottom: 16px;
+}
+
+.decoder-head span {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--teal);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.decoder-head h4 {
+  margin: 0 0 8px;
+  font-size: 22px;
+}
+
+.decoder-head p {
+  margin-bottom: 0;
+}
+
+.decoder-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.decoder-item {
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fffaf0;
+}
+
+.decoder-item strong {
+  display: block;
+  margin-bottom: 8px;
+  line-height: 1.2;
+}
+
+.decoder-item p {
+  margin-bottom: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
 }
 
 .unlocked-report.full-report {
@@ -966,7 +1264,7 @@ select:focus {
 
 .score-row {
   display: grid;
-  grid-template-columns: minmax(170px, 0.9fr) minmax(140px, 1fr) 54px;
+  grid-template-columns: minmax(260px, 1.1fr) minmax(140px, 1fr) 54px;
   gap: 14px;
   align-items: center;
   padding: 13px;
@@ -982,6 +1280,13 @@ select:focus {
 
 .score-row strong {
   margin-bottom: 3px;
+}
+
+.score-row p {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.4;
 }
 
 .score-row span {
@@ -1187,7 +1492,10 @@ select:focus {
   }
 
   .answers,
+  .attachment-axis-grid,
+  .attachment-note-grid,
   .basic-insights,
+  .dark-radical-grid,
   .recommendation-grid,
   .life-map,
   .type-grid {
