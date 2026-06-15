@@ -1237,6 +1237,141 @@ select:focus {
   font-weight: 700;
 }
 
+.verdict-deep {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(127, 46, 60, 0.16);
+}
+
+.verdict-deep-head {
+  max-width: 920px;
+  margin-bottom: 16px;
+}
+
+.verdict-deep-head span,
+.verdict-layer span,
+.verdict-synergy span,
+.verdict-risk-grid span,
+.verdict-layer dt {
+  font-family: "IBM Plex Mono", monospace;
+  text-transform: uppercase;
+}
+
+.verdict-deep-head span,
+.verdict-layer span,
+.verdict-synergy span,
+.verdict-risk-grid span {
+  display: block;
+  color: var(--burgundy);
+  font-size: 12px;
+}
+
+.verdict-deep-head h4 {
+  margin: 8px 0 10px;
+  font-family: Literata, Georgia, serif;
+  font-size: 28px;
+  line-height: 1.16;
+}
+
+.verdict-deep-head p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.verdict-layer-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.verdict-layer,
+.verdict-synergy,
+.verdict-risk-grid article {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fffaf0;
+}
+
+.verdict-layer {
+  padding: 18px;
+}
+
+.verdict-layer h5,
+.verdict-synergy h5 {
+  margin: 8px 0 10px;
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+.verdict-layer p {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.verdict-layer dl {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.verdict-layer dl div {
+  padding: 12px;
+  border: 1px solid rgba(15, 106, 98, 0.14);
+  border-radius: var(--radius);
+  background: var(--porcelain);
+}
+
+.verdict-layer dt {
+  margin-bottom: 5px;
+  color: var(--teal);
+  font-size: 11px;
+}
+
+.verdict-layer dd {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.verdict-synergy {
+  padding: 18px;
+  margin-bottom: 12px;
+  background:
+    linear-gradient(135deg, rgba(15, 106, 98, 0.08), rgba(180, 138, 69, 0.08)),
+    #fffaf0;
+}
+
+.verdict-chain {
+  display: grid;
+  gap: 10px;
+  margin: 12px 0 0;
+  padding-left: 22px;
+}
+
+.verdict-chain li {
+  padding-left: 4px;
+  color: var(--muted);
+}
+
+.verdict-risk-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.verdict-risk-grid article {
+  padding: 16px;
+}
+
+.verdict-risk-grid p {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
 .passport-share {
   margin-bottom: 18px;
 }
@@ -1953,7 +2088,9 @@ select:focus {
   .recommendation-grid,
   .signal-chips,
   .life-map,
-  .type-grid {
+  .type-grid,
+  .verdict-layer-grid,
+  .verdict-risk-grid {
     grid-template-columns: 1fr;
   }
 }
