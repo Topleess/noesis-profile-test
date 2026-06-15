@@ -140,6 +140,12 @@ a {
   background: var(--porcelain);
 }
 
+.ghost-button.light {
+  color: var(--porcelain);
+  border-color: rgba(255, 253, 247, 0.28);
+  background: rgba(255, 253, 247, 0.08);
+}
+
 .full {
   width: 100%;
   border: 0;
@@ -562,6 +568,123 @@ h1 {
   color: var(--porcelain);
   border-color: var(--brass);
   background: var(--brass);
+}
+
+.partner-section {
+  display: grid;
+  grid-template-columns: minmax(0, 0.92fr) minmax(360px, 1fr);
+  gap: 42px;
+  align-items: start;
+  color: var(--porcelain);
+  background:
+    linear-gradient(135deg, rgba(15, 106, 98, 0.28), rgba(127, 46, 60, 0.2)),
+    var(--graphite);
+}
+
+.partner-section h2 {
+  color: var(--porcelain);
+}
+
+.partner-copy p {
+  max-width: 680px;
+  color: rgba(255, 253, 247, 0.74);
+  font-size: 18px;
+}
+
+.partner-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.partner-panel {
+  display: grid;
+  gap: 14px;
+}
+
+.partner-topline {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(255, 253, 247, 0.16);
+  color: rgba(255, 253, 247, 0.68);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.partner-topline strong {
+  color: var(--brass);
+}
+
+.partner-stats,
+.partner-flow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.partner-stats article,
+.partner-flow div {
+  border: 1px solid rgba(255, 253, 247, 0.14);
+  border-radius: var(--radius);
+  background: rgba(255, 253, 247, 0.07);
+}
+
+.partner-stats article {
+  min-height: 150px;
+  padding: 20px;
+}
+
+.partner-stats span {
+  display: block;
+  margin-bottom: 14px;
+  color: var(--brass);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 42px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.partner-stats p,
+.partner-flow p,
+.partner-note {
+  color: rgba(255, 253, 247, 0.7);
+}
+
+.partner-stats p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.partner-flow div {
+  padding: 18px;
+}
+
+.partner-flow svg {
+  margin-bottom: 18px;
+  color: var(--brass);
+}
+
+.partner-flow strong {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--porcelain);
+}
+
+.partner-flow p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.partner-note {
+  margin: 4px 0 0;
+  padding: 16px 18px;
+  border-left: 2px solid var(--brass);
+  background: rgba(255, 253, 247, 0.05);
+  font-size: 14px;
 }
 
 .test-section {
@@ -1781,6 +1904,9 @@ select:focus {
   }
 
   .method-grid,
+  .partner-flow,
+  .partner-section,
+  .partner-stats,
   .sample,
   .pricing-grid,
   .test-layout {
@@ -1828,6 +1954,7 @@ select:focus {
   }
 
   .quiz-actions,
+  .partner-actions,
   .passport-actions,
   .quiz-teaser,
   .signal-dock-head,
