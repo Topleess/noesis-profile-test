@@ -1183,7 +1183,7 @@ function renderPassportShare(scores) {
   elements.passportShare.innerHTML = `
     <article class="passport-card" data-passport-card>
       <div class="passport-top">
-        <span>NOESIS Personality Passport</span>
+        <span>WHOAMI Personality Passport</span>
         <b>Full Profile Unlocked</b>
       </div>
       <h4>${brandType}</h4>
@@ -1220,7 +1220,7 @@ function renderPassportShare(scores) {
       </div>
       <div class="passport-footer-line">
         <span>Public status card</span>
-        <span>Self-assessment, not a diagnosis</span>
+        <span>NOESIS method · not a diagnosis</span>
       </div>
     </article>
     <div class="passport-actions">
@@ -1228,7 +1228,7 @@ function renderPassportShare(scores) {
         <i data-lucide="download" aria-hidden="true"></i>
         Скачать паспорт для сторис
       </button>
-      <p>Публичная fashion-карточка без ответов на вопросы и без личных данных. Можно показать в сторис или отправить другу.</p>
+      <p>Публичная fashion-карточка WHOAMI без ответов на вопросы и без личных данных. Методология NOESIS остается внутри, а наружу выходит статусный паспорт.</p>
     </div>
   `;
 }
@@ -1301,7 +1301,7 @@ function downloadPassportImage() {
 
   ctx.fillStyle = "#111311";
   ctx.font = "700 34px Inter, Arial, sans-serif";
-  ctx.fillText("NOESIS", 124, 150);
+  ctx.fillText("WHOAMI", 124, 150);
   ctx.font = "500 20px Inter, Arial, sans-serif";
   ctx.fillStyle = "#7f2e3c";
   ctx.fillText("PERSONALITY PASSPORT", 124, 184);
@@ -1374,10 +1374,10 @@ function downloadPassportImage() {
 
   ctx.fillStyle = "#6d6258";
   ctx.font = "500 20px Inter, Arial, sans-serif";
-  ctx.fillText("PUBLIC STATUS CARD · SELF-ASSESSMENT, NOT A DIAGNOSIS", 124, 1248);
+  ctx.fillText("PUBLIC STATUS CARD · NOESIS METHOD · NOT A DIAGNOSIS", 124, 1248);
 
   const link = document.createElement("a");
-  link.download = `${state.profileCode || "noesis"}-personality-passport.png`;
+  link.download = `${state.profileCode || "whoami"}-personality-passport.png`;
   link.href = canvas.toDataURL("image/png");
   link.click();
 }
