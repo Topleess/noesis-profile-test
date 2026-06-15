@@ -659,6 +659,38 @@ h1 {
   font-size: 14px;
 }
 
+.partner-funnel {
+  padding: 18px 20px;
+  border: 1px solid rgba(180, 138, 69, 0.34);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(135deg, rgba(180, 138, 69, 0.16), rgba(127, 46, 60, 0.08)),
+    rgba(255, 253, 247, 0.05);
+}
+
+.partner-funnel span {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--brass);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.partner-funnel strong {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--porcelain);
+  font-size: 18px;
+  line-height: 1.25;
+}
+
+.partner-funnel p {
+  margin: 0;
+  color: rgba(255, 253, 247, 0.72);
+  font-size: 14px;
+}
+
 .partner-flow div {
   padding: 18px;
 }
