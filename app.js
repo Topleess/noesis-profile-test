@@ -203,7 +203,10 @@ const state = {
   profileCode: "",
   submittedEvents: new Set(),
   teasersShown: new Set(),
-  teaserTimer: null
+  teaserTimer: null,
+  compatibilitySelf: null,
+  compatibilityOther: null,
+  compatibilityMode: "couple"
 };
 
 const elements = {
@@ -242,7 +245,15 @@ const elements = {
   scoreList: document.querySelector("[data-score-list]"),
   middleRecommendations: document.querySelector("[data-middle-recommendations]"),
   lifeMap: document.querySelector("[data-life-map]"),
-  answerList: document.querySelector("[data-answer-list]")
+  answerList: document.querySelector("[data-answer-list]"),
+  compatibilityJump: document.querySelector("[data-compatibility-jump]"),
+  compatibilitySelfInput: document.querySelector("[data-compat-self]"),
+  compatibilityOtherInput: document.querySelector("[data-compat-other]"),
+  compatibilitySelfStatus: document.querySelector("[data-compat-self-status]"),
+  compatibilityOtherStatus: document.querySelector("[data-compat-other-status]"),
+  compatibilityModeInputs: document.querySelectorAll("[data-compat-mode]"),
+  compatibilityRun: document.querySelector("[data-run-compatibility]"),
+  compatibilityOutput: document.querySelector("[data-compatibility-output]")
 };
 
 function renderQuestion() {
@@ -476,6 +487,19 @@ function cleanText(value) {
   return trimmed || null;
 }
 
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (char) => {
+    const entities = {
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#039;"
+    };
+    return entities[char];
+  });
+}
+
 function hasConsent() {
   return state.lead.consent === "on" || state.lead.consent === true;
 }
@@ -609,6 +633,7 @@ function renderBasicResult(scores, code) {
       `
     )
     .join("");
+  syncCurrentResultToCompatibility();
 }
 
 function resultTone(topScores) {
@@ -1097,6 +1122,513 @@ function modelScoreFromMap(map, criteria) {
     return sum + value * item.weight;
   }, 0);
   return Math.round(total / totalWeight);
+}
+
+const compatibilityGrowth = {
+  couple: {
+    S1: "Договориться о паузе до резких сообщений и возвращаться к разговору уже с запросом, а не с атакой.",
+    S2: "Проговаривать статус, ожидания и планы. Для тревожного профиля неопределенность быстро становится шумом.",
+    S3: "Разделять любовь и постоянный контакт: пространство должно называться словами, а не исчезновением.",
+    S4: "Давать признание и обратную связь так, чтобы критика не звучала как обесценивание личности.",
+    S5: "Оставлять место для разной интенсивности: один выражает ярко, другой тише, и это не равно равнодушию.",
+    S6: "Договариваться о правилах заранее, но оставлять живой люфт, чтобы порядок не превращался в давление.",
+    S7: "Создавать прозрачность поступками и задавать прямой вопрос раньше, чем запускается внутренняя проверка.",
+    S8: "Планировать пространство для спонтанности, чтобы импульс не ломал договоренности и безопасность пары.",
+    S9: "Согласовать темп решений: осторожному профилю нужны критерии, быстрому - понятный дедлайн.",
+    S10: "Сложные темы поднимать мягко, без сарказма, публичного давления и проверки на смелость.",
+    S11: "Не использовать слабые места партнера как аргументы, даже если спор стал острым.",
+    S12: "Инициативность должна вести, а не тащить. Паре нужен общий темп, а не победа самого быстрого."
+  },
+  friends: {
+    S1: "Не превращать эмоциональные всплески в проверку дружбы. Лучше называть состояние и возвращаться к легкости после паузы.",
+    S2: "Договориться, как часто нужен контакт: одному важны регулярные сигналы, другому достаточно редких, но надежных встреч.",
+    S3: "Уважать автономность друга: дистанция не всегда означает холод, если она названа и не выглядит исчезновением.",
+    S4: "Следить, чтобы признание не стало соревнованием. Дружба выдерживает успехи, когда есть искренняя радость за другого.",
+    S5: "Разрешить разный социальный объем: один может быть ярким центром, другой - тихой опорой, и это не конфликт ролей.",
+    S6: "Не превращать дружбу в систему правил. Договоренности важны, но живой контакт не должен чувствоваться как отчетность.",
+    S7: "Убирать скрытые проверки: если что-то задело, лучше спросить прямо, чем собирать доказательства в голове.",
+    S8: "Оставить место для спонтанности, но не обещать больше, чем реально можно выдержать.",
+    S9: "Не застревать в анализе каждого сообщения. Дружбе помогает простое уточнение смысла, а не длинное внутреннее расследование.",
+    S10: "Критиковать бережно и наедине. Для чувствительного профиля публичная шутка может ощущаться как предательство.",
+    S11: "Не мериться силой и правотой. В дружбе жесткость лучше переводить в честность без давления.",
+    S12: "Согласовать инициативу: активный друг зовет и запускает, но не должен становиться единственным двигателем контакта."
+  },
+  team: {
+    S1: "Высокую эмоциональность переводить в быстрые ретро и ясные статусы, чтобы рабочие решения не зависели от настроения момента.",
+    S2: "Давать прозрачные ожидания: сроки, роль, критерий успеха. Неопределенность снижает рабочую устойчивость.",
+    S3: "Оставлять автономию в способе выполнения задачи. Контроль результата важнее постоянного контроля процесса.",
+    S4: "Настроить признание вклада: статус и видимость должны распределяться честно, иначе появляется скрытая конкуренция.",
+    S5: "Использовать выразительность для презентаций и коммуникации, но фиксировать решения письменно, чтобы энергия не заменяла структуру.",
+    S6: "Разделить зоны ответственности. Сильный контроль полезен в системе, но опасен, если блокирует делегирование.",
+    S7: "Повышать прозрачность решений: кто отвечает, почему так, что считается риском. Это снижает подозрительность к мотивам.",
+    S8: "Отделить эксперименты от стабильного контура. Новизна нужна команде, но не должна ломать обязательства.",
+    S9: "Давать критерии решения и дедлайны на анализ, иначе осторожность может тормозить движение всей команды.",
+    S10: "Обратную связь давать конкретно и без публичного стыда: иначе человек защищается, а не улучшает результат.",
+    S11: "Силу и напор направлять в цели, а не в людей. Жесткий лидерский слой требует правил экологичного спора.",
+    S12: "Инициативу закреплять владельцем задачи. Иначе быстрый человек запускает много процессов, но команда не успевает их довести."
+  }
+};
+
+const compatibilityModes = {
+  couple: {
+    id: "couple",
+    label: "Совместимость пары",
+    scoreLabel: "Индекс пары",
+    kicker: "Отношения",
+    context:
+      "Здесь сильнее учитываются привязанность, близость, ревность, дистанция и то, как два человека восстанавливают контакт после напряжения.",
+    resonanceTitle: "Где будет близость",
+    frictionTitle: "Где может болеть",
+    rulesTitle: "Как не сломать контакт",
+    attachmentSelf: "Ваш стиль привязанности",
+    attachmentOther: "Стиль привязанности второго профиля",
+    attachmentWeight: 0.38,
+    weights: { S1: 0.95, S2: 1.35, S3: 1.15, S4: 0.6, S5: 0.6, S6: 0.55, S7: 0.85, S8: 0.65, S9: 0.6, S10: 0.9, S11: 0.65, S12: 0.55 },
+    bands: [
+      ["Мягкое совпадение", "Профили легко считывают друг друга: темп близости, реакции и способы поддержки достаточно близки."],
+      ["Сильная, но живая совместимость", "Есть хорошая база притяжения, а различия могут усиливать пару, если их проговаривать."],
+      ["Контрастная совместимость", "Притяжение держится на различиях. Важно не считать стиль другого человека неправильным."],
+      ["Нужны зрелые правила контакта", "Профили могут цеплять чувствительные места друг друга. Здесь особенно важны ясность, паузы и границы."]
+    ]
+  },
+  friends: {
+    id: "friends",
+    label: "Совместимость друзей",
+    scoreLabel: "Индекс дружбы",
+    kicker: "Дружба",
+    context:
+      "Здесь сильнее учитываются доверие, легкость, социальный ритм, конкуренция, границы и способность сохранять контакт без постоянного подтверждения.",
+    resonanceTitle: "Где будет легкость",
+    frictionTitle: "Где дружба может уставать",
+    rulesTitle: "Как сохранить контакт",
+    attachmentSelf: "Ваш стиль контакта",
+    attachmentOther: "Стиль контакта второго профиля",
+    attachmentWeight: 0.22,
+    weights: { S1: 0.8, S2: 0.75, S3: 1, S4: 0.75, S5: 1.15, S6: 0.6, S7: 1, S8: 0.85, S9: 0.65, S10: 0.8, S11: 0.55, S12: 0.85 },
+    bands: [
+      ["Легкая дружеская связка", "Профили хорошо выдерживают ритм друг друга: есть пространство, интерес и понятный способ поддерживать контакт."],
+      ["Сильная дружба с разным темпом", "Есть хорошая база доверия, но важно не путать различия в активности с равнодушием."],
+      ["Дружба на контрасте", "Контакт может быть интересным, но потребует честных границ, чтобы один не уставал, а другой не чувствовал отвержение."],
+      ["Нужны ясные границы дружбы", "Профили могут запускать конкуренцию, обиды или проверки. Лучше заранее договориться о ритме и ожиданиях."]
+    ]
+  },
+  team: {
+    id: "team",
+    label: "Совместимость команды",
+    scoreLabel: "Индекс команды",
+    kicker: "Работа",
+    context:
+      "Здесь сильнее учитываются роли, лидерство, контроль, скорость решений, риск, делегирование, обратная связь и устойчивость команды под нагрузкой.",
+    resonanceTitle: "Где будет рабочая синергия",
+    frictionTitle: "Где команда может буксовать",
+    rulesTitle: "Как настроить совместную работу",
+    attachmentSelf: "Ваш рабочий стиль контакта",
+    attachmentOther: "Рабочий стиль второго профиля",
+    attachmentWeight: 0.12,
+    weights: { S1: 0.65, S2: 0.55, S3: 0.75, S4: 0.85, S5: 0.7, S6: 1.3, S7: 0.9, S8: 0.85, S9: 1.15, S10: 0.7, S11: 1.05, S12: 1.1 },
+    bands: [
+      ["Сильная рабочая связка", "Профили хорошо распределяют роли, темп решений и ответственность. Такая команда может быстро создавать результат."],
+      ["Рабочая совместимость с настройкой ролей", "База сильная, но эффективность зависит от того, насколько ясно разделены зоны ответственности."],
+      ["Команда на контрасте", "Разные стили могут давать объем, но без правил будут спорить за темп, контроль или способ принятия решений."],
+      ["Нужен жесткий рабочий протокол", "Профили могут тормозить или давить друг на друга. Нужны роли, дедлайны, критерии и правила фидбека."]
+    ]
+  }
+};
+
+function clampScore(value) {
+  return Math.max(0, Math.min(100, Math.round(value)));
+}
+
+function normalizeProfileScores(rawScores) {
+  if (!Array.isArray(rawScores)) return [];
+  if (Array.isArray(rawScores[0])) return hydrateScores(rawScores);
+
+  return rawScores
+    .map((item) => {
+      const scale = item?.scale;
+      return {
+        scale,
+        score: Number(item?.score),
+        ...publicDimensions[scale]
+      };
+    })
+    .filter((item) => item.label && Number.isFinite(item.score))
+    .sort((a, b) => b.score - a.score);
+}
+
+function profileFromPayload(payload, source = "shared-link") {
+  const scores = normalizeProfileScores(payload?.scores || []);
+  if (!scores.length) return null;
+  return {
+    code: cleanText(payload.code) || "SHARED",
+    tier: cleanText(payload.tier) || "basic",
+    scores,
+    source
+  };
+}
+
+function parseResultPayload(value) {
+  const text = String(value || "").trim();
+  if (!text) return null;
+
+  try {
+    const url = new URL(text, window.location.href);
+    const encoded = url.searchParams.get("result") || url.searchParams.get("self") || url.searchParams.get("partner");
+    if (encoded) return decodeResultPayload(encoded);
+  } catch {
+    // Continue with relaxed parsing below.
+  }
+
+  const resultMatch = text.match(/(?:^|[?&])(result|self|partner)=([^&#\s]+)/);
+  if (resultMatch?.[2]) return decodeResultPayload(resultMatch[2]);
+
+  if (/^[A-Za-z0-9_-]{24,}$/.test(text)) return decodeResultPayload(text);
+  return null;
+}
+
+function parseStoredScores(value) {
+  if (Array.isArray(value)) return value;
+  if (typeof value !== "string") return [];
+
+  try {
+    return JSON.parse(value);
+  } catch {
+    return [];
+  }
+}
+
+function profileFromStoredRow(row) {
+  const scores = normalizeProfileScores(parseStoredScores(row?.scores));
+  if (scores.length) {
+    return {
+      code: cleanText(row.profile_code) || "PUBLIC",
+      tier: cleanText(row.tier) || "basic",
+      scores,
+      source: "public-code"
+    };
+  }
+
+  const payload = parseResultPayload(row?.result_url || "");
+  return payload ? profileFromPayload(payload, "public-code") : null;
+}
+
+async function requestPublicProfileRows(code, withOrder = true) {
+  const url = new URL(`${submissionsConfig.url}/rest/v1/${submissionsConfig.table}`);
+  url.searchParams.set("select", "profile_code,scores,result_url,tier,event_type");
+  url.searchParams.set("profile_code", `eq.${code}`);
+  url.searchParams.set("limit", "5");
+  if (withOrder) url.searchParams.set("order", "created_at.desc");
+
+  const response = await fetch(url.toString(), {
+    headers: {
+      apikey: submissionsConfig.key,
+      Authorization: `Bearer ${submissionsConfig.key}`
+    }
+  });
+
+  if (!response.ok) throw new Error(`public profile lookup failed: ${response.status}`);
+  return response.json();
+}
+
+async function fetchPublicProfileByCode(code) {
+  const normalizedCode = code.trim().toUpperCase();
+  let rows;
+
+  try {
+    rows = await requestPublicProfileRows(normalizedCode);
+  } catch {
+    rows = await requestPublicProfileRows(normalizedCode, false);
+  }
+
+  const profile = rows.map(profileFromStoredRow).find(Boolean);
+  if (!profile) {
+    throw new Error("Профиль с таким кодом не найден или закрыт для публичного чтения. Вставьте полную ссылку результата.");
+  }
+
+  return profile;
+}
+
+async function resolveCompatibilityProfile(value, fallbackProfile, label) {
+  const text = cleanText(value);
+  if (!text && fallbackProfile) return fallbackProfile;
+  if (!text) throw new Error(`Заполните поле "${label}".`);
+
+  const codeMatch = text.toUpperCase().match(/^NP-[A-Z0-9]{4,}$/);
+  if (codeMatch) return fetchPublicProfileByCode(codeMatch[0]);
+
+  const payload = parseResultPayload(text);
+  const profile = profileFromPayload(payload, "shared-link");
+  if (!profile) {
+    throw new Error(`Не получилось прочитать поле "${label}". Используйте полную ссылку результата или NP-код.`);
+  }
+
+  return profile;
+}
+
+function compatibilityBand(score, mode) {
+  const [high, good, contrast, low] = mode.bands;
+  const [title, text] = score >= 82 ? high : score >= 68 ? good : score >= 52 ? contrast : low;
+  return { title, text };
+}
+
+function buildCompatibilityReport(selfScores, otherScores, modeId = state.compatibilityMode) {
+  const mode = compatibilityModes[modeId] || compatibilityModes.couple;
+  const selfMap = scoreMap(selfScores);
+  const otherMap = scoreMap(otherScores);
+  const rows = Object.keys(publicDimensions).map((scale) => {
+    const self = selfMap[scale] ?? 0;
+    const other = otherMap[scale] ?? 0;
+    const weight = mode.weights[scale] || 1;
+    const delta = Math.abs(self - other);
+    const max = Math.max(self, other);
+    const average = Math.round((self + other) / 2);
+    return {
+      scale,
+      label: publicDimensions[scale].label,
+      insight: publicDimensions[scale].insight,
+      self,
+      other,
+      delta,
+      average,
+      max,
+      weight,
+      impact: delta * weight + Math.max(max - 50, 0) * 0.18 * weight
+    };
+  });
+  const totalWeight = rows.reduce((sum, item) => sum + item.weight, 0);
+  const averageDelta = rows.reduce((sum, item) => sum + item.delta * item.weight, 0) / totalWeight;
+  const selfAttachment = getAttachmentProfile(selfScores);
+  const otherAttachment = getAttachmentProfile(otherScores);
+  const attachmentDelta =
+    (Math.abs(selfAttachment.anxiety - otherAttachment.anxiety) +
+      Math.abs(selfAttachment.avoidance - otherAttachment.avoidance)) /
+    2;
+  const index = clampScore((100 - averageDelta) * (1 - mode.attachmentWeight) + (100 - attachmentDelta) * mode.attachmentWeight);
+  const resonance = rows
+    .filter((item) => item.average >= 48)
+    .sort((a, b) => b.average * b.weight - a.average * a.weight || a.delta - b.delta)
+    .slice(0, 3);
+  const fallbackResonance = [...rows].sort((a, b) => a.delta / a.weight - b.delta / b.weight).slice(0, 3);
+  const friction = rows
+    .filter((item) => item.max >= 45)
+    .sort((a, b) => b.impact - a.impact || b.max - a.max)
+    .slice(0, 4);
+  const growth = friction.map((item) => ({
+    ...item,
+    text: compatibilityGrowth[mode.id]?.[item.scale] || item.insight
+  }));
+
+  return {
+    index,
+    mode,
+    band: compatibilityBand(index, mode),
+    resonance: resonance.length ? resonance : fallbackResonance,
+    friction,
+    growth,
+    selfAttachment,
+    otherAttachment
+  };
+}
+
+function getCompatibilityMode() {
+  const selected = [...elements.compatibilityModeInputs].find((input) => input.checked)?.value || state.compatibilityMode;
+  return compatibilityModes[selected] || compatibilityModes.couple;
+}
+
+function renderCompatibilityProfile(profile, label) {
+  const top = profile.scores.slice(0, 3);
+  return `
+    <article class="compat-profile-card">
+      <span>${escapeHtml(label)} · ${escapeHtml(profile.code)}</span>
+      <strong>${escapeHtml(top[0]?.label || "Профиль")}</strong>
+      <p>${top.map((item) => `${escapeHtml(item.label)} ${item.score}%`).join(" · ")}</p>
+    </article>
+  `;
+}
+
+function renderCompatibilityRow(item, mode = "value") {
+  const meta = mode === "delta" ? `разница ${item.delta}%` : `${item.self}% / ${item.other}%`;
+  return `
+    <div class="compat-row">
+      <div>
+        <strong>${escapeHtml(item.label)}</strong>
+        <p>${escapeHtml(item.insight)}</p>
+      </div>
+      <b>${meta}</b>
+    </div>
+  `;
+}
+
+function renderCompatibilityReport(selfProfile, otherProfile, modeId = state.compatibilityMode, shouldScroll = true) {
+  if (!elements.compatibilityOutput) return;
+  const report = buildCompatibilityReport(selfProfile.scores, otherProfile.scores, modeId);
+  const { mode } = report;
+
+  elements.compatibilityOutput.hidden = false;
+  elements.compatibilityOutput.innerHTML = `
+    <article class="compat-report">
+      <div class="compat-report-head">
+        <div class="compat-score">
+          <span>${escapeHtml(mode.scoreLabel)}</span>
+          <strong>${report.index}</strong>
+          <small>${escapeHtml(report.band.title)}</small>
+        </div>
+        <div>
+          <span>${escapeHtml(mode.kicker)} · не матчинг</span>
+          <h3>${escapeHtml(mode.label)}: ${escapeHtml(report.band.title)}</h3>
+          <p>${escapeHtml(report.band.text)}</p>
+          <p class="compat-context">${escapeHtml(mode.context)}</p>
+        </div>
+      </div>
+
+      <div class="compat-profile-grid">
+        ${renderCompatibilityProfile(selfProfile, "Профиль 1")}
+        ${renderCompatibilityProfile(otherProfile, "Профиль 2")}
+      </div>
+
+      <div class="compat-summary-grid">
+        <article>
+          <span>${escapeHtml(mode.resonanceTitle)}</span>
+          <strong>${escapeHtml(report.resonance[0]?.label || "Общий темп")}</strong>
+          <p>${escapeHtml(report.resonance.map((item) => item.label).join(", "))}</p>
+        </article>
+        <article>
+          <span>${escapeHtml(mode.frictionTitle)}</span>
+          <strong>${escapeHtml(report.friction[0]?.label || "Разный ритм")}</strong>
+          <p>${escapeHtml(report.friction.slice(0, 3).map((item) => item.label).join(", "))}</p>
+        </article>
+        <article>
+          <span>${escapeHtml(mode.rulesTitle)}</span>
+          <strong>3 главных правила</strong>
+          <p>${escapeHtml(report.growth.slice(0, 3).map((item) => item.text).join(" "))}</p>
+        </article>
+      </div>
+
+      <div class="compat-details">
+        <details open>
+          <summary>Общий вердикт</summary>
+          <div class="compat-detail-body">
+            <p>${escapeHtml(report.band.text)} WHOAMI не говорит “подходит / не подходит”: смысл результата в том, чтобы заранее увидеть стиль контакта, зоны риска и правила, которые делают взаимодействие устойчивее.</p>
+          </div>
+        </details>
+
+        <details>
+          <summary>Сильные стороны</summary>
+          <div class="compat-detail-body">
+            ${report.resonance.map((item) => renderCompatibilityRow(item)).join("")}
+          </div>
+        </details>
+
+        <details>
+          <summary>Риски общения</summary>
+          <div class="compat-detail-body">
+            ${report.friction.map((item) => renderCompatibilityRow(item, "delta")).join("")}
+          </div>
+        </details>
+
+        <details>
+          <summary>Привязанность и контакт</summary>
+          <div class="compat-attachment-grid">
+            <article>
+              <span>${escapeHtml(mode.attachmentSelf)}</span>
+              <strong>${escapeHtml(report.selfAttachment.compact)}</strong>
+              <small>тревога ${report.selfAttachment.anxiety}% · избегание ${report.selfAttachment.avoidance}%</small>
+              <p>${escapeHtml(report.selfAttachment.need)}</p>
+            </article>
+            <article>
+              <span>${escapeHtml(mode.attachmentOther)}</span>
+              <strong>${escapeHtml(report.otherAttachment.compact)}</strong>
+              <small>тревога ${report.otherAttachment.anxiety}% · избегание ${report.otherAttachment.avoidance}%</small>
+              <p>${escapeHtml(report.otherAttachment.need)}</p>
+            </article>
+          </div>
+        </details>
+
+        <details open>
+          <summary>Рекомендации</summary>
+          <div class="compat-recommendations">
+            ${report.growth
+              .map(
+                (item, index) => `
+                  <article>
+                    <span>${String(index + 1).padStart(2, "0")} · ${escapeHtml(item.label)}</span>
+                    <p>${escapeHtml(item.text)}</p>
+                  </article>
+                `
+              )
+              .join("")}
+          </div>
+        </details>
+      </div>
+    </article>
+  `;
+
+  if (shouldScroll) elements.compatibilityOutput.scrollIntoView({ behavior: "smooth", block: "start" });
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function showCompatibilityStatus(message, isError = false) {
+  if (!elements.compatibilityOutput) return;
+  elements.compatibilityOutput.hidden = false;
+  elements.compatibilityOutput.innerHTML = `
+    <p class="compat-status ${isError ? "is-error" : ""}">${escapeHtml(message)}</p>
+    ${
+      isError
+        ? '<p class="compat-help">Если NP-код не находится, вставьте полную ссылку результата. Это нормально для приватного режима хранения.</p>'
+        : ""
+    }
+  `;
+}
+
+function syncCurrentResultToCompatibility() {
+  if (!elements.compatibilitySelfInput || !state.latestScores.length || !state.profileCode) return;
+  const profile = {
+    code: state.profileCode,
+    tier: state.latestTier,
+    scores: state.latestScores,
+    source: "current-result"
+  };
+  state.compatibilitySelf = profile;
+  elements.compatibilitySelfInput.value = makeResultUrl(state.latestTier);
+  elements.compatibilitySelfStatus.textContent = `Загружен ваш профиль ${state.profileCode}. Можно вставить результат второго человека.`;
+  if (elements.compatibilityJump) elements.compatibilityJump.hidden = false;
+}
+
+async function runCompatibility() {
+  if (!elements.compatibilityRun) return;
+  const mode = getCompatibilityMode();
+  state.compatibilityMode = mode.id;
+  elements.compatibilityRun.disabled = true;
+  elements.compatibilityRun.innerHTML = '<i data-lucide="loader-circle" aria-hidden="true"></i> Строю карту';
+  showCompatibilityStatus("Сравниваю профили и собираю рекомендации...");
+  if (window.lucide) window.lucide.createIcons();
+
+  try {
+    const selfProfile = await resolveCompatibilityProfile(
+      elements.compatibilitySelfInput.value,
+      state.compatibilitySelf,
+      "Ваш WHOAMI-результат"
+    );
+    const otherProfile = await resolveCompatibilityProfile(
+      elements.compatibilityOtherInput.value,
+      null,
+      "Результат другого человека"
+    );
+
+    if (selfProfile.code === otherProfile.code) {
+      throw new Error("Это один и тот же профиль. Для сравнения нужен второй WHOAMI-результат.");
+    }
+
+    state.compatibilitySelf = selfProfile;
+    state.compatibilityOther = otherProfile;
+    renderCompatibilityReport(selfProfile, otherProfile, state.compatibilityMode);
+  } catch (error) {
+    showCompatibilityStatus(error.message, true);
+  } finally {
+    elements.compatibilityRun.disabled = false;
+    elements.compatibilityRun.innerHTML = '<i data-lucide="heart-handshake" aria-hidden="true"></i> Построить карту совместимости';
+    if (window.lucide) window.lucide.createIcons();
+  }
 }
 
 function classifyProfile(scores) {
@@ -2098,6 +2630,33 @@ elements.copy.addEventListener("click", async () => {
 });
 
 elements.upgrade.addEventListener("click", () => unlockReport());
+
+elements.compatibilityRun?.addEventListener("click", runCompatibility);
+
+elements.compatibilitySelfInput?.addEventListener("keydown", (event) => {
+  if (event.key !== "Enter") return;
+  event.preventDefault();
+  runCompatibility();
+});
+
+elements.compatibilityOtherInput?.addEventListener("keydown", (event) => {
+  if (event.key !== "Enter") return;
+  event.preventDefault();
+  runCompatibility();
+});
+
+elements.compatibilityModeInputs.forEach((input) => {
+  input.addEventListener("change", () => {
+    state.compatibilityMode = input.value;
+    if (state.compatibilitySelf && state.compatibilityOther) {
+      renderCompatibilityReport(state.compatibilitySelf, state.compatibilityOther, state.compatibilityMode, false);
+    }
+  });
+});
+
+document.querySelector("[data-use-result-for-compatibility]")?.addEventListener("click", () => {
+  syncCurrentResultToCompatibility();
+});
 
 document.addEventListener("click", (event) => {
   const button = event.target.closest("[data-download-passport]");

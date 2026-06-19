@@ -18,7 +18,7 @@
       href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&family=Literata:opsz,wght@7..72,500;7..72,650&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="./styles.css?v=verdict1" />
+    <link rel="stylesheet" href="./styles.css?v=compat1" />
   </head>
   <body>
     <header class="site-header" data-header>
@@ -30,6 +30,7 @@
         <a href="#method">Методология</a>
         <a href="#sample">Пример</a>
         <a href="#test">Тест</a>
+        <a href="#compatibility">Совместимость</a>
         <a href="#partners">Партнерам</a>
       </nav>
       <a class="header-cta" href="#test">
@@ -308,9 +309,101 @@
                   <i data-lucide="copy" aria-hidden="true"></i>
                 </button>
               </div>
+              <div class="compatibility-jump" data-compatibility-jump hidden>
+                <div>
+                  <span>Совместимость</span>
+                  <strong>Сравните этот профиль с другим человеком</strong>
+                  <p>Пара, дружба или команда: риски общения, сильные стороны и правила контакта.</p>
+                </div>
+                <a class="price-button dark" href="#compatibility" data-use-result-for-compatibility>
+                  <i data-lucide="heart-handshake" aria-hidden="true"></i>
+                  Построить карту
+                </a>
+              </div>
             </div>
           </div>
         </div>
+      </section>
+
+      <section class="section compatibility-section" id="compatibility" aria-labelledby="compatibility-title">
+        <div class="compatibility-copy">
+          <div class="section-kicker">Совместимость без матчинга</div>
+          <h2 id="compatibility-title">Карта взаимодействия двух WHOAMI-профилей</h2>
+          <p>
+            Это не поиск пары и не рейтинг людей. WHOAMI сравнивает два результата и показывает,
+            где между вами будет естественный резонанс, где возникнет неправильное считывание,
+            какие риски появятся в общении и какие правила помогут сохранить контакт.
+          </p>
+          <div class="compatibility-value-grid" aria-label="Что показывает совместимость">
+            <article>
+              <i data-lucide="sparkles" aria-hidden="true"></i>
+              <strong>Сильные стороны союза</strong>
+              <p>Что будет давать легкость, доверие, притяжение, рабочую синергию или чувство “мы понимаем друг друга”.</p>
+            </article>
+            <article>
+              <i data-lucide="triangle-alert" aria-hidden="true"></i>
+              <strong>Риски контакта</strong>
+              <p>Где один может давить, другой закрываться, где появятся обиды, конкуренция, проверки или борьба за контроль.</p>
+            </article>
+            <article>
+              <i data-lucide="list-checks" aria-hidden="true"></i>
+              <strong>Правила взаимодействия</strong>
+              <p>Что договорить заранее: паузы, обратную связь, границы, роли, темп решений и способ чинить конфликт.</p>
+            </article>
+          </div>
+        </div>
+
+        <div class="compatibility-console" aria-label="Форма сравнения WHOAMI-профилей">
+          <div class="compatibility-console-head">
+            <span>WHOAMI compare</span>
+            <h3>Выберите контекст</h3>
+            <p>Один и тот же профиль читается по-разному в любви, дружбе и совместной работе.</p>
+          </div>
+
+          <fieldset class="compat-mode-group" aria-label="Тип совместимости">
+            <label>
+              <input type="radio" name="compat-mode" value="couple" data-compat-mode checked />
+              <span>
+                <strong>Пара</strong>
+                <small>близость, привязанность, ревность, дистанция</small>
+              </span>
+            </label>
+            <label>
+              <input type="radio" name="compat-mode" value="friends" data-compat-mode />
+              <span>
+                <strong>Друзья</strong>
+                <small>доверие, легкость, границы, конкуренция</small>
+              </span>
+            </label>
+            <label>
+              <input type="radio" name="compat-mode" value="team" data-compat-mode />
+              <span>
+                <strong>Команда</strong>
+                <small>роли, лидерство, решения, фидбек</small>
+              </span>
+            </label>
+          </fieldset>
+
+          <div class="compatibility-fields">
+            <label>
+              Ваш WHOAMI-результат
+              <input data-compat-self type="text" placeholder="Ссылка результата, result=... или NP-код" autocomplete="off" />
+              <small data-compat-self-status>После прохождения теста ваш результат подставится сюда автоматически.</small>
+            </label>
+            <label>
+              Результат другого человека
+              <input data-compat-other type="text" placeholder="NP-XXXXXX или ссылка результата другого человека" autocomplete="off" />
+              <small data-compat-other-status>Для точного расчета лучше вставить полную ссылку результата.</small>
+            </label>
+          </div>
+
+          <button class="price-button dark full" type="button" data-run-compatibility>
+            <i data-lucide="heart-handshake" aria-hidden="true"></i>
+            Построить карту совместимости
+          </button>
+        </div>
+
+        <div class="compatibility-output" data-compatibility-output hidden></div>
       </section>
 
       <section class="section partner-section" id="partners" aria-labelledby="partner-title">
@@ -426,6 +519,6 @@
     </main>
 
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
-    <script src="./app.js?v=verdict1"></script>
+    <script src="./app.js?v=compat1"></script>
   </body>
 </html>
