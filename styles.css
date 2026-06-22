@@ -5004,7 +5004,14 @@ select:focus {
   }
 
   .compatibility-title-block h1 {
-    font-size: 38px;
+    width: min(100%, calc(100vw - 32px));
+    max-width: calc(100vw - 32px);
+    font-size: 28px;
+    line-height: 1.05;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-break: normal;
+    hyphens: auto;
   }
 
   .passport-hero,
@@ -5019,7 +5026,14 @@ select:focus {
 
   .passport-hero h1,
   .partner-dashboard-head h1 {
-    font-size: 38px;
+    width: min(100%, calc(100vw - 32px));
+    max-width: calc(100vw - 32px);
+    font-size: 28px;
+    line-height: 1.05;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-break: normal;
+    hyphens: auto;
   }
 
   .domain-report {
@@ -5174,6 +5188,9 @@ select:focus {
 .passport-body,
 .compatibility-body,
 .partner-dashboard-body {
+  position: relative;
+  isolation: isolate;
+  overflow-x: hidden;
   min-height: 100vh;
   color: var(--porcelain);
   background:
@@ -5205,12 +5222,23 @@ select:focus {
 .partner-dashboard-body::after {
   content: "";
   position: fixed;
-  inset: 0;
+  top: clamp(72px, 11vh, 128px);
+  right: max(-220px, -14vw);
+  width: min(920px, 82vw);
+  aspect-ratio: 1.05;
   z-index: -1;
   pointer-events: none;
+  opacity: 0.58;
   background:
-    radial-gradient(circle at 16% 78%, rgba(182, 92, 255, 0.13), transparent 18rem),
-    radial-gradient(circle at 82% 78%, rgba(104, 239, 255, 0.08), transparent 18rem);
+    radial-gradient(circle at 50% 48%, rgba(182, 92, 255, 0.18), transparent 42%),
+    radial-gradient(circle at 54% 56%, rgba(104, 239, 255, 0.08), transparent 58%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 820 640' fill='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='124' y1='90' x2='694' y2='546' gradientUnits='userSpaceOnUse'%3E%3Cstop stop-color='%2368efff' stop-opacity='.86'/%3E%3Cstop offset='.52' stop-color='%23f08cff' stop-opacity='.82'/%3E%3Cstop offset='1' stop-color='%23b65cff' stop-opacity='.7'/%3E%3C/linearGradient%3E%3CradialGradient id='n' cx='0' cy='0' r='1' gradientUnits='userSpaceOnUse' gradientTransform='translate(398 316) rotate(90) scale(270 330)'%3E%3Cstop stop-color='%23fffdf7' stop-opacity='.12'/%3E%3Cstop offset='1' stop-color='%23fffdf7' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Cpath d='M240 506c-70-30-112-84-112-154 0-49 23-88 62-112-5-70 45-126 118-126 29-59 115-74 170-28 62-11 122 26 139 84 55 16 92 64 92 124 0 70-50 125-119 139-18 56-76 91-137 80-55 43-138 40-184-7h-29Z' fill='url(%23n)' stroke='url(%23g)' stroke-width='7' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M308 114c-30 36-28 84 8 116M470 86c-34 30-40 78-15 116M190 241c50 2 90 31 106 77M617 170c-48 17-75 55-73 103M220 410c51-18 102-9 137 27M592 432c-45-39-93-51-146-33M402 206c-51 19-82 58-92 116M424 204c52 22 84 62 93 121M318 334c48-23 98-20 146 8M356 444c27-43 67-68 119-74M489 272c55-8 103 8 145 48M257 274c35-42 78-61 130-56M284 506c-7-50 10-93 51-128M546 504c10-52-4-96-42-132' stroke='url(%23g)' stroke-width='5' stroke-linecap='round' stroke-linejoin='round' opacity='.82'/%3E%3Cpath d='M171 341h91m297-25h93M399 120v98m0 237v72M267 226l65 56m208-8 68-58M298 423l-76 62m310-53 86 48' stroke='%2368efff' stroke-width='2.5' stroke-linecap='round' opacity='.38'/%3E%3Cg fill='%23fffdf7' opacity='.88'%3E%3Ccircle cx='262' cy='341' r='7'/%3E%3Ccircle cx='399' cy='218' r='7'/%3E%3Ccircle cx='464' cy='342' r='7'/%3E%3Ccircle cx='544' cy='274' r='7'/%3E%3Ccircle cx='476' cy='370' r='7'/%3E%3Ccircle cx='336' cy='378' r='7'/%3E%3Ccircle cx='399' cy='455' r='7'/%3E%3Ccircle cx='652' cy='316' r='6'/%3E%3Ccircle cx='171' cy='341' r='6'/%3E%3C/g%3E%3Cg fill='%23f08cff' opacity='.72'%3E%3Ccircle cx='332' cy='282' r='5'/%3E%3Ccircle cx='387' cy='218' r='5'/%3E%3Ccircle cx='608' cy='216' r='5'/%3E%3Ccircle cx='222' cy='485' r='5'/%3E%3Ccircle cx='618' cy='480' r='5'/%3E%3C/g%3E%3C/svg%3E");
+  background-position: center;
+  background-size: 100% 100%, 100% 100%, contain;
+  background-repeat: no-repeat;
+  filter: drop-shadow(0 0 34px rgba(182, 92, 255, 0.24)) drop-shadow(0 0 18px rgba(104, 239, 255, 0.14));
+  transform: rotate(-4deg);
+  mask-image: linear-gradient(90deg, transparent 0%, black 14%, black 82%, transparent 100%);
 }
 
 .home-body .site-header,
@@ -5815,6 +5843,17 @@ select:focus {
 }
 
 @media (max-width: 620px) {
+  .home-body::after,
+  .passport-body::after,
+  .compatibility-body::after,
+  .partner-dashboard-body::after {
+    top: 86px;
+    right: -44vw;
+    width: 128vw;
+    opacity: 0.34;
+    transform: rotate(-7deg);
+  }
+
   .site-header {
     gap: 12px;
   }
@@ -5847,10 +5886,14 @@ select:focus {
   .passport-body .passport-hero h1,
   .compatibility-body .compatibility-title-block h1,
   .partner-dashboard-body .partner-dashboard-head h1 {
-    font-size: 30px;
+    width: min(100%, calc(100vw - 32px));
+    max-width: calc(100vw - 32px);
+    font-size: 28px;
     line-height: 1.05;
-    overflow-wrap: normal;
+    white-space: normal;
+    overflow-wrap: break-word;
     word-break: normal;
+    hyphens: auto;
   }
 
   .home-body .hero-metrics,
