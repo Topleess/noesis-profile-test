@@ -281,6 +281,7 @@ const state = {
   teaserTimer: null,
   feedbackTimer: null,
   activeCategoryIndex: 0,
+  reportCategories: [],
   activeDashboardBlock: "",
   neuroBrainFrame: null,
   avatarPalette: null,
@@ -341,7 +342,12 @@ const elements = {
   feedbackForm: document.querySelector("[data-feedback-form]"),
   feedbackClose: document.querySelectorAll("[data-feedback-close]"),
   feedbackSubmit: document.querySelector("[data-feedback-submit]"),
-  feedbackThanks: document.querySelector("[data-feedback-thanks]")
+  feedbackThanks: document.querySelector("[data-feedback-thanks]"),
+  reportModal: document.querySelector("[data-report-modal]"),
+  reportModalEyebrow: document.querySelector("[data-report-modal-eyebrow]"),
+  reportModalTitle: document.querySelector("[data-report-modal-title]"),
+  reportModalBody: document.querySelector("[data-report-modal-body]"),
+  reportModalClose: document.querySelectorAll("[data-report-modal-close]")
 };
 
 function renderQuestion() {
@@ -1097,6 +1103,62 @@ function escapeHtml(value) {
     };
     return entities[char];
   });
+}
+
+function openReportModal({ eyebrow = "WHOAMI", title = "Расшифровка", body = "" }) {
+  if (!elements.reportModal || !elements.reportModalBody) return;
+
+  elements.reportModalEyebrow.textContent = eyebrow;
+  elements.reportModalTitle.textContent = title;
+  elements.reportModalBody.innerHTML = body;
+  elements.reportModal.hidden = false;
+  document.body.classList.add("has-report-modal");
+  if (window.lucide) window.lucide.createIcons();
+  if (window.whoamiTranslate) window.whoamiTranslate(elements.reportModal);
+}
+
+function closeReportModal() {
+  if (!elements.reportModal) return;
+  elements.reportModal.hidden = true;
+  document.body.classList.remove("has-report-modal");
+}
+
+function renderModalMetrics(metrics = []) {
+  if (!metrics.length) return "";
+
+  return `
+    <div class="report-modal-metrics">
+      ${metrics
+        .map(
+          (metric) => `
+            <div>
+              <span>${Math.round(metric.value)}%</span>
+              <small>${escapeHtml(metric.title)}</small>
+            </div>
+          `
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+function renderModalDetails(details = []) {
+  if (!details.length) return "";
+
+  return `
+    <div class="report-modal-detail-grid">
+      ${details
+        .map(
+          (detail) => `
+            <article>
+              <span>${escapeHtml(detail.title)}</span>
+              <p>${escapeHtml(detail.text)}</p>
+            </article>
+          `
+        )
+        .join("")}
+    </div>
+  `;
 }
 
 function hasConsent() {
@@ -2611,6 +2673,10 @@ function renderPaidVerdict(scores) {
           <p>${escapeHtml(data.profile.headline)}</p>
         </div>
         <div class="neuro-actions">
+          <button class="ghost-button compact" type="button" data-open-verdict-modal>
+            <i data-lucide="scan-text" aria-hidden="true"></i>
+            Вердикт
+          </button>
           <button class="price-button dark" type="button" data-download-passport-doc>
             <i data-lucide="file-down" aria-hidden="true"></i>
             Паспорт
@@ -2695,6 +2761,35 @@ function renderPaidVerdict(scores) {
   `;
 
   window.requestAnimationFrame(() => startNeuroBrain(scores));
+}
+
+function openVerdictModal() {
+  if (!state.latestScores.length) return;
+  const profile = classifyProfile(state.latestScores);
+  const brandType = getBrandType(profile, selectDarkRadicals(state.latestScores));
+
+  openReportModal({
+    eyebrow: "Главный вердикт",
+    title: brandType,
+    body: renderDetailedVerdict(profile, state.latestScores)
+  });
+}
+
+function openDashboardBlockModal(blockId) {
+  if (!state.latestScores.length) return;
+  const data = buildNeuroDashboardData(state.latestScores);
+  const block = data.blocks.find((item) => item.id === blockId);
+  if (!block) return;
+
+  openReportModal({
+    eyebrow: "WHOAMI neural profile",
+    title: `${block.title}: ${block.label}`,
+    body: `
+      <p class="report-modal-summary">${escapeHtml(block.summary)}</p>
+      ${renderModalMetrics(block.metrics)}
+      ${renderModalDetails(block.details)}
+    `
+  });
 }
 
 function scoreByScale(scores, scale) {
@@ -4538,6 +4633,7 @@ function renderLifeMap(scores) {
 
   const activeIndex = Math.min(Math.max(state.activeCategoryIndex, 0), categories.length - 1);
   state.activeCategoryIndex = activeIndex;
+  state.reportCategories = categories;
 
   elements.lifeMap.innerHTML = `
     <section class="domain-report" aria-label="Глубокие блоки отчета">
@@ -4578,41 +4674,8 @@ function renderLifeMap(scores) {
                     <em>${category.kicker}</em>
                   </span>
                   <b>${status}</b>
-                  <i data-lucide="${isActive ? "chevron-up" : "chevron-down"}" aria-hidden="true"></i>
+                  <i data-lucide="maximize-2" aria-hidden="true"></i>
                 </button>
-                ${
-                  isActive
-                    ? `
-                      <div class="category-body">
-                        <p class="category-summary">${category.summary}</p>
-                        <div class="category-metrics">
-                          ${category.metrics
-                            .map(
-                              (metric) => `
-                                <div>
-                                  <span>${metric.value}%</span>
-                                  <small>${metric.title}</small>
-                                </div>
-                              `
-                            )
-                            .join("")}
-                        </div>
-                        <div class="category-detail-grid">
-                          ${category.details
-                            .map(
-                              (detail) => `
-                                <article>
-                                  <span>${detail.title}</span>
-                                  <p>${detail.text}</p>
-                                </article>
-                              `
-                            )
-                            .join("")}
-                        </div>
-                      </div>
-                    `
-                    : ""
-                }
               </article>
             `;
           })
@@ -4622,6 +4685,23 @@ function renderLifeMap(scores) {
   `;
 
   if (window.lucide) window.lucide.createIcons();
+}
+
+function openCategoryModal(index) {
+  const category = state.reportCategories[index];
+  if (!category) return;
+
+  state.activeCategoryIndex = index;
+  openReportModal({
+    eyebrow: `Блок ${String(index + 1).padStart(2, "0")} · ${Math.round(category.score)}%`,
+    title: category.title,
+    body: `
+      <p class="report-modal-kicker">${escapeHtml(category.kicker)}</p>
+      <p class="report-modal-summary">${escapeHtml(category.summary)}</p>
+      ${renderModalMetrics(category.metrics)}
+      ${renderModalDetails(category.details)}
+    `
+  });
 }
 
 function renderAnswerArchive() {
@@ -4653,16 +4733,16 @@ function unlockReport(options = {}) {
   state.latestTier = "paid";
 
   renderPaidVerdict(state.latestScores);
+  renderPassportDossier(state.latestScores);
+  renderPassportShare(state.latestScores);
+  renderAttachmentStyle(state.latestScores);
+  renderDarkRadicals(state.latestScores);
+  renderResultDecoder(state.latestScores);
+  renderGrowthZones(state.latestScores);
   renderScoreList(state.latestScores);
+  renderMiddleRecommendations(state.latestScores);
+  renderLifeMap(state.latestScores);
   renderAnswerArchive();
-  elements.passportDossier.innerHTML = "";
-  elements.passportShare.innerHTML = "";
-  elements.attachmentStyle.innerHTML = "";
-  elements.darkRadicals.innerHTML = "";
-  elements.resultDecoder.innerHTML = "";
-  elements.growthZones.innerHTML = "";
-  elements.middleRecommendations.innerHTML = "";
-  elements.lifeMap.innerHTML = "";
   elements.middleReport.hidden = false;
   elements.upgrade.classList.add("is-unlocked");
   elements.upgrade.innerHTML = '<i data-lucide="check" aria-hidden="true"></i> Платный отчет открыт';
@@ -4787,9 +4867,7 @@ function showSharedResultFromUrl() {
     resetUnlockedReports();
     renderBasicResult(scores, state.profileCode);
 
-    if (state.latestTier === "paid") {
-      unlockReport({ scroll: false, submit: false });
-    }
+    unlockReport({ scroll: false, submit: false });
 
     document.querySelector("#test")?.scrollIntoView({ block: "start" });
   } catch (error) {
@@ -4850,14 +4928,15 @@ elements.copy.addEventListener("click", async () => {
 elements.upgrade.addEventListener("click", () => unlockReport());
 
 elements.paidVerdict.addEventListener("click", (event) => {
+  if (event.target.closest("[data-open-verdict-modal]")) {
+    openVerdictModal();
+    return;
+  }
+
   const button = event.target.closest("[data-dashboard-block]");
   if (!button || !state.latestScores.length) return;
 
-  const nextBlock = button.dataset.dashboardBlock;
-  state.activeDashboardBlock = state.activeDashboardBlock === nextBlock ? "" : nextBlock;
-  renderPaidVerdict(state.latestScores);
-
-  if (window.lucide) window.lucide.createIcons();
+  openDashboardBlockModal(button.dataset.dashboardBlock);
 });
 
 if (elements.avatarInput) {
@@ -4885,6 +4964,13 @@ document.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && elements.feedbackModal && !elements.feedbackModal.hidden) {
     closeFeedbackPrompt(true);
   }
+  if (event.key === "Escape" && elements.reportModal && !elements.reportModal.hidden) {
+    closeReportModal();
+  }
+});
+
+elements.reportModalClose.forEach((button) => {
+  button.addEventListener("click", closeReportModal);
 });
 
 if (elements.compareCheck) {
@@ -4907,15 +4993,7 @@ elements.lifeMap.addEventListener("click", (event) => {
   const index = Number(toggleButton.dataset.categoryToggle);
   if (!Number.isFinite(index)) return;
 
-  state.activeCategoryIndex = index;
-
-  renderLifeMap(state.latestScores);
-  window.requestAnimationFrame(() => {
-    elements.lifeMap.querySelector(`[data-category-panel="${index}"]`)?.scrollIntoView({
-      behavior: "smooth",
-      block: "center"
-    });
-  });
+  openCategoryModal(index);
 });
 
 document.addEventListener("click", (event) => {
