@@ -186,6 +186,81 @@ const submissionsConfig = {
   table: "test_submissions"
 };
 
+const growthLibrary = {
+  S1: {
+    title: "Эмоциональная регуляция",
+    focus: "замечать всплеск до сообщения, решения или резкой фразы",
+    practice: "ввести паузу 20 минут перед ответом в конфликте и возвращаться к разговору уже с формулировкой запроса",
+    compat: "договариваться о паузах в конфликте, чтобы сильная эмоция не превращалась в угрозу отношениям"
+  },
+  S2: {
+    title: "Ясность в близости",
+    focus: "просить подтверждение прямо, а не считывать его по паузам и интонациям",
+    practice: "заменять внутреннюю проверку коротким вопросом: что между нами сейчас важно прояснить?",
+    compat: "делать контакт предсказуемым: короткие договоренности, статус отношений, понятные ожидания"
+  },
+  S3: {
+    title: "Дозированная близость",
+    focus: "объяснять потребность в пространстве без холодности и исчезновения",
+    practice: "называть срок дистанции: мне нужен вечер одному, завтра вернусь к разговору",
+    compat: "разводить любовь и постоянный контакт: близость не обязана быть круглосуточной"
+  },
+  S4: {
+    title: "Устойчивая самооценка",
+    focus: "не отдавать ощущение ценности полностью в руки внешней реакции",
+    practice: "перед конфликтом отделять факт, интерпретацию и уязвленное достоинство",
+    compat: "давать признание без соревнования и критиковать поведение, а не уровень человека"
+  },
+  S5: {
+    title: "Проявленность без перегрева",
+    focus: "оставаться ярким, не превращая каждую эмоцию в сцену",
+    practice: "проверять: я сейчас хочу быть понятным или хочу усилить впечатление?",
+    compat: "оставлять место для тихого партнера и не измерять любовь интенсивностью реакции"
+  },
+  S6: {
+    title: "Гибкость контроля",
+    focus: "различать важный порядок и попытку снизить тревогу через контроль",
+    practice: "выбирать одну зону, где можно допустить несовершенство без немедленной правки",
+    compat: "договариваться о правилах заранее, но оставлять право на живую корректировку"
+  },
+  S7: {
+    title: "Доверие без слепоты",
+    focus: "проверять факты, не превращая каждую неопределенность в подозрение",
+    practice: "перед выводом задавать один прямой вопрос вместо серии внутренних проверок",
+    compat: "создавать прозрачность: меньше игр, больше прямых намерений и последовательных поступков"
+  },
+  S8: {
+    title: "Импульс через паузу",
+    focus: "сохранять свободу, но не платить за нее последствиями",
+    practice: "для денег, обещаний и сообщений в сильной эмоции использовать правило одной ночи",
+    compat: "планировать пространство для спонтанности, чтобы свобода не ломала договоренности"
+  },
+  S9: {
+    title: "Решение без бесконечного анализа",
+    focus: "останавливать сценарии там, где точность уже не растет",
+    practice: "заранее назначать критерий: какой информации достаточно, чтобы начать?",
+    compat: "не давить скоростью на осторожного партнера и не превращать осторожность в торможение пары"
+  },
+  S10: {
+    title: "Смелость под оценкой",
+    focus: "выходить в контакт до ощущения полной безопасности",
+    practice: "делать маленькое проявление раньше, чем появится идеальная уверенность",
+    compat: "давать мягкий вход в сложные темы без стыда, сарказма и публичного давления"
+  },
+  S11: {
+    title: "Сила без давления",
+    focus: "оставаться эффективным, не превращая холодность в инструмент власти",
+    practice: "перед жестким ходом проверять цену: что это сделает с доверием через месяц?",
+    compat: "не использовать слабые места партнера как аргументы, даже если спор стал острым"
+  },
+  S12: {
+    title: "Ритм без распыления",
+    focus: "не путать энергию движения с реальным приоритетом",
+    practice: "держать не больше трех активных направлений и закрывать цикл до нового старта",
+    compat: "согласовывать темп пары: инициативность должна вести, а не тащить второго человека"
+  }
+};
+
 const questions = rawQuestions
   .trim()
   .split("\n")
@@ -204,9 +279,14 @@ const state = {
   submittedEvents: new Set(),
   teasersShown: new Set(),
   teaserTimer: null,
-  compatibilitySelf: null,
-  compatibilityOther: null,
-  compatibilityMode: "couple"
+  feedbackTimer: null,
+  activeCategoryIndex: 0,
+  activeDashboardBlock: "",
+  neuroBrainFrame: null,
+  avatarPalette: null,
+  avatarBatch: 0,
+  avatarVariants: [],
+  selectedAvatar: ""
 };
 
 const elements = {
@@ -238,22 +318,30 @@ const elements = {
   upgrade: document.querySelector("[data-upgrade]"),
   middleReport: document.querySelector("[data-middle-report]"),
   paidVerdict: document.querySelector("[data-paid-verdict]"),
+  passportDossier: document.querySelector("[data-passport-dossier]"),
   passportShare: document.querySelector("[data-passport-share]"),
   attachmentStyle: document.querySelector("[data-attachment-style]"),
   darkRadicals: document.querySelector("[data-dark-radicals]"),
   resultDecoder: document.querySelector("[data-result-decoder]"),
+  growthZones: document.querySelector("[data-growth-zones]"),
   scoreList: document.querySelector("[data-score-list]"),
   middleRecommendations: document.querySelector("[data-middle-recommendations]"),
   lifeMap: document.querySelector("[data-life-map]"),
   answerList: document.querySelector("[data-answer-list]"),
-  compatibilityJump: document.querySelector("[data-compatibility-jump]"),
-  compatibilitySelfInput: document.querySelector("[data-compat-self]"),
-  compatibilityOtherInput: document.querySelector("[data-compat-other]"),
-  compatibilitySelfStatus: document.querySelector("[data-compat-self-status]"),
-  compatibilityOtherStatus: document.querySelector("[data-compat-other-status]"),
-  compatibilityModeInputs: document.querySelectorAll("[data-compat-mode]"),
-  compatibilityRun: document.querySelector("[data-run-compatibility]"),
-  compatibilityOutput: document.querySelector("[data-compatibility-output]")
+  avatarInput: document.querySelector("[data-avatar-input]"),
+  avatarRegenerate: document.querySelector("[data-avatar-regenerate]"),
+  avatarStatus: document.querySelector("[data-avatar-status]"),
+  avatarVariants: document.querySelector("[data-avatar-variants]"),
+  avatarPreview: document.querySelector("[data-avatar-selected-preview]"),
+  compatibilityLink: document.querySelector("[data-compatibility-link]"),
+  compareInput: document.querySelector("[data-compare-input]"),
+  compareCheck: document.querySelector("[data-compare-check]"),
+  compareOutput: document.querySelector("[data-compare-output]"),
+  feedbackModal: document.querySelector("[data-feedback-modal]"),
+  feedbackForm: document.querySelector("[data-feedback-form]"),
+  feedbackClose: document.querySelectorAll("[data-feedback-close]"),
+  feedbackSubmit: document.querySelector("[data-feedback-submit]"),
+  feedbackThanks: document.querySelector("[data-feedback-thanks]")
 };
 
 function renderQuestion() {
@@ -279,6 +367,7 @@ function renderQuestion() {
 }
 
 function showQuiz() {
+  document.body.classList.remove("has-passport-result");
   elements.leadScreen.hidden = true;
   elements.resultScreen.hidden = true;
   elements.quizScreen.hidden = false;
@@ -466,20 +555,530 @@ function decodeResultPayload(value) {
   return JSON.parse(new TextDecoder().decode(bytes));
 }
 
-function makeResultUrl(tier = state.latestTier) {
-  const url = new URL(window.location.href);
-  const payload = {
+function buildResultPayload(tier = state.latestTier) {
+  return {
     v: 1,
     code: state.profileCode,
     tier,
     scores: state.latestScores.map((item) => [item.scale, item.score]),
     answers: state.answers.map((answer) => answer || 0).join("")
   };
+}
 
+function getCurrentLanguageParam() {
+  const language = document.documentElement.lang || window.localStorage.getItem("whoami_language") || "";
+  return ["en", "ar"].includes(language) ? language : "";
+}
+
+function makeResultUrl(tier = state.latestTier) {
+  const url = new URL("./passport.html", window.location.href);
+  const language = getCurrentLanguageParam();
   url.searchParams.delete("ref");
-  url.searchParams.set("result", encodeResultPayload(payload));
+  if (language) url.searchParams.set("lang", language);
+  url.searchParams.set("result", encodeResultPayload(buildResultPayload(tier)));
   url.hash = "test";
   return url.toString();
+}
+
+function makeCompatibilityUrl(tier = state.latestTier) {
+  const url = new URL("./compatibility.html", window.location.href);
+  const language = getCurrentLanguageParam();
+  if (language) url.searchParams.set("lang", language);
+  url.searchParams.set("self", encodeResultPayload(buildResultPayload(tier)));
+  return url.toString();
+}
+
+function hashText(value) {
+  let hash = 2166136261;
+  const text = String(value || "");
+  for (let i = 0; i < text.length; i += 1) {
+    hash ^= text.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
+
+function seededRandom(seed) {
+  let value = seed >>> 0;
+  return () => {
+    value += 0x6d2b79f5;
+    let next = value;
+    next = Math.imul(next ^ (next >>> 15), next | 1);
+    next ^= next + Math.imul(next ^ (next >>> 7), next | 61);
+    return ((next ^ (next >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function clampNumber(value, min = 0, max = 255) {
+  return Math.max(min, Math.min(max, Math.round(value)));
+}
+
+function normalizeColor(color, fallback = { r: 186, g: 138, b: 69 }) {
+  return {
+    r: clampNumber(color?.r ?? fallback.r),
+    g: clampNumber(color?.g ?? fallback.g),
+    b: clampNumber(color?.b ?? fallback.b)
+  };
+}
+
+function mixColors(color, target, amount = 0.5) {
+  const source = normalizeColor(color);
+  const destination = normalizeColor(target);
+  const ratio = Math.max(0, Math.min(1, amount));
+  return {
+    r: clampNumber(source.r + (destination.r - source.r) * ratio),
+    g: clampNumber(source.g + (destination.g - source.g) * ratio),
+    b: clampNumber(source.b + (destination.b - source.b) * ratio)
+  };
+}
+
+function shadeColor(color, amount = 0) {
+  const target = amount >= 0 ? { r: 255, g: 253, b: 247 } : { r: 23, g: 24, b: 25 };
+  return mixColors(color, target, Math.abs(amount));
+}
+
+function colorCss(color) {
+  const value = normalizeColor(color);
+  return `rgb(${value.r}, ${value.g}, ${value.b})`;
+}
+
+function alphaColorCss(color, alpha = 1) {
+  const value = normalizeColor(color);
+  return `rgba(${value.r}, ${value.g}, ${value.b}, ${alpha})`;
+}
+
+function drawRoundedRect(ctx, x, y, width, height, radius) {
+  const safeRadius = Math.min(radius, width / 2, height / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + safeRadius, y);
+  ctx.lineTo(x + width - safeRadius, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + safeRadius);
+  ctx.lineTo(x + width, y + height - safeRadius);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - safeRadius, y + height);
+  ctx.lineTo(x + safeRadius, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - safeRadius);
+  ctx.lineTo(x, y + safeRadius);
+  ctx.quadraticCurveTo(x, y, x + safeRadius, y);
+  ctx.closePath();
+}
+
+function averageImageRegion(imageData, width, height, region, fallback, filter) {
+  const [x1, y1, x2, y2] = region;
+  const startX = Math.max(0, Math.floor(width * x1));
+  const startY = Math.max(0, Math.floor(height * y1));
+  const endX = Math.min(width, Math.ceil(width * x2));
+  const endY = Math.min(height, Math.ceil(height * y2));
+  let r = 0;
+  let g = 0;
+  let b = 0;
+  let count = 0;
+
+  for (let y = startY; y < endY; y += 1) {
+    for (let x = startX; x < endX; x += 1) {
+      const index = (y * width + x) * 4;
+      const color = {
+        r: imageData[index],
+        g: imageData[index + 1],
+        b: imageData[index + 2],
+        a: imageData[index + 3]
+      };
+
+      if (color.a < 18) continue;
+      if (filter && !filter(color)) continue;
+
+      r += color.r;
+      g += color.g;
+      b += color.b;
+      count += 1;
+    }
+  }
+
+  if (!count && filter) {
+    return averageImageRegion(imageData, width, height, region, fallback);
+  }
+
+  if (!count) return normalizeColor(fallback);
+  return normalizeColor({ r: r / count, g: g / count, b: b / count }, fallback);
+}
+
+function loadAvatarImage(file) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    const objectUrl = URL.createObjectURL(file);
+
+    image.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      resolve(image);
+    };
+
+    image.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error("avatar image load failed"));
+    };
+
+    image.src = objectUrl;
+  });
+}
+
+function drawImageCover(ctx, image, width, height) {
+  const imageRatio = image.width / image.height;
+  const canvasRatio = width / height;
+  const sourceWidth = imageRatio > canvasRatio ? image.height * canvasRatio : image.width;
+  const sourceHeight = imageRatio > canvasRatio ? image.height : image.width / canvasRatio;
+  const sourceX = (image.width - sourceWidth) / 2;
+  const sourceY = (image.height - sourceHeight) / 2;
+  ctx.drawImage(image, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, width, height);
+}
+
+function analyzeAvatarPhoto(image, file) {
+  const canvas = document.createElement("canvas");
+  const size = 96;
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext("2d", { willReadFrequently: true });
+  drawImageCover(ctx, image, size, size);
+  const { data } = ctx.getImageData(0, 0, size, size);
+  const brandTeal = { r: 15, g: 106, b: 98 };
+  const brandBurgundy = { r: 127, g: 46, b: 60 };
+  const brandBrass = { r: 180, g: 138, b: 69 };
+  const visiblePixel = (color) => color.r + color.g + color.b > 70 && color.r + color.g + color.b < 735;
+
+  const face = averageImageRegion(data, size, size, [0.32, 0.26, 0.68, 0.68], { r: 218, g: 166, b: 130 }, visiblePixel);
+  const hair = averageImageRegion(data, size, size, [0.24, 0.05, 0.76, 0.34], { r: 48, g: 39, b: 34 }, visiblePixel);
+  const clothes = averageImageRegion(data, size, size, [0.2, 0.68, 0.8, 0.95], brandTeal, visiblePixel);
+  const background = averageImageRegion(data, size, size, [0.02, 0.02, 0.98, 0.24], { r: 247, g: 242, b: 232 }, visiblePixel);
+  const seed = hashText(
+    `${state.profileCode}:${file.name}:${file.size}:${face.r}-${face.g}-${face.b}:${hair.r}-${hair.g}-${hair.b}:${clothes.r}-${clothes.g}-${clothes.b}`
+  );
+
+  return {
+    seed,
+    face: mixColors(face, { r: 238, g: 188, b: 151 }, 0.18),
+    hair: shadeColor(mixColors(hair, { r: 42, g: 33, b: 30 }, 0.22), -0.06),
+    clothes: mixColors(clothes, brandTeal, 0.32),
+    background: mixColors(background, { r: 255, g: 253, b: 247 }, 0.35),
+    accents: [brandTeal, brandBurgundy, brandBrass]
+  };
+}
+
+function drawAvatarVariant(palette, variantIndex, batchIndex) {
+  const canvas = document.createElement("canvas");
+  const width = 512;
+  const height = 512;
+  const random = seededRandom(palette.seed + variantIndex * 997 + batchIndex * 7919);
+  const ctx = canvas.getContext("2d");
+  canvas.width = width;
+  canvas.height = height;
+
+  const accent = palette.accents[(variantIndex + batchIndex) % palette.accents.length];
+  const secondAccent = palette.accents[(variantIndex + batchIndex + 1) % palette.accents.length];
+  const backgroundGradient = ctx.createLinearGradient(0, 0, width, height);
+  backgroundGradient.addColorStop(0, colorCss(shadeColor(palette.background, 0.22)));
+  backgroundGradient.addColorStop(0.5, colorCss(mixColors(palette.background, accent, 0.18)));
+  backgroundGradient.addColorStop(1, colorCss(mixColors({ r: 255, g: 253, b: 247 }, secondAccent, 0.15)));
+  ctx.fillStyle = backgroundGradient;
+  ctx.fillRect(0, 0, width, height);
+
+  ctx.save();
+  ctx.globalAlpha = 0.18;
+  ctx.strokeStyle = colorCss(secondAccent);
+  ctx.lineWidth = 18;
+  for (let i = -2; i < 7; i += 1) {
+    ctx.beginPath();
+    ctx.moveTo(-80, 90 + i * 82);
+    ctx.lineTo(590, -10 + i * 82);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  ctx.save();
+  ctx.globalAlpha = 0.22;
+  ctx.fillStyle = colorCss(shadeColor(accent, 0.35));
+  drawRoundedRect(ctx, 48, 56, 416, 392, 42);
+  ctx.fill();
+  ctx.restore();
+
+  const centerX = width / 2;
+  const headWidth = 190 + random() * 26;
+  const headHeight = 224 + random() * 22;
+  const headY = 126 + random() * 10;
+  const skin = normalizeColor(palette.face);
+  const hair = normalizeColor(palette.hair);
+  const clothes = normalizeColor(palette.clothes);
+  const shoulderY = 380;
+
+  ctx.save();
+  ctx.shadowColor = "rgba(23, 24, 25, 0.18)";
+  ctx.shadowBlur = 26;
+  ctx.shadowOffsetY = 16;
+
+  ctx.fillStyle = colorCss(shadeColor(clothes, -0.08));
+  ctx.beginPath();
+  ctx.ellipse(centerX, 500, 168, 132, 0, Math.PI, 0, true);
+  ctx.fill();
+
+  ctx.fillStyle = colorCss(shadeColor(skin, -0.06));
+  drawRoundedRect(ctx, centerX - 42, shoulderY - 48, 84, 88, 32);
+  ctx.fill();
+
+  ctx.fillStyle = colorCss(hair);
+  ctx.beginPath();
+  ctx.moveTo(centerX - headWidth * 0.56, headY + 120);
+  ctx.bezierCurveTo(centerX - headWidth * 0.68, headY + 28, centerX - headWidth * 0.28, headY - 38, centerX + 4, headY - 30);
+  ctx.bezierCurveTo(centerX + headWidth * 0.44, headY - 38, centerX + headWidth * 0.64, headY + 36, centerX + headWidth * 0.55, headY + 126);
+  ctx.bezierCurveTo(centerX + headWidth * 0.48, headY + 194, centerX - headWidth * 0.48, headY + 198, centerX - headWidth * 0.56, headY + 120);
+  ctx.fill();
+
+  ctx.fillStyle = colorCss(shadeColor(skin, -0.02));
+  ctx.beginPath();
+  ctx.ellipse(centerX - headWidth * 0.51, headY + 122, 20, 28, -0.12, 0, Math.PI * 2);
+  ctx.ellipse(centerX + headWidth * 0.51, headY + 122, 20, 28, 0.12, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = colorCss(skin);
+  ctx.beginPath();
+  ctx.ellipse(centerX, headY + 126, headWidth / 2, headHeight / 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = colorCss(hair);
+  ctx.beginPath();
+  ctx.moveTo(centerX - headWidth * 0.48, headY + 68);
+  ctx.bezierCurveTo(centerX - headWidth * 0.36, headY + 8, centerX - headWidth * 0.1, headY - 34, centerX + headWidth * 0.28, headY + 8);
+  ctx.bezierCurveTo(centerX + headWidth * 0.42, headY + 28, centerX + headWidth * 0.48, headY + 54, centerX + headWidth * 0.47, headY + 92);
+  ctx.bezierCurveTo(centerX + headWidth * 0.12, headY + 76, centerX - headWidth * 0.22, headY + 76, centerX - headWidth * 0.48, headY + 68);
+  ctx.fill();
+
+  if (variantIndex === 1 || random() > 0.58) {
+    ctx.fillStyle = colorCss(shadeColor(hair, 0.07));
+    ctx.beginPath();
+    ctx.moveTo(centerX - 16, headY + 6);
+    ctx.bezierCurveTo(centerX - 64, headY + 46, centerX - 72, headY + 88, centerX - 78, headY + 148);
+    ctx.bezierCurveTo(centerX - 44, headY + 100, centerX - 10, headY + 70, centerX + 14, headY + 22);
+    ctx.fill();
+  }
+
+  const eyeY = headY + 130;
+  const eyeGap = 48;
+  ctx.strokeStyle = colorCss(shadeColor(hair, -0.1));
+  ctx.lineWidth = 7;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(centerX - eyeGap - 16, eyeY - 28);
+  ctx.quadraticCurveTo(centerX - eyeGap, eyeY - 35, centerX - eyeGap + 18, eyeY - 28);
+  ctx.moveTo(centerX + eyeGap - 18, eyeY - 28);
+  ctx.quadraticCurveTo(centerX + eyeGap, eyeY - 35, centerX + eyeGap + 16, eyeY - 28);
+  ctx.stroke();
+
+  ctx.fillStyle = "#171819";
+  ctx.beginPath();
+  ctx.ellipse(centerX - eyeGap, eyeY, 8, 10, 0, 0, Math.PI * 2);
+  ctx.ellipse(centerX + eyeGap, eyeY, 8, 10, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "rgba(255, 253, 247, 0.82)";
+  ctx.beginPath();
+  ctx.ellipse(centerX - eyeGap + 3, eyeY - 4, 2.5, 3, 0, 0, Math.PI * 2);
+  ctx.ellipse(centerX + eyeGap + 3, eyeY - 4, 2.5, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.strokeStyle = alphaColorCss(shadeColor(skin, -0.28), 0.78);
+  ctx.lineWidth = 5;
+  ctx.beginPath();
+  ctx.moveTo(centerX + 3, eyeY + 14);
+  ctx.quadraticCurveTo(centerX - 6, eyeY + 42, centerX + 15, eyeY + 45);
+  ctx.stroke();
+
+  ctx.fillStyle = alphaColorCss(mixColors(skin, { r: 234, g: 96, b: 101 }, 0.42), 0.32);
+  ctx.beginPath();
+  ctx.ellipse(centerX - 66, eyeY + 38, 22, 12, -0.08, 0, Math.PI * 2);
+  ctx.ellipse(centerX + 66, eyeY + 38, 22, 12, 0.08, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.strokeStyle = colorCss(secondAccent);
+  ctx.lineWidth = 7;
+  ctx.beginPath();
+  const smile = variantIndex === 2 ? 18 : 10 + random() * 8;
+  ctx.moveTo(centerX - 28, eyeY + 76);
+  ctx.quadraticCurveTo(centerX, eyeY + 76 + smile, centerX + 28, eyeY + 76);
+  ctx.stroke();
+
+  if (variantIndex === 0 || random() > 0.68) {
+    ctx.strokeStyle = alphaColorCss(shadeColor(hair, -0.12), 0.8);
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    if (ctx.roundRect) {
+      ctx.roundRect(centerX - 78, eyeY - 16, 52, 34, 12);
+      ctx.roundRect(centerX + 26, eyeY - 16, 52, 34, 12);
+    } else {
+      drawRoundedRect(ctx, centerX - 78, eyeY - 16, 52, 34, 12);
+      drawRoundedRect(ctx, centerX + 26, eyeY - 16, 52, 34, 12);
+    }
+    ctx.moveTo(centerX - 26, eyeY + 1);
+    ctx.lineTo(centerX + 26, eyeY + 1);
+    ctx.stroke();
+  }
+
+  ctx.strokeStyle = alphaColorCss(secondAccent, 0.88);
+  ctx.lineWidth = 10;
+  ctx.beginPath();
+  ctx.moveTo(centerX - 102, 405);
+  ctx.quadraticCurveTo(centerX, 450 + random() * 12, centerX + 102, 405);
+  ctx.stroke();
+  ctx.restore();
+
+  ctx.fillStyle = alphaColorCss({ r: 255, g: 253, b: 247 }, 0.76);
+  drawRoundedRect(ctx, 168, 454, 176, 34, 17);
+  ctx.fill();
+  ctx.fillStyle = colorCss(shadeColor(secondAccent, -0.12));
+  ctx.font = "600 14px Inter, system-ui, sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText("WHOAMI AVATAR", centerX, 471);
+
+  return canvas.toDataURL("image/png");
+}
+
+function getAvatarStorageKey() {
+  return `whoami-avatar:${state.profileCode || "draft"}`;
+}
+
+function setAvatarStatus(message) {
+  if (elements.avatarStatus) elements.avatarStatus.textContent = message;
+}
+
+function loadSavedAvatar() {
+  try {
+    if (state.profileCode) {
+      const profileAvatar = window.localStorage.getItem(getAvatarStorageKey());
+      if (profileAvatar) return profileAvatar;
+    }
+    return window.localStorage.getItem("whoami-avatar:draft") || "";
+  } catch (error) {
+    return "";
+  }
+}
+
+function saveSelectedAvatar(value) {
+  const key = getAvatarStorageKey();
+  try {
+    window.localStorage.setItem(key, value);
+  } catch (error) {
+    console.warn("Could not save avatar", error);
+  }
+}
+
+function renderAvatarPreview() {
+  if (!elements.avatarPreview) return;
+  if (!state.selectedAvatar) {
+    elements.avatarPreview.innerHTML = `
+      <div class="avatar-empty">
+        <i data-lucide="sparkles" aria-hidden="true"></i>
+      </div>
+    `;
+  } else {
+    elements.avatarPreview.innerHTML = `<img src="${state.selectedAvatar}" alt="Выбранная AI-аватарка" />`;
+  }
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function renderAvatarVariants() {
+  if (!elements.avatarVariants) return;
+  elements.avatarVariants.innerHTML = state.avatarVariants
+    .map(
+      (avatar, index) => `
+        <button class="avatar-option${state.selectedAvatar === avatar ? " is-selected" : ""}" type="button" data-avatar-index="${index}">
+          <img src="${avatar}" alt="Вариант аватарки ${index + 1}" />
+          <span>
+            Вариант ${index + 1}
+            ${state.selectedAvatar === avatar ? '<i data-lucide="check" aria-hidden="true"></i>' : ""}
+          </span>
+        </button>
+      `
+    )
+    .join("");
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function resetAvatarStudio() {
+  state.avatarPalette = null;
+  state.avatarBatch = 0;
+  state.avatarVariants = [];
+  state.selectedAvatar = loadSavedAvatar();
+  if (state.selectedAvatar && state.profileCode) saveSelectedAvatar(state.selectedAvatar);
+  renderAvatarPreview();
+  renderAvatarVariants();
+  if (elements.avatarRegenerate) elements.avatarRegenerate.hidden = true;
+  setAvatarStatus(
+    state.selectedAvatar
+      ? state.profileCode
+        ? "Аватарка уже сохранена в этом паспорте."
+        : "Аватарка сохранена как черновик. После теста она привяжется к паспорту."
+      : "Нажмите “Фото / селфи”: на телефоне откроется камера или галерея."
+  );
+}
+
+function generateAvatarBatch() {
+  if (!state.avatarPalette) return;
+  state.avatarVariants = [0, 1, 2].map((index) => drawAvatarVariant(state.avatarPalette, index, state.avatarBatch));
+  state.selectedAvatar = "";
+  renderAvatarPreview();
+  renderAvatarVariants();
+  if (elements.avatarRegenerate) elements.avatarRegenerate.hidden = false;
+  setAvatarStatus("Готово. Выберите вариант, который сохранить в паспорте.");
+}
+
+function scrollToAvatarStudio() {
+  document.querySelector("[data-avatar-studio]")?.scrollIntoView({
+    behavior: "smooth",
+    block: "center"
+  });
+}
+
+async function handleAvatarInputChange(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  if (!file.type.startsWith("image/")) {
+    setAvatarStatus("Нужен файл изображения: фото или селфи.");
+    return;
+  }
+
+  setAvatarStatus("Генерирую 3 варианта...");
+  try {
+    const image = await loadAvatarImage(file);
+    state.avatarPalette = analyzeAvatarPhoto(image, file);
+    state.avatarBatch = 0;
+    generateAvatarBatch();
+    window.requestAnimationFrame(scrollToAvatarStudio);
+  } catch (error) {
+    console.warn("Could not generate avatar", error);
+    setAvatarStatus("Не получилось прочитать фото. Попробуйте другое изображение.");
+  } finally {
+    event.target.value = "";
+  }
+}
+
+function handleAvatarRegenerate() {
+  if (!state.avatarPalette) return;
+  state.avatarBatch += 1;
+  setAvatarStatus("Генерирую новые варианты...");
+  window.requestAnimationFrame(generateAvatarBatch);
+}
+
+function handleAvatarVariantClick(event) {
+  const option = event.target.closest("[data-avatar-index]");
+  if (!option) return;
+  const index = Number(option.dataset.avatarIndex);
+  const selected = state.avatarVariants[index];
+  if (!selected) return;
+  state.selectedAvatar = selected;
+  saveSelectedAvatar(selected);
+  renderAvatarPreview();
+  renderAvatarVariants();
+  setAvatarStatus(
+    state.profileCode
+      ? "Сохранено. Эту аватарку можно использовать как avatar_url в профиле."
+      : "Сохранено как черновик. После теста аватарка привяжется к паспорту."
+  );
 }
 
 function cleanText(value) {
@@ -596,19 +1195,44 @@ function hydrateScores(compactScores) {
     .sort((a, b) => b.score - a.score);
 }
 
+function normalizeScores(rawScores) {
+  if (!Array.isArray(rawScores)) return [];
+
+  if (Array.isArray(rawScores[0])) {
+    return hydrateScores(rawScores);
+  }
+
+  return rawScores
+    .map((item) => {
+      const scale = item?.scale;
+      return {
+        scale,
+        score: Number(item?.score),
+        ...publicDimensions[scale]
+      };
+    })
+    .filter((item) => item.label && Number.isFinite(item.score))
+    .sort((a, b) => b.score - a.score);
+}
+
 function resetUnlockedReports() {
   elements.middleReport.hidden = true;
+  stopNeuroBrain();
+  state.activeCategoryIndex = 0;
+  state.activeDashboardBlock = "";
   elements.paidVerdict.innerHTML = "";
+  elements.passportDossier.innerHTML = "";
   elements.passportShare.innerHTML = "";
   elements.attachmentStyle.innerHTML = "";
   elements.darkRadicals.innerHTML = "";
   elements.resultDecoder.innerHTML = "";
+  elements.growthZones.innerHTML = "";
   elements.scoreList.innerHTML = "";
   elements.middleRecommendations.innerHTML = "";
   elements.lifeMap.innerHTML = "";
   elements.answerList.innerHTML = "";
   elements.upgrade.classList.remove("is-unlocked");
-  elements.upgrade.innerHTML = '<i data-lucide="lock-keyhole" aria-hidden="true"></i> Открыть за $40';
+  elements.upgrade.innerHTML = '<i data-lucide="lock-keyhole" aria-hidden="true"></i> Открыть паспорт за $40';
 }
 
 function renderBasicResult(scores, code) {
@@ -618,10 +1242,20 @@ function renderBasicResult(scores, code) {
   elements.leadScreen.hidden = true;
   elements.quizScreen.hidden = true;
   elements.resultScreen.hidden = false;
+  document.body.classList.add("has-passport-result");
   elements.resultTitle.textContent = tone.title;
   elements.resultSummary.textContent = tone.summary;
   elements.profileCode.textContent = code;
   elements.refLink.value = makeResultUrl();
+  if (elements.compatibilityLink) {
+    elements.compatibilityLink.href = makeCompatibilityUrl();
+  }
+  if (elements.compareInput && elements.compareOutput) {
+    elements.compareInput.value = "";
+    elements.compareOutput.hidden = true;
+    elements.compareOutput.innerHTML = "";
+  }
+  resetAvatarStudio();
   elements.basicInsights.innerHTML = topScores
     .map(
       (item, index) => `
@@ -633,7 +1267,6 @@ function renderBasicResult(scores, code) {
       `
     )
     .join("");
-  syncCurrentResultToCompatibility();
 }
 
 function resultTone(topScores) {
@@ -1124,513 +1757,6 @@ function modelScoreFromMap(map, criteria) {
   return Math.round(total / totalWeight);
 }
 
-const compatibilityGrowth = {
-  couple: {
-    S1: "Договориться о паузе до резких сообщений и возвращаться к разговору уже с запросом, а не с атакой.",
-    S2: "Проговаривать статус, ожидания и планы. Для тревожного профиля неопределенность быстро становится шумом.",
-    S3: "Разделять любовь и постоянный контакт: пространство должно называться словами, а не исчезновением.",
-    S4: "Давать признание и обратную связь так, чтобы критика не звучала как обесценивание личности.",
-    S5: "Оставлять место для разной интенсивности: один выражает ярко, другой тише, и это не равно равнодушию.",
-    S6: "Договариваться о правилах заранее, но оставлять живой люфт, чтобы порядок не превращался в давление.",
-    S7: "Создавать прозрачность поступками и задавать прямой вопрос раньше, чем запускается внутренняя проверка.",
-    S8: "Планировать пространство для спонтанности, чтобы импульс не ломал договоренности и безопасность пары.",
-    S9: "Согласовать темп решений: осторожному профилю нужны критерии, быстрому - понятный дедлайн.",
-    S10: "Сложные темы поднимать мягко, без сарказма, публичного давления и проверки на смелость.",
-    S11: "Не использовать слабые места партнера как аргументы, даже если спор стал острым.",
-    S12: "Инициативность должна вести, а не тащить. Паре нужен общий темп, а не победа самого быстрого."
-  },
-  friends: {
-    S1: "Не превращать эмоциональные всплески в проверку дружбы. Лучше называть состояние и возвращаться к легкости после паузы.",
-    S2: "Договориться, как часто нужен контакт: одному важны регулярные сигналы, другому достаточно редких, но надежных встреч.",
-    S3: "Уважать автономность друга: дистанция не всегда означает холод, если она названа и не выглядит исчезновением.",
-    S4: "Следить, чтобы признание не стало соревнованием. Дружба выдерживает успехи, когда есть искренняя радость за другого.",
-    S5: "Разрешить разный социальный объем: один может быть ярким центром, другой - тихой опорой, и это не конфликт ролей.",
-    S6: "Не превращать дружбу в систему правил. Договоренности важны, но живой контакт не должен чувствоваться как отчетность.",
-    S7: "Убирать скрытые проверки: если что-то задело, лучше спросить прямо, чем собирать доказательства в голове.",
-    S8: "Оставить место для спонтанности, но не обещать больше, чем реально можно выдержать.",
-    S9: "Не застревать в анализе каждого сообщения. Дружбе помогает простое уточнение смысла, а не длинное внутреннее расследование.",
-    S10: "Критиковать бережно и наедине. Для чувствительного профиля публичная шутка может ощущаться как предательство.",
-    S11: "Не мериться силой и правотой. В дружбе жесткость лучше переводить в честность без давления.",
-    S12: "Согласовать инициативу: активный друг зовет и запускает, но не должен становиться единственным двигателем контакта."
-  },
-  team: {
-    S1: "Высокую эмоциональность переводить в быстрые ретро и ясные статусы, чтобы рабочие решения не зависели от настроения момента.",
-    S2: "Давать прозрачные ожидания: сроки, роль, критерий успеха. Неопределенность снижает рабочую устойчивость.",
-    S3: "Оставлять автономию в способе выполнения задачи. Контроль результата важнее постоянного контроля процесса.",
-    S4: "Настроить признание вклада: статус и видимость должны распределяться честно, иначе появляется скрытая конкуренция.",
-    S5: "Использовать выразительность для презентаций и коммуникации, но фиксировать решения письменно, чтобы энергия не заменяла структуру.",
-    S6: "Разделить зоны ответственности. Сильный контроль полезен в системе, но опасен, если блокирует делегирование.",
-    S7: "Повышать прозрачность решений: кто отвечает, почему так, что считается риском. Это снижает подозрительность к мотивам.",
-    S8: "Отделить эксперименты от стабильного контура. Новизна нужна команде, но не должна ломать обязательства.",
-    S9: "Давать критерии решения и дедлайны на анализ, иначе осторожность может тормозить движение всей команды.",
-    S10: "Обратную связь давать конкретно и без публичного стыда: иначе человек защищается, а не улучшает результат.",
-    S11: "Силу и напор направлять в цели, а не в людей. Жесткий лидерский слой требует правил экологичного спора.",
-    S12: "Инициативу закреплять владельцем задачи. Иначе быстрый человек запускает много процессов, но команда не успевает их довести."
-  }
-};
-
-const compatibilityModes = {
-  couple: {
-    id: "couple",
-    label: "Совместимость пары",
-    scoreLabel: "Индекс пары",
-    kicker: "Отношения",
-    context:
-      "Здесь сильнее учитываются привязанность, близость, ревность, дистанция и то, как два человека восстанавливают контакт после напряжения.",
-    resonanceTitle: "Где будет близость",
-    frictionTitle: "Где может болеть",
-    rulesTitle: "Как не сломать контакт",
-    attachmentSelf: "Ваш стиль привязанности",
-    attachmentOther: "Стиль привязанности второго профиля",
-    attachmentWeight: 0.38,
-    weights: { S1: 0.95, S2: 1.35, S3: 1.15, S4: 0.6, S5: 0.6, S6: 0.55, S7: 0.85, S8: 0.65, S9: 0.6, S10: 0.9, S11: 0.65, S12: 0.55 },
-    bands: [
-      ["Мягкое совпадение", "Профили легко считывают друг друга: темп близости, реакции и способы поддержки достаточно близки."],
-      ["Сильная, но живая совместимость", "Есть хорошая база притяжения, а различия могут усиливать пару, если их проговаривать."],
-      ["Контрастная совместимость", "Притяжение держится на различиях. Важно не считать стиль другого человека неправильным."],
-      ["Нужны зрелые правила контакта", "Профили могут цеплять чувствительные места друг друга. Здесь особенно важны ясность, паузы и границы."]
-    ]
-  },
-  friends: {
-    id: "friends",
-    label: "Совместимость друзей",
-    scoreLabel: "Индекс дружбы",
-    kicker: "Дружба",
-    context:
-      "Здесь сильнее учитываются доверие, легкость, социальный ритм, конкуренция, границы и способность сохранять контакт без постоянного подтверждения.",
-    resonanceTitle: "Где будет легкость",
-    frictionTitle: "Где дружба может уставать",
-    rulesTitle: "Как сохранить контакт",
-    attachmentSelf: "Ваш стиль контакта",
-    attachmentOther: "Стиль контакта второго профиля",
-    attachmentWeight: 0.22,
-    weights: { S1: 0.8, S2: 0.75, S3: 1, S4: 0.75, S5: 1.15, S6: 0.6, S7: 1, S8: 0.85, S9: 0.65, S10: 0.8, S11: 0.55, S12: 0.85 },
-    bands: [
-      ["Легкая дружеская связка", "Профили хорошо выдерживают ритм друг друга: есть пространство, интерес и понятный способ поддерживать контакт."],
-      ["Сильная дружба с разным темпом", "Есть хорошая база доверия, но важно не путать различия в активности с равнодушием."],
-      ["Дружба на контрасте", "Контакт может быть интересным, но потребует честных границ, чтобы один не уставал, а другой не чувствовал отвержение."],
-      ["Нужны ясные границы дружбы", "Профили могут запускать конкуренцию, обиды или проверки. Лучше заранее договориться о ритме и ожиданиях."]
-    ]
-  },
-  team: {
-    id: "team",
-    label: "Совместимость команды",
-    scoreLabel: "Индекс команды",
-    kicker: "Работа",
-    context:
-      "Здесь сильнее учитываются роли, лидерство, контроль, скорость решений, риск, делегирование, обратная связь и устойчивость команды под нагрузкой.",
-    resonanceTitle: "Где будет рабочая синергия",
-    frictionTitle: "Где команда может буксовать",
-    rulesTitle: "Как настроить совместную работу",
-    attachmentSelf: "Ваш рабочий стиль контакта",
-    attachmentOther: "Рабочий стиль второго профиля",
-    attachmentWeight: 0.12,
-    weights: { S1: 0.65, S2: 0.55, S3: 0.75, S4: 0.85, S5: 0.7, S6: 1.3, S7: 0.9, S8: 0.85, S9: 1.15, S10: 0.7, S11: 1.05, S12: 1.1 },
-    bands: [
-      ["Сильная рабочая связка", "Профили хорошо распределяют роли, темп решений и ответственность. Такая команда может быстро создавать результат."],
-      ["Рабочая совместимость с настройкой ролей", "База сильная, но эффективность зависит от того, насколько ясно разделены зоны ответственности."],
-      ["Команда на контрасте", "Разные стили могут давать объем, но без правил будут спорить за темп, контроль или способ принятия решений."],
-      ["Нужен жесткий рабочий протокол", "Профили могут тормозить или давить друг на друга. Нужны роли, дедлайны, критерии и правила фидбека."]
-    ]
-  }
-};
-
-function clampScore(value) {
-  return Math.max(0, Math.min(100, Math.round(value)));
-}
-
-function normalizeProfileScores(rawScores) {
-  if (!Array.isArray(rawScores)) return [];
-  if (Array.isArray(rawScores[0])) return hydrateScores(rawScores);
-
-  return rawScores
-    .map((item) => {
-      const scale = item?.scale;
-      return {
-        scale,
-        score: Number(item?.score),
-        ...publicDimensions[scale]
-      };
-    })
-    .filter((item) => item.label && Number.isFinite(item.score))
-    .sort((a, b) => b.score - a.score);
-}
-
-function profileFromPayload(payload, source = "shared-link") {
-  const scores = normalizeProfileScores(payload?.scores || []);
-  if (!scores.length) return null;
-  return {
-    code: cleanText(payload.code) || "SHARED",
-    tier: cleanText(payload.tier) || "basic",
-    scores,
-    source
-  };
-}
-
-function parseResultPayload(value) {
-  const text = String(value || "").trim();
-  if (!text) return null;
-
-  try {
-    const url = new URL(text, window.location.href);
-    const encoded = url.searchParams.get("result") || url.searchParams.get("self") || url.searchParams.get("partner");
-    if (encoded) return decodeResultPayload(encoded);
-  } catch {
-    // Continue with relaxed parsing below.
-  }
-
-  const resultMatch = text.match(/(?:^|[?&])(result|self|partner)=([^&#\s]+)/);
-  if (resultMatch?.[2]) return decodeResultPayload(resultMatch[2]);
-
-  if (/^[A-Za-z0-9_-]{24,}$/.test(text)) return decodeResultPayload(text);
-  return null;
-}
-
-function parseStoredScores(value) {
-  if (Array.isArray(value)) return value;
-  if (typeof value !== "string") return [];
-
-  try {
-    return JSON.parse(value);
-  } catch {
-    return [];
-  }
-}
-
-function profileFromStoredRow(row) {
-  const scores = normalizeProfileScores(parseStoredScores(row?.scores));
-  if (scores.length) {
-    return {
-      code: cleanText(row.profile_code) || "PUBLIC",
-      tier: cleanText(row.tier) || "basic",
-      scores,
-      source: "public-code"
-    };
-  }
-
-  const payload = parseResultPayload(row?.result_url || "");
-  return payload ? profileFromPayload(payload, "public-code") : null;
-}
-
-async function requestPublicProfileRows(code, withOrder = true) {
-  const url = new URL(`${submissionsConfig.url}/rest/v1/${submissionsConfig.table}`);
-  url.searchParams.set("select", "profile_code,scores,result_url,tier,event_type");
-  url.searchParams.set("profile_code", `eq.${code}`);
-  url.searchParams.set("limit", "5");
-  if (withOrder) url.searchParams.set("order", "created_at.desc");
-
-  const response = await fetch(url.toString(), {
-    headers: {
-      apikey: submissionsConfig.key,
-      Authorization: `Bearer ${submissionsConfig.key}`
-    }
-  });
-
-  if (!response.ok) throw new Error(`public profile lookup failed: ${response.status}`);
-  return response.json();
-}
-
-async function fetchPublicProfileByCode(code) {
-  const normalizedCode = code.trim().toUpperCase();
-  let rows;
-
-  try {
-    rows = await requestPublicProfileRows(normalizedCode);
-  } catch {
-    rows = await requestPublicProfileRows(normalizedCode, false);
-  }
-
-  const profile = rows.map(profileFromStoredRow).find(Boolean);
-  if (!profile) {
-    throw new Error("Профиль с таким кодом не найден или закрыт для публичного чтения. Вставьте полную ссылку результата.");
-  }
-
-  return profile;
-}
-
-async function resolveCompatibilityProfile(value, fallbackProfile, label) {
-  const text = cleanText(value);
-  if (!text && fallbackProfile) return fallbackProfile;
-  if (!text) throw new Error(`Заполните поле "${label}".`);
-
-  const codeMatch = text.toUpperCase().match(/^NP-[A-Z0-9]{4,}$/);
-  if (codeMatch) return fetchPublicProfileByCode(codeMatch[0]);
-
-  const payload = parseResultPayload(text);
-  const profile = profileFromPayload(payload, "shared-link");
-  if (!profile) {
-    throw new Error(`Не получилось прочитать поле "${label}". Используйте полную ссылку результата или NP-код.`);
-  }
-
-  return profile;
-}
-
-function compatibilityBand(score, mode) {
-  const [high, good, contrast, low] = mode.bands;
-  const [title, text] = score >= 82 ? high : score >= 68 ? good : score >= 52 ? contrast : low;
-  return { title, text };
-}
-
-function buildCompatibilityReport(selfScores, otherScores, modeId = state.compatibilityMode) {
-  const mode = compatibilityModes[modeId] || compatibilityModes.couple;
-  const selfMap = scoreMap(selfScores);
-  const otherMap = scoreMap(otherScores);
-  const rows = Object.keys(publicDimensions).map((scale) => {
-    const self = selfMap[scale] ?? 0;
-    const other = otherMap[scale] ?? 0;
-    const weight = mode.weights[scale] || 1;
-    const delta = Math.abs(self - other);
-    const max = Math.max(self, other);
-    const average = Math.round((self + other) / 2);
-    return {
-      scale,
-      label: publicDimensions[scale].label,
-      insight: publicDimensions[scale].insight,
-      self,
-      other,
-      delta,
-      average,
-      max,
-      weight,
-      impact: delta * weight + Math.max(max - 50, 0) * 0.18 * weight
-    };
-  });
-  const totalWeight = rows.reduce((sum, item) => sum + item.weight, 0);
-  const averageDelta = rows.reduce((sum, item) => sum + item.delta * item.weight, 0) / totalWeight;
-  const selfAttachment = getAttachmentProfile(selfScores);
-  const otherAttachment = getAttachmentProfile(otherScores);
-  const attachmentDelta =
-    (Math.abs(selfAttachment.anxiety - otherAttachment.anxiety) +
-      Math.abs(selfAttachment.avoidance - otherAttachment.avoidance)) /
-    2;
-  const index = clampScore((100 - averageDelta) * (1 - mode.attachmentWeight) + (100 - attachmentDelta) * mode.attachmentWeight);
-  const resonance = rows
-    .filter((item) => item.average >= 48)
-    .sort((a, b) => b.average * b.weight - a.average * a.weight || a.delta - b.delta)
-    .slice(0, 3);
-  const fallbackResonance = [...rows].sort((a, b) => a.delta / a.weight - b.delta / b.weight).slice(0, 3);
-  const friction = rows
-    .filter((item) => item.max >= 45)
-    .sort((a, b) => b.impact - a.impact || b.max - a.max)
-    .slice(0, 4);
-  const growth = friction.map((item) => ({
-    ...item,
-    text: compatibilityGrowth[mode.id]?.[item.scale] || item.insight
-  }));
-
-  return {
-    index,
-    mode,
-    band: compatibilityBand(index, mode),
-    resonance: resonance.length ? resonance : fallbackResonance,
-    friction,
-    growth,
-    selfAttachment,
-    otherAttachment
-  };
-}
-
-function getCompatibilityMode() {
-  const selected = [...elements.compatibilityModeInputs].find((input) => input.checked)?.value || state.compatibilityMode;
-  return compatibilityModes[selected] || compatibilityModes.couple;
-}
-
-function renderCompatibilityProfile(profile, label) {
-  const top = profile.scores.slice(0, 3);
-  return `
-    <article class="compat-profile-card">
-      <span>${escapeHtml(label)} · ${escapeHtml(profile.code)}</span>
-      <strong>${escapeHtml(top[0]?.label || "Профиль")}</strong>
-      <p>${top.map((item) => `${escapeHtml(item.label)} ${item.score}%`).join(" · ")}</p>
-    </article>
-  `;
-}
-
-function renderCompatibilityRow(item, mode = "value") {
-  const meta = mode === "delta" ? `разница ${item.delta}%` : `${item.self}% / ${item.other}%`;
-  return `
-    <div class="compat-row">
-      <div>
-        <strong>${escapeHtml(item.label)}</strong>
-        <p>${escapeHtml(item.insight)}</p>
-      </div>
-      <b>${meta}</b>
-    </div>
-  `;
-}
-
-function renderCompatibilityReport(selfProfile, otherProfile, modeId = state.compatibilityMode, shouldScroll = true) {
-  if (!elements.compatibilityOutput) return;
-  const report = buildCompatibilityReport(selfProfile.scores, otherProfile.scores, modeId);
-  const { mode } = report;
-
-  elements.compatibilityOutput.hidden = false;
-  elements.compatibilityOutput.innerHTML = `
-    <article class="compat-report">
-      <div class="compat-report-head">
-        <div class="compat-score">
-          <span>${escapeHtml(mode.scoreLabel)}</span>
-          <strong>${report.index}</strong>
-          <small>${escapeHtml(report.band.title)}</small>
-        </div>
-        <div>
-          <span>${escapeHtml(mode.kicker)} · не матчинг</span>
-          <h3>${escapeHtml(mode.label)}: ${escapeHtml(report.band.title)}</h3>
-          <p>${escapeHtml(report.band.text)}</p>
-          <p class="compat-context">${escapeHtml(mode.context)}</p>
-        </div>
-      </div>
-
-      <div class="compat-profile-grid">
-        ${renderCompatibilityProfile(selfProfile, "Профиль 1")}
-        ${renderCompatibilityProfile(otherProfile, "Профиль 2")}
-      </div>
-
-      <div class="compat-summary-grid">
-        <article>
-          <span>${escapeHtml(mode.resonanceTitle)}</span>
-          <strong>${escapeHtml(report.resonance[0]?.label || "Общий темп")}</strong>
-          <p>${escapeHtml(report.resonance.map((item) => item.label).join(", "))}</p>
-        </article>
-        <article>
-          <span>${escapeHtml(mode.frictionTitle)}</span>
-          <strong>${escapeHtml(report.friction[0]?.label || "Разный ритм")}</strong>
-          <p>${escapeHtml(report.friction.slice(0, 3).map((item) => item.label).join(", "))}</p>
-        </article>
-        <article>
-          <span>${escapeHtml(mode.rulesTitle)}</span>
-          <strong>3 главных правила</strong>
-          <p>${escapeHtml(report.growth.slice(0, 3).map((item) => item.text).join(" "))}</p>
-        </article>
-      </div>
-
-      <div class="compat-details">
-        <details open>
-          <summary>Общий вердикт</summary>
-          <div class="compat-detail-body">
-            <p>${escapeHtml(report.band.text)} WHOAMI не говорит “подходит / не подходит”: смысл результата в том, чтобы заранее увидеть стиль контакта, зоны риска и правила, которые делают взаимодействие устойчивее.</p>
-          </div>
-        </details>
-
-        <details>
-          <summary>Сильные стороны</summary>
-          <div class="compat-detail-body">
-            ${report.resonance.map((item) => renderCompatibilityRow(item)).join("")}
-          </div>
-        </details>
-
-        <details>
-          <summary>Риски общения</summary>
-          <div class="compat-detail-body">
-            ${report.friction.map((item) => renderCompatibilityRow(item, "delta")).join("")}
-          </div>
-        </details>
-
-        <details>
-          <summary>Привязанность и контакт</summary>
-          <div class="compat-attachment-grid">
-            <article>
-              <span>${escapeHtml(mode.attachmentSelf)}</span>
-              <strong>${escapeHtml(report.selfAttachment.compact)}</strong>
-              <small>тревога ${report.selfAttachment.anxiety}% · избегание ${report.selfAttachment.avoidance}%</small>
-              <p>${escapeHtml(report.selfAttachment.need)}</p>
-            </article>
-            <article>
-              <span>${escapeHtml(mode.attachmentOther)}</span>
-              <strong>${escapeHtml(report.otherAttachment.compact)}</strong>
-              <small>тревога ${report.otherAttachment.anxiety}% · избегание ${report.otherAttachment.avoidance}%</small>
-              <p>${escapeHtml(report.otherAttachment.need)}</p>
-            </article>
-          </div>
-        </details>
-
-        <details open>
-          <summary>Рекомендации</summary>
-          <div class="compat-recommendations">
-            ${report.growth
-              .map(
-                (item, index) => `
-                  <article>
-                    <span>${String(index + 1).padStart(2, "0")} · ${escapeHtml(item.label)}</span>
-                    <p>${escapeHtml(item.text)}</p>
-                  </article>
-                `
-              )
-              .join("")}
-          </div>
-        </details>
-      </div>
-    </article>
-  `;
-
-  if (shouldScroll) elements.compatibilityOutput.scrollIntoView({ behavior: "smooth", block: "start" });
-  if (window.lucide) window.lucide.createIcons();
-}
-
-function showCompatibilityStatus(message, isError = false) {
-  if (!elements.compatibilityOutput) return;
-  elements.compatibilityOutput.hidden = false;
-  elements.compatibilityOutput.innerHTML = `
-    <p class="compat-status ${isError ? "is-error" : ""}">${escapeHtml(message)}</p>
-    ${
-      isError
-        ? '<p class="compat-help">Если NP-код не находится, вставьте полную ссылку результата. Это нормально для приватного режима хранения.</p>'
-        : ""
-    }
-  `;
-}
-
-function syncCurrentResultToCompatibility() {
-  if (!elements.compatibilitySelfInput || !state.latestScores.length || !state.profileCode) return;
-  const profile = {
-    code: state.profileCode,
-    tier: state.latestTier,
-    scores: state.latestScores,
-    source: "current-result"
-  };
-  state.compatibilitySelf = profile;
-  elements.compatibilitySelfInput.value = makeResultUrl(state.latestTier);
-  elements.compatibilitySelfStatus.textContent = `Загружен ваш профиль ${state.profileCode}. Можно вставить результат второго человека.`;
-  if (elements.compatibilityJump) elements.compatibilityJump.hidden = false;
-}
-
-async function runCompatibility() {
-  if (!elements.compatibilityRun) return;
-  const mode = getCompatibilityMode();
-  state.compatibilityMode = mode.id;
-  elements.compatibilityRun.disabled = true;
-  elements.compatibilityRun.innerHTML = '<i data-lucide="loader-circle" aria-hidden="true"></i> Строю карту';
-  showCompatibilityStatus("Сравниваю профили и собираю рекомендации...");
-  if (window.lucide) window.lucide.createIcons();
-
-  try {
-    const selfProfile = await resolveCompatibilityProfile(
-      elements.compatibilitySelfInput.value,
-      state.compatibilitySelf,
-      "Ваш WHOAMI-результат"
-    );
-    const otherProfile = await resolveCompatibilityProfile(
-      elements.compatibilityOtherInput.value,
-      null,
-      "Результат другого человека"
-    );
-
-    if (selfProfile.code === otherProfile.code) {
-      throw new Error("Это один и тот же профиль. Для сравнения нужен второй WHOAMI-результат.");
-    }
-
-    state.compatibilitySelf = selfProfile;
-    state.compatibilityOther = otherProfile;
-    renderCompatibilityReport(selfProfile, otherProfile, state.compatibilityMode);
-  } catch (error) {
-    showCompatibilityStatus(error.message, true);
-  } finally {
-    elements.compatibilityRun.disabled = false;
-    elements.compatibilityRun.innerHTML = '<i data-lucide="heart-handshake" aria-hidden="true"></i> Построить карту совместимости';
-    if (window.lucide) window.lucide.createIcons();
-  }
-}
-
 function classifyProfile(scores) {
   const accentuations = rankModels(scores, getAccentuationModels());
   const patterns = rankModels(scores, getPatternModels());
@@ -1927,41 +2053,1156 @@ function renderDetailedVerdict(profile, scores) {
   `;
 }
 
-function renderPaidVerdict(scores) {
+function getPersonalityStructures(scores, profile = classifyProfile(scores)) {
+  const attachment = getAttachmentProfile(scores);
+  const leadingRadical = selectDarkRadicals(scores)[0];
+  const primaryPattern = getPatternDeepCopy(profile.primaryPattern);
+
+  return [
+    {
+      label: "Структура 1",
+      title: "Ведущая акцентуация",
+      value: profile.primaryAccent.compact,
+      score: profile.primaryAccent.score,
+      meta: `уверенность вывода: ${profile.confidence}`,
+      icon: "fingerprint",
+      text: profile.primaryAccent.sharp
+    },
+    {
+      label: "Структура 2",
+      title: "Личностный паттерн",
+      value: profile.primaryPattern.compact,
+      score: profile.primaryPattern.score,
+      meta: `второй слой: ${profile.secondaryPattern.compact}`,
+      icon: "route",
+      text: primaryPattern.hook
+    },
+    {
+      label: "Структура 3",
+      title: "Стиль привязанности",
+      value: attachment.compact,
+      score: Math.round((attachment.anxiety + attachment.avoidance) / 2),
+      meta: `тревога ${attachment.anxiety}% · избегание ${attachment.avoidance}%`,
+      icon: "heart-handshake",
+      text: attachment.summary
+    },
+    {
+      label: "Структура 4",
+      title: "Ведущий темный радикал",
+      value: leadingRadical.title,
+      score: leadingRadical.score,
+      meta: darkRadicalLevel(leadingRadical.score),
+      icon: "flame",
+      text: leadingRadical.text
+    }
+  ];
+}
+
+function stopNeuroBrain() {
+  if (!state.neuroBrainFrame) return;
+  window.cancelAnimationFrame(state.neuroBrainFrame);
+  state.neuroBrainFrame = null;
+}
+
+function neuroLevelName(score) {
+  if (score >= 85) return "S-rank";
+  if (score >= 70) return "A-rank";
+  if (score >= 55) return "B-rank";
+  if (score >= 40) return "C-rank";
+  return "Base";
+}
+
+function renderNeuroMetric(title, value) {
+  return `
+    <div>
+      <span>${escapeHtml(title)}</span>
+      <strong>${Math.round(value)}%</strong>
+    </div>
+  `;
+}
+
+function getNeuroBlockDetails(block) {
+  return block.details
+    .map(
+      (detail) => `
+        <article>
+          <span>${escapeHtml(detail.title)}</span>
+          <p>${escapeHtml(detail.text)}</p>
+        </article>
+      `
+    )
+    .join("");
+}
+
+function buildNeuroDashboardData(scores) {
   const profile = classifyProfile(scores);
+  const attachment = getAttachmentProfile(scores);
+  const radicals = selectDarkRadicals(scores);
+  const leadingRadical = radicals[0];
+  const brandType = getBrandType(profile, radicals);
+  const map = scoreMap(scores);
+  const topScores = scores.slice(0, 5);
+  const behaviorVectors = buildBehaviorVectors(scores).slice(0, 6);
+  const topScore = topScores[0];
+  const strongestGrowth = growthLibrary[topScore.scale];
+  const attachmentScore = Math.round((attachment.anxiety + attachment.avoidance) / 2);
+  const stressScore = modelScoreFromMap(map, [
+    { scale: "S1", weight: 0.7 },
+    { scale: "S6", weight: 0.45 },
+    { scale: "S8", weight: 0.45 },
+    { scale: "S9", weight: 0.7 },
+    { scale: "S10", weight: 0.4 }
+  ]);
+  const socialScore = modelScoreFromMap(map, [
+    { scale: "S4", weight: 0.45 },
+    { scale: "S5", weight: 0.75 },
+    { scale: "S10", weight: 0.25, inverse: true },
+    { scale: "S12", weight: 0.55 }
+  ]);
+  const strategyScore = modelScoreFromMap(map, [
+    { scale: "S6", weight: 0.65 },
+    { scale: "S9", weight: 0.65 },
+    { scale: "S8", weight: 0.3, inverse: true },
+    { scale: "S11", weight: 0.35 }
+  ]);
+  const autonomyScore = scoreByScale(scores, "S3");
+
+  const blocks = [
+    {
+      id: "core",
+      side: "left",
+      icon: "fingerprint",
+      title: "Ядро",
+      label: profile.primaryAccent.compact,
+      score: profile.primaryAccent.score,
+      summary: profile.headline,
+      metrics: [
+        getMetric("тип", profile.primaryAccent.score),
+        getMetric("паттерн", profile.primaryPattern.score),
+        getMetric("контраст", profile.range)
+      ],
+      details: [
+        { title: "Акцентуация", text: profile.primaryAccent.sharp },
+        { title: "Паттерн", text: getPatternDeepCopy(profile.primaryPattern).hook },
+        { title: "Второй слой", text: `${profile.secondaryAccent.compact} + ${profile.secondaryPattern.compact}` }
+      ]
+    },
+    {
+      id: "signal",
+      side: "left",
+      icon: "activity",
+      title: "Сигнал",
+      label: topScore.label,
+      score: topScore.score,
+      summary: topScore.insight,
+      metrics: topScores.slice(0, 3).map((item) => getMetric(item.label, item.score)),
+      details: [
+        { title: "Вывод", text: getScaleConclusion(topScore) },
+        { title: "Уровень", text: `${levelLabel(topScore.score)} - ${topScore.score}%` },
+        { title: "Практика", text: strongestGrowth.practice }
+      ]
+    },
+    {
+      id: "attachment",
+      side: "left",
+      icon: "heart-handshake",
+      title: "Связь",
+      label: attachment.compact,
+      score: attachmentScore,
+      summary: attachment.summary,
+      metrics: [
+        getMetric("тревога", attachment.anxiety),
+        getMetric("избегание", attachment.avoidance),
+        getMetric("ясность", scoreByScale(scores, "S2"))
+      ],
+      details: [
+        { title: "Главный риск", text: attachment.risk },
+        { title: "Что помогает", text: attachment.need },
+        { title: "Контакт", text: growthLibrary.S2.compat }
+      ]
+    },
+    {
+      id: "autonomy",
+      side: "left",
+      icon: "orbit",
+      title: "Границы",
+      label: publicDimensions.S3.label,
+      score: autonomyScore,
+      summary: publicDimensions.S3.insight,
+      metrics: [
+        getMetric("автономность", autonomyScore),
+        getMetric("ясность", scoreByScale(scores, "S2")),
+        getMetric("доверие", scoreByScale(scores, "S7"))
+      ],
+      details: [
+        { title: "Вывод", text: getScaleConclusion(scores.find((item) => item.scale === "S3") || { scale: "S3", score: autonomyScore, label: publicDimensions.S3.label }) },
+        { title: "Фокус", text: growthLibrary.S3.focus },
+        { title: "Практика", text: growthLibrary.S3.practice }
+      ]
+    },
+    {
+      id: "stress",
+      side: "right",
+      icon: "zap",
+      title: "Стресс",
+      label: "режим нагрузки",
+      score: stressScore,
+      summary: "Сводный индекс по эмоциональной динамике, анализу, контролю, импульсу и чувствительности к оценке.",
+      metrics: [
+        getMetric("эмоции", scoreByScale(scores, "S1")),
+        getMetric("анализ", scoreByScale(scores, "S9")),
+        getMetric("импульс", scoreByScale(scores, "S8"))
+      ],
+      details: [
+        { title: "Что видно", text: behaviorVectors[0]?.detail || "Профиль лучше читать через сочетание ведущих шкал." },
+        { title: "Что ухудшает", text: "Неопределенность, перегруз решений и отсутствие понятного следующего шага." },
+        { title: "Что стабилизирует", text: "Пауза, короткий план, ясная граница и перевод тревоги в действие." }
+      ]
+    },
+    {
+      id: "growth",
+      side: "right",
+      icon: "trending-up",
+      title: "Рост",
+      label: strongestGrowth.title,
+      score: topScore.score,
+      summary: strongestGrowth.focus,
+      metrics: [
+        getMetric("главная зона", topScore.score),
+        getMetric("структура", scoreByScale(scores, "S6")),
+        getMetric("инициатива", scoreByScale(scores, "S12"))
+      ],
+      details: [
+        { title: "Фокус", text: strongestGrowth.focus },
+        { title: "Практика", text: strongestGrowth.practice },
+        { title: "В совместимости", text: strongestGrowth.compat }
+      ]
+    },
+    {
+      id: "shadow",
+      side: "right",
+      icon: "flame",
+      title: "Тень",
+      label: leadingRadical.title,
+      score: leadingRadical.score,
+      summary: leadingRadical.text,
+      metrics: radicals.slice(0, 3).map((item) => getMetric(item.compact, item.score)),
+      details: [
+        { title: "Что это значит", text: leadingRadical.decode },
+        { title: "Как проявляется", text: leadingRadical.example },
+        { title: "Главный риск", text: leadingRadical.risk }
+      ]
+    },
+    {
+      id: "strategy",
+      side: "right",
+      icon: "bar-chart-3",
+      title: "Стратегия",
+      label: "решения и фокус",
+      score: strategyScore,
+      summary: "Сводный индекс по структуре, анализу, контролю последствий и жесткости в достижении цели.",
+      metrics: [
+        getMetric("структура", scoreByScale(scores, "S6")),
+        getMetric("анализ", scoreByScale(scores, "S9")),
+        getMetric("жесткость", scoreByScale(scores, "S11"))
+      ],
+      details: [
+        { title: "В работе", text: getCareerRoleHint(map) },
+        { title: "Сильная сторона", text: behaviorVectors.find((item) => item.title === "Контроль и структура")?.detail || publicDimensions.S6.insight },
+        { title: "Риск", text: getSelfSabotageSignal(map).text }
+      ]
+    }
+  ];
+
+  return {
+    profile,
+    attachment,
+    radicals,
+    brandType,
+    topScores,
+    behaviorVectors,
+    blocks,
+    kpis: [
+      { title: "WHOAMI code", value: state.profileCode || "NP-DEMO" },
+      { title: "Уровень ядра", value: `${profile.primaryAccent.score}%` },
+      { title: "Полнота", value: `${portraitCompleteness()}%` },
+      { title: "Социальный слой", value: `${socialScore}%` }
+    ]
+  };
+}
+
+function renderNeuroSkills(blocks, side, activeId) {
+  return blocks
+    .filter((block) => block.side === side)
+    .map(
+      (block) => `
+        <button
+          class="neuro-skill ${activeId === block.id ? "is-active" : ""}"
+          type="button"
+          data-dashboard-block="${block.id}"
+          aria-expanded="${activeId === block.id ? "true" : "false"}"
+        >
+          <span>
+            <i data-lucide="${block.icon}" aria-hidden="true"></i>
+            ${escapeHtml(block.title)}
+          </span>
+          <strong>${Math.round(block.score)}%</strong>
+        </button>
+      `
+    )
+    .join("");
+}
+
+function renderNeuroBars(items) {
+  return `
+    <div class="neuro-bars" aria-label="Ведущие шкалы">
+      ${items
+        .map(
+          (item) => `
+            <div class="neuro-bar" style="--h: ${Math.max(6, item.score)}%" title="${escapeHtml(item.label)}">
+              <span>${item.score}</span>
+              <i></i>
+              <small>${escapeHtml(item.label.split(" ")[0])}</small>
+            </div>
+          `
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+function renderNeuroWheel(items) {
+  return `
+    <div class="neuro-wheel" aria-label="Поведенческие векторы">
+      <span class="neuro-wheel-core"></span>
+      ${items
+        .map((item, index) => {
+          const angle = -90 + (index * 360) / items.length;
+          const x = 50 + Math.cos((angle * Math.PI) / 180) * 38;
+          const y = 50 + Math.sin((angle * Math.PI) / 180) * 38;
+          return `
+            <div class="neuro-wheel-node" style="left: ${x}%; top: ${y}%; --score: ${item.score}">
+              <strong>${item.score}</strong>
+              <small>${escapeHtml(item.title.split(" ")[0])}</small>
+            </div>
+          `;
+        })
+        .join("")}
+    </div>
+  `;
+}
+
+function renderNeuroHistogram(items) {
+  return `
+    <div class="neuro-histogram" aria-label="Skill points">
+      ${items
+        .map(
+          (item) => `
+            <div style="--h: ${Math.max(8, item.score)}%">
+              <span>${item.score}</span>
+              <i></i>
+            </div>
+          `
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+function renderNeuroDetail(activeBlock) {
+  if (!activeBlock) {
+    return `
+      <section class="neuro-detail-empty" data-dashboard-detail>
+        <span>Open block</span>
+        <p>Нажмите на любой блок вокруг мозга, чтобы открыть подробную расшифровку без длинного списка на странице.</p>
+      </section>
+    `;
+  }
+
+  return `
+    <section class="neuro-detail-panel" data-dashboard-detail>
+      <div class="neuro-detail-head">
+        <div>
+          <span>${escapeHtml(activeBlock.title)}</span>
+          <h4>${escapeHtml(activeBlock.label)}</h4>
+        </div>
+        <strong>${Math.round(activeBlock.score)}%</strong>
+      </div>
+      <p class="neuro-detail-summary">${escapeHtml(activeBlock.summary)}</p>
+      <div class="neuro-detail-metrics">
+        ${activeBlock.metrics.map((metric) => renderNeuroMetric(metric.title, metric.value)).join("")}
+      </div>
+      <div class="neuro-detail-grid">
+        ${getNeuroBlockDetails(activeBlock)}
+      </div>
+    </section>
+  `;
+}
+
+function drawNeuroBrainOutline(ctx, width, height, pulse) {
+  const cx = width / 2;
+  const cy = height / 2 + 2;
+  const sx = width * 0.34;
+  const sy = height * 0.32;
+
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.lineWidth = 1.4 + pulse * 0.8;
+  ctx.strokeStyle = `rgba(232, 128, 255, ${0.5 + pulse * 0.25})`;
+  ctx.shadowColor = "rgba(207, 88, 255, 0.7)";
+  ctx.shadowBlur = 18 + pulse * 16;
+  ctx.beginPath();
+  ctx.moveTo(-0.72 * sx, -0.04 * sy);
+  ctx.bezierCurveTo(-0.86 * sx, -0.62 * sy, -0.38 * sx, -1.02 * sy, -0.04 * sx, -0.82 * sy);
+  ctx.bezierCurveTo(0.22 * sx, -1.1 * sy, 0.84 * sx, -0.78 * sy, 0.78 * sx, -0.22 * sy);
+  ctx.bezierCurveTo(1.02 * sx, 0.12 * sy, 0.76 * sx, 0.68 * sy, 0.36 * sx, 0.76 * sy);
+  ctx.bezierCurveTo(0.12 * sx, 0.98 * sy, -0.38 * sx, 0.88 * sy, -0.48 * sx, 0.58 * sy);
+  ctx.bezierCurveTo(-0.88 * sx, 0.54 * sy, -1.02 * sx, 0.18 * sy, -0.72 * sx, -0.04 * sy);
+  ctx.stroke();
+
+  ctx.shadowBlur = 10;
+  ctx.strokeStyle = "rgba(97, 235, 255, 0.28)";
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 7; i += 1) {
+    const y = (-0.58 + i * 0.18) * sy;
+    ctx.beginPath();
+    ctx.moveTo(-0.48 * sx, y);
+    ctx.bezierCurveTo(-0.12 * sx, y - 0.14 * sy, 0.08 * sx, y + 0.12 * sy, 0.46 * sx, y - 0.04 * sy);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function startNeuroBrain(scores) {
+  const canvas = elements.paidVerdict.querySelector("[data-neuro-brain]");
+  if (!canvas) return;
+
+  stopNeuroBrain();
+
+  const ctx = canvas.getContext("2d");
+  const rect = canvas.getBoundingClientRect();
+  const width = Math.max(260, Math.round(rect.width));
+  const height = Math.max(260, Math.round(rect.height));
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.width = Math.round(width * dpr);
+  canvas.height = Math.round(height * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  const random = seededRandom(hashText(`${state.profileCode}:${scores.map((item) => item.score).join(":")}`));
+  const insideBrain = (x, y) => {
+    const left = ((x + 0.24) / 0.58) ** 2 + ((y + 0.05) / 0.68) ** 2 < 1;
+    const right = ((x - 0.24) / 0.58) ** 2 + ((y + 0.04) / 0.66) ** 2 < 1;
+    const crown = (x / 0.54) ** 2 + ((y + 0.45) / 0.36) ** 2 < 1;
+    const base = ((x + 0.02) / 0.7) ** 2 + ((y - 0.34) / 0.32) ** 2 < 1;
+    const stem = Math.abs(x - 0.12) < 0.12 && y > 0.35 && y < 0.82;
+    const fissure = Math.abs(x) < 0.025 && y < 0.42 && y > -0.72;
+    return (left || right || crown || base || stem) && !fissure;
+  };
+
+  const particles = [];
+  let guard = 0;
+  while (particles.length < 330 && guard < 8000) {
+    guard += 1;
+    const x = random() * 2 - 1;
+    const y = random() * 1.8 - 0.88;
+    if (!insideBrain(x, y)) continue;
+    particles.push({
+      x: width / 2 + x * width * 0.34,
+      y: height / 2 + y * height * 0.32,
+      size: 0.7 + random() * 1.8,
+      phase: random() * Math.PI * 2,
+      drift: 0.25 + random() * 0.8,
+      hue: random() > 0.68 ? "cyan" : "violet"
+    });
+  }
+
+  const stars = Array.from({ length: 120 }, () => ({
+    x: random() * width,
+    y: random() * height,
+    size: 0.4 + random() * 1.3,
+    phase: random() * Math.PI * 2
+  }));
+
+  const draw = (time) => {
+    const t = time / 1000;
+    const pulse = (Math.sin(t * 1.8) + 1) / 2;
+    ctx.clearRect(0, 0, width, height);
+
+    const gradient = ctx.createRadialGradient(width / 2, height / 2, 10, width / 2, height / 2, width * 0.55);
+    gradient.addColorStop(0, "rgba(217, 89, 255, 0.2)");
+    gradient.addColorStop(0.52, "rgba(81, 231, 255, 0.08)");
+    gradient.addColorStop(1, "rgba(6, 4, 14, 0)");
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, width, height);
+
+    stars.forEach((star) => {
+      const alpha = 0.18 + Math.sin(t * 1.3 + star.phase) * 0.12;
+      ctx.fillStyle = `rgba(255, 255, 255, ${Math.max(0.04, alpha)})`;
+      ctx.beginPath();
+      ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    drawNeuroBrainOutline(ctx, width, height, pulse);
+
+    for (let i = 0; i < particles.length; i += 1) {
+      const a = particles[i];
+      for (let j = i + 1; j < particles.length; j += 9) {
+        const b = particles[j];
+        const dx = a.x - b.x;
+        const dy = a.y - b.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        if (distance > 26) continue;
+        ctx.strokeStyle = `rgba(183, 112, 255, ${0.08 * (1 - distance / 26)})`;
+        ctx.lineWidth = 0.6;
+        ctx.beginPath();
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(b.x, b.y);
+        ctx.stroke();
+      }
+    }
+
+    particles.forEach((particle) => {
+      const wobble = Math.sin(t * particle.drift + particle.phase);
+      const x = particle.x + wobble * 1.1;
+      const y = particle.y + Math.cos(t * particle.drift + particle.phase) * 0.8;
+      const alpha = 0.45 + pulse * 0.25 + wobble * 0.12;
+      ctx.fillStyle =
+        particle.hue === "cyan"
+          ? `rgba(111, 245, 255, ${Math.max(0.22, alpha)})`
+          : `rgba(241, 150, 255, ${Math.max(0.2, alpha)})`;
+      ctx.shadowColor = particle.hue === "cyan" ? "rgba(111, 245, 255, 0.6)" : "rgba(215, 99, 255, 0.65)";
+      ctx.shadowBlur = 8 + pulse * 8;
+      ctx.beginPath();
+      ctx.arc(x, y, particle.size + pulse * 0.45, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    ctx.shadowBlur = 0;
+    state.neuroBrainFrame = window.requestAnimationFrame(draw);
+  };
+
+  state.neuroBrainFrame = window.requestAnimationFrame(draw);
+}
+
+function renderPaidVerdict(scores) {
+  const data = buildNeuroDashboardData(scores);
+  const activeBlock = data.blocks.find((block) => block.id === state.activeDashboardBlock);
+  const coreScore = data.profile.primaryAccent.score;
+  const attachmentScore = Math.round((data.attachment.anxiety + data.attachment.avoidance) / 2);
   const flatWarning =
-    profile.range < 10
-      ? `<p class="verdict-warning">Ответы выглядят слишком ровными. Типологический вывод можно читать как предварительный: для точности лучше отвечать не из позиции "как надо", а из позиции "как обычно бывает".</p>`
+    data.profile.range < 10
+      ? `<p class="neuro-warning">Ответы выглядят слишком ровными. Типологический вывод можно читать как предварительный.</p>`
       : "";
 
+  stopNeuroBrain();
+
   elements.paidVerdict.innerHTML = `
-    <article class="verdict-card">
-      <span>Главный вывод</span>
-      <h3>${profile.headline}</h3>
-      <p>
-        Это не диагноз и не медицинское заключение. Но по самооценке видно:
-        ваш основной сценарий — ${profile.primaryAccent.compact}, а в стрессовых отношениях
-        заметнее всего могут включаться ${profile.primaryPattern.compact}.
-      </p>
-      ${flatWarning}
-      <div class="type-grid">
+    <article class="neuro-dashboard" data-neuro-dashboard>
+      <div class="neuro-corner neuro-corner-tl"></div>
+      <div class="neuro-corner neuro-corner-tr"></div>
+      <div class="neuro-corner neuro-corner-bl"></div>
+      <div class="neuro-corner neuro-corner-br"></div>
+
+      <div class="neuro-titlebar">
         <div>
-          <b>Система акцентуаций</b>
-          <strong>${profile.primaryAccent.compact}</strong>
-          <small>второй слой: ${profile.secondaryAccent.compact}</small>
-          <p class="type-note">Акцентуация - это не диагноз, а усиленная черта характера. Она показывает, какой стиль поведения становится особенно заметным в стрессе, близости, конкуренции или ситуации оценки.</p>
+          <span>WHOAMI neural profile</span>
+          <h3>${escapeHtml(data.brandType)}</h3>
+          <p>${escapeHtml(data.profile.headline)}</p>
         </div>
-        <div>
-          <b>Система личностных паттернов</b>
-          <strong>${profile.primaryPattern.compact}</strong>
-          <small>второй слой: ${profile.secondaryPattern.compact}</small>
-          <p class="type-note">Паттерн - это повторяющийся сценарий: как человек защищается, ищет признание, строит контакт, реагирует на угрозу и объясняет себе свое поведение.</p>
+        <div class="neuro-actions">
+          <button class="price-button dark" type="button" data-download-passport-doc>
+            <i data-lucide="file-down" aria-hidden="true"></i>
+            Паспорт
+          </button>
         </div>
       </div>
-      <p class="sharp-line">${profile.primaryAccent.sharp}</p>
-      ${renderDetailedVerdict(profile, scores)}
+
+      <div class="neuro-kpi-row" aria-label="Ключевые показатели">
+        ${data.kpis
+          .map(
+            (item) => `
+              <div>
+                <span>${escapeHtml(item.title)}</span>
+                <strong>${escapeHtml(item.value)}</strong>
+              </div>
+            `
+          )
+          .join("")}
+      </div>
+
+      <section class="neuro-stage" aria-label="Карта блоков вокруг мозга">
+        <div class="neuro-skill-column neuro-skill-column-left">
+          ${renderNeuroSkills(data.blocks, "left", state.activeDashboardBlock)}
+        </div>
+
+        <div class="neuro-core">
+          <div class="neuro-core-ring" style="--score: ${coreScore}">
+            <canvas data-neuro-brain width="420" height="420" aria-label="Анимированный нейро-мозг профиля"></canvas>
+            <div class="neuro-core-label">
+              <span>${neuroLevelName(coreScore)}</span>
+              <strong>${coreScore}%</strong>
+            </div>
+          </div>
+          <div class="neuro-core-meta">
+            <span>${escapeHtml(data.profile.primaryAccent.compact)}</span>
+            <strong>${escapeHtml(state.profileCode || "NP-DEMO")}</strong>
+          </div>
+          <div class="neuro-scale">
+            <small>0</small>
+            <span><i style="width: ${coreScore}%"></i></span>
+            <small>100</small>
+          </div>
+        </div>
+
+        <div class="neuro-skill-column neuro-skill-column-right">
+          ${renderNeuroSkills(data.blocks, "right", state.activeDashboardBlock)}
+        </div>
+      </section>
+
+      ${flatWarning}
+
+      <div class="neuro-divider" aria-hidden="true"><span></span></div>
+
+      <section class="neuro-card-grid" aria-label="Дашборды профиля">
+        <article class="neuro-card">
+          <span>Top scales</span>
+          <h4>Ведущие шкалы</h4>
+          ${renderNeuroBars(data.topScores)}
+        </article>
+        <article class="neuro-card">
+          <span>Behavior web</span>
+          <h4>Векторы</h4>
+          ${renderNeuroWheel(data.behaviorVectors)}
+        </article>
+        <article class="neuro-card neuro-card-wide">
+          <span>Skill points</span>
+          <h4>Поведенческий профиль</h4>
+          ${renderNeuroHistogram(data.behaviorVectors)}
+        </article>
+        <article class="neuro-card neuro-card-compact">
+          <span>Attachment</span>
+          <h4>${escapeHtml(data.attachment.compact)}</h4>
+          <div class="neuro-donut" style="--score: ${attachmentScore}">
+            <strong>${attachmentScore}%</strong>
+            <small>связь</small>
+          </div>
+        </article>
+      </section>
+
+      ${renderNeuroDetail(activeBlock)}
     </article>
   `;
+
+  window.requestAnimationFrame(() => startNeuroBrain(scores));
+}
+
+function scoreByScale(scores, scale) {
+  return scores.find((item) => item.scale === scale)?.score ?? 50;
+}
+
+function dossierBand(score) {
+  if (score >= 85) return "доминирующая зона";
+  if (score >= 70) return "сильная зона";
+  if (score >= 55) return "рабочая зона";
+  if (score >= 40) return "умеренная зона";
+  return "фоновая зона";
+}
+
+function portraitCompleteness() {
+  const answeredRatio = state.answers.filter((answer) => answer >= 1 && answer <= 5).length / questions.length;
+  const corePassport = Math.round(answeredRatio * 42);
+  const unlockedPassport = state.latestTier === "paid" ? 10 : 0;
+  const uploadedContext = 0;
+  const extraMaps = 0;
+  return Math.min(99, corePassport + unlockedPassport + uploadedContext + extraMaps);
+}
+
+function portraitCompletenessLabel(percent) {
+  if (percent >= 90) return "почти полный портрет";
+  if (percent >= 70) return "глубокий портрет";
+  if (percent >= 50) return "сильная база";
+  if (percent >= 30) return "ядро собрано";
+  return "начальный слой";
+}
+
+function getScaleConclusion(item) {
+  const { scale, score, label } = item;
+  const high = score >= 70;
+  const mid = score >= 55 && score < 70;
+  const low = score < 40;
+  const prefix = `${label}: ${score}%.`;
+
+  const conclusions = {
+    S1: high
+      ? "Реакции быстро набирают интенсивность; решения в конфликте лучше принимать после паузы."
+      : mid
+        ? "Эмоции заметны, но обычно не полностью управляют поведением."
+        : low
+          ? "Эмоциональный фон скорее ровный; резкие перепады не выглядят ведущим механизмом."
+          : "Эмоциональная динамика присутствует, но не доминирует.",
+    S2: high
+      ? "Близость требует ясных сигналов; молчание и неопределенность могут быстро усиливать тревогу."
+      : mid
+        ? "Потребность в подтверждении контакта есть, особенно в значимых отношениях."
+        : low
+          ? "Контакт переносится устойчиво; постоянные подтверждения не являются главным условием безопасности."
+          : "Потребность в ясности умеренная и зависит от контекста.",
+    S3: high
+      ? "Автономия является ключевым ресурсом; избыток контакта может ощущаться как давление."
+      : mid
+        ? "Нужно личное пространство, но без полного ухода из отношений или команды."
+        : low
+          ? "Профиль легче выдерживает частый контакт и совместность."
+          : "Автономия важна, но не выглядит жестким требованием.",
+    S4: high
+      ? "Признание и уровень сильно влияют на мотивацию; игнор может считываться как обесценивание."
+      : mid
+        ? "Важна заметность вклада, особенно там, где человек много вложился."
+        : low
+          ? "Внешнее признание не выглядит главным источником устойчивости."
+          : "Запрос на признание умеренный.",
+    S5: high
+      ? "Есть выраженная способность влиять через образ, эмоцию и подачу."
+      : mid
+        ? "Выразительность включается ситуативно, особенно в безопасной или выгодной среде."
+        : low
+          ? "Профиль скорее сдержанный; публичная выразительность не является естественным режимом."
+          : "Выразительность проявляется умеренно.",
+    S6: high
+      ? "Порядок, правила и контроль качества являются базовой опорой; хаос быстро забирает ресурс."
+      : mid
+        ? "Структура помогает, но не должна превращаться в жесткую клетку."
+        : low
+          ? "Гибкость выше потребности в строгом порядке; импровизация переносится легче."
+          : "Потребность в структуре умеренная.",
+    S7: high
+      ? "Доверие строится медленно; профиль ищет мотивы, выгоду и скрытые риски."
+      : mid
+        ? "Настороженность включается при слабой прозрачности или нарушенных договоренностях."
+        : low
+          ? "Базовое доверие выше, чем потребность проверять мотивы."
+          : "Настороженность умеренная.",
+    S8: high
+      ? "Новизна и скорость заряжают; главный риск - действие раньше полного расчета последствий."
+      : mid
+        ? "Импульс есть, но его можно встроить в рамки и дедлайны."
+        : low
+          ? "Профиль осторожнее относится к риску и резкой смене курса."
+          : "Потребность в новизне умеренная.",
+    S9: high
+      ? "Решения проходят через анализ рисков; возможны задержки старта из-за поиска точности."
+      : mid
+        ? "Осторожность помогает, если есть понятный критерий достаточной информации."
+        : low
+          ? "Решения принимаются легче; долгий анализ не выглядит ведущей привычкой."
+          : "Аналитическая осторожность умеренная.",
+    S10: high
+      ? "Оценка и критика сильно влияют на проявленность; безопасная среда резко повышает смелость."
+      : mid
+        ? "Чувствительность к оценке заметна, но не всегда блокирует действие."
+        : low
+          ? "Социальная оценка не выглядит главным тормозом."
+          : "Чувствительность к оценке умеренная.",
+    S11: high
+      ? "В достижении цели включается жесткость; важно следить, чтобы сила не становилась давлением."
+      : mid
+        ? "Прямота и холодная эффективность доступны, но не всегда доминируют."
+        : low
+          ? "Профиль чаще учитывает эмоциональную цену решений."
+          : "Жесткость в целях умеренная.",
+    S12: high
+      ? "Много энергии движения, идей и контакта; важно не распыляться на слишком много направлений."
+      : mid
+        ? "Инициативность включается при понятной возможности и достаточном интересе."
+        : low
+          ? "Темп скорее спокойный; резкие старты и постоянная социальность могут утомлять."
+          : "Инициативность умеренная."
+  };
+
+  return `${prefix} ${conclusions[scale]}`;
+}
+
+function buildBehaviorVectors(scores) {
+  const map = scoreMap(scores);
+  return [
+    {
+      title: "Контакт и близость",
+      score: modelScoreFromMap(map, [
+        { scale: "S2", weight: 1 },
+        { scale: "S1", weight: 0.6 },
+        { scale: "S10", weight: 0.4 },
+        { scale: "S3", weight: 0.35, inverse: true }
+      ]),
+      detail: "Насколько отношения, ясность контакта и эмоциональная доступность влияют на устойчивость."
+    },
+    {
+      title: "Автономия и личное пространство",
+      score: modelScoreFromMap(map, [
+        { scale: "S3", weight: 1 },
+        { scale: "S7", weight: 0.35 },
+        { scale: "S2", weight: 0.3, inverse: true }
+      ]),
+      detail: "Сколько свободы, дистанции и самостоятельной обработки опыта требуется профилю."
+    },
+    {
+      title: "Контроль и структура",
+      score: modelScoreFromMap(map, [
+        { scale: "S6", weight: 1 },
+        { scale: "S9", weight: 0.5 },
+        { scale: "S8", weight: 0.25, inverse: true }
+      ]),
+      detail: "Насколько важны правила, предсказуемость, порядок и контроль качества."
+    },
+    {
+      title: "Скорость и риск",
+      score: modelScoreFromMap(map, [
+        { scale: "S8", weight: 1 },
+        { scale: "S12", weight: 0.75 },
+        { scale: "S9", weight: 0.35, inverse: true }
+      ]),
+      detail: "Как быстро профиль готов входить в новое, рисковать и менять траекторию."
+    },
+    {
+      title: "Социальная видимость",
+      score: modelScoreFromMap(map, [
+        { scale: "S5", weight: 1 },
+        { scale: "S4", weight: 0.75 },
+        { scale: "S10", weight: 0.25, inverse: true }
+      ]),
+      detail: "Насколько важны образ, признание, аудитория и эффект присутствия."
+    },
+    {
+      title: "Жесткость в достижении цели",
+      score: modelScoreFromMap(map, [
+        { scale: "S11", weight: 1 },
+        { scale: "S6", weight: 0.35 },
+        { scale: "S2", weight: 0.25, inverse: true }
+      ]),
+      detail: "Насколько легко профиль становится прямым, холодным или давящим ради результата."
+    }
+  ].sort((a, b) => b.score - a.score);
+}
+
+function buildDossierData(scores) {
+  const profile = classifyProfile(scores);
+  const radicals = selectDarkRadicals(scores);
+  const attachment = getAttachmentProfile(scores);
+  const brandType = getBrandType(profile, radicals);
+  const accentModels = rankModels(scores, getAccentuationModels()).slice(0, 5);
+  const patternModels = rankModels(scores, getPatternModels()).slice(0, 5);
+  const behaviorVectors = buildBehaviorVectors(scores);
+  const topScores = scores.slice(0, 5);
+  const lowScores = [...scores].sort((a, b) => a.score - b.score).slice(0, 3);
+  const strongest = topScores[0];
+  const second = topScores[1];
+  const tension = Math.abs(strongest.score - second.score) <= 8 ? "профиль многовекторный" : "есть выраженный ведущий вектор";
+  const completeness = portraitCompleteness();
+
+  return {
+    code: state.profileCode,
+    date: new Date().toLocaleDateString("ru-RU"),
+    completeness,
+    completenessLabel: portraitCompletenessLabel(completeness),
+    profile,
+    radicals,
+    attachment,
+    brandType,
+    accentModels,
+    patternModels,
+    behaviorVectors,
+    topScores,
+    lowScores,
+    allScores: scores,
+    summary: [
+      `Полнота портрета: ${completeness}% (${portraitCompletenessLabel(completeness)}). Это не точность личности, а объем собранных данных.`,
+      `Главный типологический слой: ${profile.primaryAccent.compact} (${profile.primaryAccent.score}%).`,
+      `Основной защитный паттерн: ${profile.primaryPattern.compact} (${profile.primaryPattern.score}%).`,
+      `Самая высокая шкала: ${strongest.label} (${strongest.score}%), вторая: ${second.label} (${second.score}%); ${tension}.`,
+      `Стиль привязанности: ${attachment.compact}; тревога ${attachment.anxiety}%, избегание ${attachment.avoidance}%.`,
+      `Ведущий жесткий слой: ${radicals[0].title} (${radicals[0].score}%, ${darkRadicalLevel(radicals[0].score)} уровень).`
+    ]
+  };
+}
+
+function renderDossierTable(rows, valueKey = "score") {
+  return rows
+    .map(
+      (row) => `
+        <div class="dossier-row">
+          <div>
+            <strong>${escapeHtml(row.title || row.label || row.compact)}</strong>
+            <span>${escapeHtml(row.detail || row.meta || row.level || dossierBand(row[valueKey]))}</span>
+          </div>
+          <b>${Math.round(row[valueKey])}%</b>
+        </div>
+      `
+    )
+    .join("");
+}
+
+function renderPassportDossier(scores) {
+  const data = buildDossierData(scores);
+
+  elements.passportDossier.innerHTML = `
+    <article class="dossier-card">
+      <div class="dossier-head">
+        <div>
+          <span>WHOAMI Dossier</span>
+          <h3>Паспорт личности в формате CV</h3>
+          <p>Только расчетные выводы по вашему профилю: проценты, ведущие модели, сильные зоны, напряжения и практические ориентиры.</p>
+        </div>
+        <button class="price-button dark" type="button" data-download-passport-doc>
+          <i data-lucide="file-down" aria-hidden="true"></i>
+          Скачать документ
+        </button>
+      </div>
+
+      <div class="dossier-id-grid">
+        <div>
+          <span>Serial</span>
+          <strong>${escapeHtml(data.code)}</strong>
+        </div>
+        <div>
+          <span>Архетип</span>
+          <strong>${escapeHtml(data.brandType)}</strong>
+        </div>
+        <div>
+          <span>Полнота</span>
+          <strong>${data.completeness}%</strong>
+        </div>
+        <div>
+          <span>Дата</span>
+          <strong>${escapeHtml(data.date)}</strong>
+        </div>
+      </div>
+
+      <section class="dossier-section">
+        <h4>Executive summary</h4>
+        <ul class="dossier-bullets">
+          ${data.summary.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
+        </ul>
+      </section>
+
+      <section class="dossier-section">
+        <h4>Типологический профиль</h4>
+        <div class="dossier-split">
+          <div>
+            <span class="dossier-label">Акцентуации</span>
+            ${renderDossierTable(
+              data.accentModels.map((item) => ({
+                title: item.compact,
+                score: item.score,
+                detail: item === data.profile.primaryAccent ? "основной слой" : "дополнительный слой"
+              }))
+            )}
+          </div>
+          <div>
+            <span class="dossier-label">Паттерны</span>
+            ${renderDossierTable(
+              data.patternModels.map((item) => ({
+                title: item.compact,
+                score: item.score,
+                detail: item === data.profile.primaryPattern ? "основная защита" : "дополнительная защита"
+              }))
+            )}
+          </div>
+        </div>
+      </section>
+
+      <section class="dossier-section">
+        <h4>12 шкал профиля</h4>
+        <div class="dossier-scale-list">
+          ${data.allScores
+            .map(
+              (item) => `
+                <article class="dossier-scale">
+                  <div class="dossier-scale-top">
+                    <strong>${escapeHtml(item.label)}</strong>
+                    <b>${item.score}%</b>
+                  </div>
+                  <div class="dossier-meter" aria-label="${escapeHtml(item.label)}: ${item.score}%">
+                    <span style="width: ${item.score}%"></span>
+                  </div>
+                  <p>${escapeHtml(getScaleConclusion(item))}</p>
+                </article>
+              `
+            )
+            .join("")}
+        </div>
+      </section>
+
+      <section class="dossier-section">
+        <h4>Поведенческие векторы</h4>
+        <div class="dossier-grid">
+          ${data.behaviorVectors
+            .map(
+              (item) => `
+                <article class="dossier-mini">
+                  <span>${escapeHtml(dossierBand(item.score))}</span>
+                  <strong>${escapeHtml(item.title)}</strong>
+                  <b>${item.score}%</b>
+                  <p>${escapeHtml(item.detail)}</p>
+                </article>
+              `
+            )
+            .join("")}
+        </div>
+      </section>
+
+      <section class="dossier-section">
+        <h4>Привязанность и жесткие слои</h4>
+        <div class="dossier-split">
+          <div>
+            <span class="dossier-label">${escapeHtml(data.attachment.compact)}</span>
+            ${renderDossierTable([
+              { title: "Тревога привязанности", score: data.attachment.anxiety, detail: "реакция на паузу, холод и неопределенность" },
+              { title: "Избегание близости", score: data.attachment.avoidance, detail: "потребность в дистанции и контроле доступа" }
+            ])}
+          </div>
+          <div>
+            <span class="dossier-label">Темные радикалы</span>
+            ${renderDossierTable(
+              data.radicals.map((item) => ({
+                title: item.title,
+                score: item.score,
+                detail: darkRadicalLevel(item.score)
+              }))
+            )}
+          </div>
+        </div>
+      </section>
+
+      <section class="dossier-section">
+        <h4>Зоны роста по данным профиля</h4>
+        <div class="dossier-grid">
+          ${data.topScores
+            .slice(0, 3)
+            .map((item) => {
+              const growth = growthLibrary[item.scale];
+              return `
+                <article class="dossier-mini">
+                  <span>${item.score}% · ${escapeHtml(item.label)}</span>
+                  <strong>${escapeHtml(growth.title)}</strong>
+                  <p>${escapeHtml(growth.practice)}</p>
+                </article>
+              `;
+            })
+            .join("")}
+          ${data.lowScores
+            .slice(0, 1)
+            .map(
+              (item) => `
+                <article class="dossier-mini">
+                  <span>${item.score}% · низкая зона</span>
+                  <strong>${escapeHtml(item.label)}</strong>
+                  <p>Эта шкала выражена слабее остальных. В плюсе это может быть ресурсом, но в задачах, где нужна именно эта функция, потребуется внешняя опора или осознанная тренировка.</p>
+                </article>
+              `
+            )
+            .join("")}
+        </div>
+      </section>
+    </article>
+  `;
+}
+
+function renderPassportDocumentHtml(data) {
+  const row = (label, value) => `
+    <tr>
+      <td>${escapeHtml(label)}</td>
+      <td>${escapeHtml(value)}</td>
+    </tr>
+  `;
+  const scoreRows = data.allScores
+    .map((item) => row(`${item.label} (${item.scale})`, `${item.score}% — ${getScaleConclusion(item)}`))
+    .join("");
+  const vectorRows = data.behaviorVectors
+    .map((item) => row(item.title, `${item.score}% — ${item.detail}`))
+    .join("");
+  const accentRows = data.accentModels.map((item) => row(item.compact, `${item.score}%`)).join("");
+  const patternRows = data.patternModels.map((item) => row(item.compact, `${item.score}%`)).join("");
+  const radicalRows = data.radicals
+    .map((item) => row(item.title, `${item.score}% — ${darkRadicalLevel(item.score)}`))
+    .join("");
+
+  return `
+    <!doctype html>
+    <html>
+      <head>
+        <meta charset="utf-8" />
+        <title>WHOAMI ${escapeHtml(data.code)} dossier</title>
+        <style>
+          body { font-family: Arial, sans-serif; color: #171819; line-height: 1.45; }
+          h1 { font-size: 28px; margin-bottom: 4px; }
+          h2 { margin-top: 28px; font-size: 18px; }
+          table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+          td, th { border: 1px solid #d9d4c9; padding: 8px; vertical-align: top; }
+          th { background: #f7f2e8; text-align: left; }
+          .meta { color: #626a6b; margin-bottom: 18px; }
+          .summary li { margin-bottom: 6px; }
+        </style>
+      </head>
+      <body>
+        <h1>WHOAMI Personality Dossier</h1>
+        <p class="meta">Serial ${escapeHtml(data.code)} · ${escapeHtml(data.date)} · ${escapeHtml(data.brandType)}</p>
+
+        <h2>Executive summary</h2>
+        <ul class="summary">
+          ${data.summary.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
+        </ul>
+
+        <h2>Идентификация профиля</h2>
+        <table>
+          ${row("WHOAMI-код", data.code)}
+          ${row("Архетип", data.brandType)}
+          ${row("Полнота портрета", `${data.completeness}% — ${data.completenessLabel}`)}
+          ${row("Уверенность типологического вывода", data.profile.confidence)}
+          ${row("Основная акцентуация", `${data.profile.primaryAccent.compact} — ${data.profile.primaryAccent.score}%`)}
+          ${row("Основной паттерн", `${data.profile.primaryPattern.compact} — ${data.profile.primaryPattern.score}%`)}
+          ${row("Стиль привязанности", `${data.attachment.compact}; тревога ${data.attachment.anxiety}%, избегание ${data.attachment.avoidance}%`)}
+        </table>
+
+        <h2>Акцентуации</h2>
+        <table><tr><th>Модель</th><th>Процент</th></tr>${accentRows}</table>
+
+        <h2>Личностные паттерны</h2>
+        <table><tr><th>Модель</th><th>Процент</th></tr>${patternRows}</table>
+
+        <h2>12 шкал профиля</h2>
+        <table><tr><th>Шкала</th><th>Вывод</th></tr>${scoreRows}</table>
+
+        <h2>Поведенческие векторы</h2>
+        <table><tr><th>Вектор</th><th>Вывод</th></tr>${vectorRows}</table>
+
+        <h2>Темные радикалы</h2>
+        <table><tr><th>Радикал</th><th>Уровень</th></tr>${radicalRows}</table>
+
+        <h2>Зоны роста</h2>
+        <table>
+          <tr><th>Зона</th><th>Практический фокус</th></tr>
+          ${data.topScores
+            .slice(0, 3)
+            .map((item) => row(`${growthLibrary[item.scale].title} · ${item.score}%`, growthLibrary[item.scale].practice))
+            .join("")}
+        </table>
+
+        <p class="meta">WHOAMI является самооценочным инструментом и не устанавливает медицинские или психиатрические диагнозы.</p>
+      </body>
+    </html>
+  `;
+}
+
+function downloadPassportDocument() {
+  if (!state.latestScores.length) return;
+  const data = buildDossierData(state.latestScores);
+  const html = renderPassportDocumentHtml(data);
+  const blob = new Blob([html], { type: "application/msword;charset=utf-8" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = `${state.profileCode || "whoami"}-personality-dossier.doc`;
+  link.click();
+  URL.revokeObjectURL(link.href);
 }
 
 function renderPassportShare(scores) {
@@ -2016,6 +3257,10 @@ function renderPassportShare(scores) {
       </div>
     </article>
     <div class="passport-actions">
+      <button class="price-button dark" type="button" data-open-avatar>
+        <i data-lucide="camera" aria-hidden="true"></i>
+        Добавить аватар
+      </button>
       <button class="price-button dark" type="button" data-download-passport>
         <i data-lucide="download" aria-hidden="true"></i>
         Скачать паспорт для сторис
@@ -2334,6 +3579,393 @@ function renderResultDecoder(scores) {
   `;
 }
 
+function uniqueByTitle(items) {
+  const seen = new Set();
+  return items.filter((item) => {
+    if (!item?.title || seen.has(item.title)) return false;
+    seen.add(item.title);
+    return true;
+  });
+}
+
+function renderGrowthZones(scores) {
+  const attachment = getAttachmentProfile(scores);
+  const radicals = selectDarkRadicals(scores);
+  const topZones = scores
+    .slice(0, 3)
+    .map((item) => ({
+      scale: item.scale,
+      score: item.score,
+      ...growthLibrary[item.scale]
+    }));
+  const extraZones = [];
+
+  if (attachment.anxiety >= attachment.avoidance + 14 && attachment.anxiety >= 58) {
+    extraZones.push({
+      title: "Безопасность без проверки",
+      focus: "не превращать каждую паузу в сигнал отвержения",
+      practice: "просить ясность одной прямой фразой, а не собирать доказательства через тревогу",
+      score: attachment.anxiety
+    });
+  }
+
+  if (attachment.avoidance >= attachment.anxiety + 14 && attachment.avoidance >= 58) {
+    extraZones.push({
+      title: "Близость без исчезновения",
+      focus: "оставаться в контакте, даже когда нужно пространство",
+      practice: "предупреждать о дистанции заранее и возвращаться в обещанный срок",
+      score: attachment.avoidance
+    });
+  }
+
+  if (radicals[0]?.score >= 70) {
+    extraZones.push({
+      title: "Жесткая сила без потери доверия",
+      focus: "видеть момент, когда защита становится давлением",
+      practice: "в споре запрещать себе удар по самому уязвимому месту другого человека",
+      score: radicals[0].score
+    });
+  }
+
+  const zones = uniqueByTitle([...topZones, ...extraZones]).slice(0, 4);
+
+  elements.growthZones.innerHTML = `
+    <article class="growth-card">
+      <div class="growth-head">
+        <span>Зоны роста</span>
+        <h4>Что развивать, чтобы профиль работал в плюс</h4>
+        <p>Здесь не "исправление личности", а практичные точки настройки: где сильная черта начинает создавать лишнее напряжение.</p>
+      </div>
+      <div class="growth-grid">
+        ${zones
+          .map(
+            (zone) => `
+              <article class="growth-item">
+                <div class="growth-item-top">
+                  <strong>${escapeHtml(zone.title)}</strong>
+                  ${zone.score ? `<b>${Math.round(zone.score)}%</b>` : ""}
+                </div>
+                <p>${escapeHtml(zone.focus)}</p>
+                <small>${escapeHtml(zone.practice)}</small>
+              </article>
+            `
+          )
+          .join("")}
+      </div>
+    </article>
+  `;
+}
+
+function parseStoredScores(value) {
+  if (Array.isArray(value)) return value;
+  if (typeof value !== "string") return [];
+
+  try {
+    return JSON.parse(value);
+  } catch {
+    return [];
+  }
+}
+
+function profileFromPayload(payload, source = "shared-link") {
+  const scores = normalizeScores(payload?.scores || []);
+  if (!scores.length) return null;
+
+  return {
+    code: cleanText(payload.code) || "SHARED",
+    tier: cleanText(payload.tier) || "basic",
+    scores,
+    source
+  };
+}
+
+function profileFromStoredRow(row) {
+  const scores = normalizeScores(parseStoredScores(row?.scores));
+  if (scores.length) {
+    return {
+      code: cleanText(row.profile_code) || "PUBLIC",
+      tier: cleanText(row.tier) || "basic",
+      scores,
+      source: "public-code"
+    };
+  }
+
+  const payload = parseResultPayload(row?.result_url || "");
+  return payload ? profileFromPayload(payload, "public-code") : null;
+}
+
+function parseResultPayload(value) {
+  const text = String(value || "").trim();
+  if (!text) return null;
+
+  try {
+    const url = new URL(text, window.location.href);
+    const encoded = url.searchParams.get("result");
+    if (encoded) return decodeResultPayload(encoded);
+  } catch {
+    // Fall through to direct payload parsing.
+  }
+
+  const resultMatch = text.match(/(?:^|[?&])result=([^&#\s]+)/);
+  if (resultMatch?.[1]) {
+    return decodeResultPayload(resultMatch[1]);
+  }
+
+  if (/^[A-Za-z0-9_-]{24,}$/.test(text)) {
+    return decodeResultPayload(text);
+  }
+
+  return null;
+}
+
+async function requestPublicProfileRows(code, withOrder = true) {
+  const url = new URL(`${submissionsConfig.url}/rest/v1/${submissionsConfig.table}`);
+  url.searchParams.set("select", "profile_code,scores,result_url,tier,event_type");
+  url.searchParams.set("profile_code", `eq.${code}`);
+  url.searchParams.set("limit", "5");
+  if (withOrder) {
+    url.searchParams.set("order", "created_at.desc");
+  }
+
+  const response = await fetch(url.toString(), {
+    headers: {
+      apikey: submissionsConfig.key,
+      Authorization: `Bearer ${submissionsConfig.key}`
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error(`public profile lookup failed: ${response.status}`);
+  }
+
+  return response.json();
+}
+
+async function fetchPublicProfileByCode(code) {
+  const normalizedCode = code.trim().toUpperCase();
+  let rows;
+
+  try {
+    rows = await requestPublicProfileRows(normalizedCode);
+  } catch {
+    rows = await requestPublicProfileRows(normalizedCode, false);
+  }
+
+  const profile = rows.map(profileFromStoredRow).find(Boolean);
+  if (!profile) {
+    throw new Error("Профиль с таким кодом не найден или закрыт для публичного чтения.");
+  }
+
+  return profile;
+}
+
+async function resolveComparisonProfile(value) {
+  const text = cleanText(value);
+  if (!text) {
+    throw new Error("Вставьте WHOAMI-код или ссылку результата.");
+  }
+
+  const codeMatch = text.toUpperCase().match(/^NP-[A-Z0-9]{4,}$/);
+  if (codeMatch) {
+    return fetchPublicProfileByCode(codeMatch[0]);
+  }
+
+  const payload = parseResultPayload(text);
+  const profile = profileFromPayload(payload, "shared-link");
+  if (!profile) {
+    throw new Error("Не получилось прочитать профиль. Лучше вставить полную ссылку результата WHOAMI.");
+  }
+
+  return profile;
+}
+
+function clampScore(value) {
+  return Math.max(0, Math.min(100, Math.round(value)));
+}
+
+function compatibilityBand(score) {
+  if (score >= 82) {
+    return {
+      title: "Мягкое совпадение",
+      text: "Профили легко считывают друг друга: основные реакции и темп контакта близки, поэтому меньше энергии уходит на перевод с одного языка на другой."
+    };
+  }
+  if (score >= 68) {
+    return {
+      title: "Сильная, но живая совместимость",
+      text: "Есть хорошая база совпадений, но отдельные различия будут требовать договоренностей. Это не минус: такая пара может усиливать друг друга."
+    };
+  }
+  if (score >= 52) {
+    return {
+      title: "Контрастная совместимость",
+      text: "Между профилями есть притяжение через различия. Главный риск - считать стиль другого человека неправильным, а не просто другим."
+    };
+  }
+  return {
+    title: "Совместимость требует зрелых правил",
+    text: "Профили могут цеплять друг друга в чувствительных местах. Здесь особенно важны ясные договоренности, паузы в конфликте и уважение к разному темпу."
+  };
+}
+
+function buildCompatibilityReport(selfScores, partnerScores) {
+  const selfMap = scoreMap(selfScores);
+  const partnerMap = scoreMap(partnerScores);
+  const rows = Object.keys(publicDimensions).map((scale) => {
+    const self = selfMap[scale] || 0;
+    const partner = partnerMap[scale] || 0;
+    return {
+      scale,
+      label: publicDimensions[scale].label,
+      self,
+      partner,
+      delta: Math.abs(self - partner),
+      average: Math.round((self + partner) / 2),
+      max: Math.max(self, partner)
+    };
+  });
+  const averageDelta = rows.reduce((sum, item) => sum + item.delta, 0) / rows.length;
+  const selfAttachment = getAttachmentProfile(selfScores);
+  const partnerAttachment = getAttachmentProfile(partnerScores);
+  const attachmentDelta =
+    (Math.abs(selfAttachment.anxiety - partnerAttachment.anxiety) +
+      Math.abs(selfAttachment.avoidance - partnerAttachment.avoidance)) /
+    2;
+  const baseFit = 100 - averageDelta;
+  const attachmentFit = 100 - attachmentDelta;
+  const index = clampScore(baseFit * 0.62 + attachmentFit * 0.38);
+  const resonance = rows
+    .filter((item) => item.average >= 52)
+    .sort((a, b) => b.average - a.average || a.delta - b.delta)
+    .slice(0, 3);
+  const fallbackResonance = [...rows].sort((a, b) => a.delta - b.delta).slice(0, 3);
+  const friction = rows
+    .filter((item) => item.max >= 50)
+    .sort((a, b) => b.delta - a.delta || b.max - a.max)
+    .slice(0, 3);
+  const band = compatibilityBand(index);
+
+  return {
+    index,
+    band,
+    resonance: resonance.length ? resonance : fallbackResonance,
+    friction,
+    selfAttachment,
+    partnerAttachment,
+    growth: friction.map((item) => ({
+      title: growthLibrary[item.scale].title,
+      text: growthLibrary[item.scale].compat,
+      delta: item.delta
+    }))
+  };
+}
+
+function renderCompatibilityReport(partnerProfile) {
+  const report = buildCompatibilityReport(state.latestScores, partnerProfile.scores);
+  const sourceLabel =
+    partnerProfile.source === "public-code"
+      ? "публичный WHOAMI-код"
+      : "ссылка результата";
+
+  elements.compareOutput.hidden = false;
+  elements.compareOutput.innerHTML = `
+    <article class="compatibility-card">
+      <div class="compatibility-score">
+        <span>Индекс пары</span>
+        <strong>${report.index}</strong>
+        <small>${escapeHtml(report.band.title)}</small>
+      </div>
+      <div class="compatibility-summary">
+        <span>${escapeHtml(sourceLabel)} · ${escapeHtml(partnerProfile.code)}</span>
+        <h5>${escapeHtml(report.band.title)}</h5>
+        <p>${escapeHtml(report.band.text)}</p>
+      </div>
+      <div class="compatibility-grid">
+        <section>
+          <h6>Где будет резонанс</h6>
+          ${report.resonance
+            .map(
+              (item) => `
+                <div class="compatibility-row">
+                  <strong>${escapeHtml(item.label)}</strong>
+                  <span>${item.self}% / ${item.partner}%</span>
+                </div>
+              `
+            )
+            .join("")}
+        </section>
+        <section>
+          <h6>Где будет трение</h6>
+          ${report.friction
+            .map(
+              (item) => `
+                <div class="compatibility-row">
+                  <strong>${escapeHtml(item.label)}</strong>
+                  <span>разница ${item.delta}%</span>
+                </div>
+              `
+            )
+            .join("")}
+        </section>
+      </div>
+      <div class="attachment-compare">
+        <div>
+          <span>Ваш стиль</span>
+          <strong>${escapeHtml(report.selfAttachment.compact)}</strong>
+          <small>тревога ${report.selfAttachment.anxiety}% · избегание ${report.selfAttachment.avoidance}%</small>
+        </div>
+        <div>
+          <span>Другой профиль</span>
+          <strong>${escapeHtml(report.partnerAttachment.compact)}</strong>
+          <small>тревога ${report.partnerAttachment.anxiety}% · избегание ${report.partnerAttachment.avoidance}%</small>
+        </div>
+      </div>
+      <div class="pair-growth">
+        <h6>Зоны роста пары</h6>
+        ${report.growth
+          .map(
+            (item) => `
+              <article>
+                <strong>${escapeHtml(item.title)}</strong>
+                <p>${escapeHtml(item.text)}</p>
+              </article>
+            `
+          )
+          .join("")}
+      </div>
+    </article>
+  `;
+
+  if (window.lucide) window.lucide.createIcons();
+}
+
+async function handleCompatibilityCheck() {
+  if (!state.latestScores.length) return;
+
+  elements.compareCheck.disabled = true;
+  elements.compareCheck.innerHTML = '<i data-lucide="loader-circle" aria-hidden="true"></i> Считаю';
+  elements.compareOutput.hidden = false;
+  elements.compareOutput.innerHTML = '<p class="compatibility-status">Собираю карту пары...</p>';
+  if (window.lucide) window.lucide.createIcons();
+
+  try {
+    const partnerProfile = await resolveComparisonProfile(elements.compareInput.value);
+    if (partnerProfile.code === state.profileCode) {
+      throw new Error("Это ваш текущий профиль. Для сравнения нужен код или ссылка другого человека.");
+    }
+    renderCompatibilityReport(partnerProfile);
+  } catch (error) {
+    elements.compareOutput.innerHTML = `
+      <p class="compatibility-status is-error">${escapeHtml(error.message)}</p>
+      <p class="compatibility-help">Для честного MVP лучше отправить человеку ссылку на его результат и попросить вставить ее сюда. Один короткий код должен работать только как публичный профиль, а не как скрытый доступ к личным ответам.</p>
+    `;
+  } finally {
+    elements.compareCheck.disabled = false;
+    elements.compareCheck.innerHTML = '<i data-lucide="heart-handshake" aria-hidden="true"></i> Проверить';
+    if (window.lucide) window.lucide.createIcons();
+  }
+}
+
 function renderScoreList(scores) {
   elements.scoreList.innerHTML = scores
     .map(
@@ -2385,95 +4017,609 @@ function renderMiddleRecommendations(scores) {
     .join("");
 }
 
-function renderLifeMap(scores) {
-  const top = scores.slice(0, 3);
-  const byScale = Object.fromEntries(scores.map((item) => [item.scale, item]));
-  const profile = classifyProfile(scores);
-  const autonomy = byScale.S3?.score ?? 50;
-  const emotion = byScale.S1?.score ?? 50;
-  const clarity = byScale.S2?.score ?? 50;
-  const analysis = byScale.S9?.score ?? 50;
-  const control = byScale.S6?.score ?? 50;
-  const initiative = byScale.S12?.score ?? 50;
-  const sensitivity = byScale.S10?.score ?? 50;
+function pickByScore(score, high, middle, low) {
+  if (score >= 65) return high;
+  if (score >= 45) return middle;
+  return low;
+}
 
-  const blocks = [
+function getMetric(title, value) {
+  return {
+    title,
+    value: Math.round(value)
+  };
+}
+
+function getCareerRoleHint(map) {
+  const control = map.S6 ?? 50;
+  const initiative = map.S12 ?? 50;
+  const expression = map.S5 ?? 50;
+  const analysis = map.S9 ?? 50;
+  const hardness = map.S11 ?? 50;
+  const impulse = map.S8 ?? 50;
+
+  if (control >= 65 && hardness >= 55) return "операционное управление, кризисные задачи, контроль качества, руководящие роли с ясными правилами";
+  if (initiative >= 65 && impulse >= 55) return "запуски, продажи, предпринимательство, медиа, проекты с быстрым циклом и живым контактом";
+  if (analysis >= 65 && control >= 50) return "аналитика, стратегия, продукт, редактура, исследование, финансы или роли, где цена ошибки видна заранее";
+  if (expression >= 65) return "личный бренд, коммуникации, контент, переговоры, публичные роли, где важна подача и считывание аудитории";
+  return "среда с понятной задачей, автономией и возможностью постепенно наращивать ответственность";
+}
+
+function getSelfSabotageSignal(map) {
+  const signals = [
     {
-      title: "Личное",
-      icon: "user-round",
-      text: `Ваш базовый стиль — ${profile.primaryAccent.compact}. Это значит, что вы не просто "так реагируете", а повторяете устойчивый способ защищать себя и управлять близостью.`
+      title: "тревожный анализ",
+      score: map.S9 ?? 50,
+      text: "вы можете слишком долго искать правильный ответ и откладывать действие, пока уверенность не станет идеальной"
     },
+    {
+      title: "гиперконтроль",
+      score: map.S6 ?? 50,
+      text: "вы можете тратить слишком много сил на порядок, проверку и удержание людей в правильном контуре"
+    },
+    {
+      title: "проверка близости",
+      score: map.S2 ?? 50,
+      text: "вы можете просить любви не напрямую, а через проверки, тревожные вопросы или подстройку"
+    },
+    {
+      title: "импульсивный разворот",
+      score: map.S8 ?? 50,
+      text: "вы можете резко обещать, тратить, начинать или обрывать, а потом догонять последствия"
+    },
+    {
+      title: "страх оценки",
+      score: map.S10 ?? 50,
+      text: "вы можете не выходить в видимость, пока не почувствуете, что вас точно примут"
+    },
+    {
+      title: "статусное обесценивание",
+      score: map.S4 ?? 50,
+      text: "вы можете терять интерес к людям и проектам, если там не видят ваш уровень"
+    }
+  ];
+
+  return signals.sort((a, b) => b.score - a.score)[0];
+}
+
+function renderLifeMap(scores) {
+  const map = scoreMap(scores);
+  const profile = classifyProfile(scores);
+  const attachment = getAttachmentProfile(scores);
+  const radicals = selectDarkRadicals(scores);
+  const leadingRadical = radicals[0];
+  const brandType = getBrandType(profile, radicals);
+  const topScore = scores[0];
+  const sabotage = getSelfSabotageSignal(map);
+  const emotion = map.S1 ?? 50;
+  const clarity = map.S2 ?? 50;
+  const autonomy = map.S3 ?? 50;
+  const recognition = map.S4 ?? 50;
+  const expression = map.S5 ?? 50;
+  const control = map.S6 ?? 50;
+  const suspicion = map.S7 ?? 50;
+  const impulse = map.S8 ?? 50;
+  const analysis = map.S9 ?? 50;
+  const sensitivity = map.S10 ?? 50;
+  const hardness = map.S11 ?? 50;
+  const initiative = map.S12 ?? 50;
+  const categories = [
     {
       title: "Отношения",
       icon: "heart",
-      text:
-        clarity >= 60
-          ? "В отношениях вы можете требовать ясности сильнее, чем признаете. Если человек молчит, психика быстро достраивает худший сценарий, и это может превращать обычную паузу в драму."
-          : "В отношениях вы можете казаться самодостаточнее, чем есть внутри. Риск в том, что партнер видит дистанцию и перестает пытаться подойти ближе."
+      score: modelScoreFromMap(map, [
+        { scale: "S2", weight: 1.1 },
+        { scale: "S1", weight: 0.8 },
+        { scale: "S3", weight: 0.55 },
+        { scale: "S7", weight: 0.45 },
+        { scale: "S10", weight: 0.45 }
+      ]),
+      kicker: "как вы любите, ревнуете, сближаетесь и отдаляетесь",
+      summary: attachment.summary,
+      metrics: [getMetric("ясность контакта", clarity), getMetric("эмоции", emotion), getMetric("автономность", autonomy)],
+      details: [
+        {
+          title: "Как вы любите",
+          text:
+            clarity >= 60
+              ? "Через ясность, подтверждение и ощущение, что контакт живой. Молчание может переживаться громче, чем слова."
+              : "Через пространство, спокойствие и право не быть постоянно эмоционально доступным человеком."
+        },
+        {
+          title: "Где боль",
+          text:
+            emotion >= 60
+              ? "Резкая смена тона, неопределенность и ощущение, что вас эмоционально оставили одного."
+              : "Давление, навязчивая близость и попытка требовать реакцию быстрее, чем она созрела."
+        },
+        { title: "Что помогает", text: attachment.need }
+      ]
     },
     {
-      title: "Конфликты",
-      icon: "messages-square",
-      text:
-        emotion >= 60
-          ? "В споре вы можете сначала ударить эмоцией, а потом объяснять себе, что вас вынудили. Главная задача — не доказывать боль, а вовремя остановить эскалацию."
-          : "В конфликте вы можете выглядеть спокойным, но это не всегда зрелость. Иногда это способ не подпустить человека к тому, что реально задело."
-    },
-    {
-      title: "Коммуникация",
-      icon: "message-circle",
-      text:
-        sensitivity >= 60
-          ? "С вами нельзя грубо и обобщенно: вы запоминаете тон, а не только смысл. Но вам важно не превращать каждое неудачное слово другого человека в доказательство отвержения."
-          : "С вами лучше говорить прямо. Намеки, эмоциональные игры и пассивная агрессия быстро вызывают раздражение или холодную отстраненность."
-    },
-    {
-      title: "Стресс",
-      icon: "activity",
-      text:
-        analysis >= 60
-          ? "Под стрессом вы можете думать вместо того, чтобы жить. Анализ дает иллюзию контроля, но если он не заканчивается действием, он становится клеткой."
-          : "В стрессе вы быстрее уходите в действие или переключение. Это спасает от застревания, но может мешать честно признать, что вам больно или страшно."
-    },
-    {
-      title: "Карьера",
-      icon: "briefcase-business",
-      text:
-        control >= 60
-          ? "В работе вы сильны там, где можно навести порядок и держать стандарт. Но если вы не делегируете, люди рядом начинают чувствовать себя не партнерами, а исполнителями."
-          : "Вам нужна среда с воздухом, свободой и быстрыми циклами. Риск — бросать скучную часть раньше, чем она начинает приносить результат."
+      title: "Тип привязанности",
+      icon: "heart-handshake",
+      score: Math.round((attachment.anxiety + attachment.avoidance) / 2),
+      kicker: "как вы держите близость, дистанцию и безопасность контакта",
+      summary: `${attachment.name}: ${attachment.summary}`,
+      metrics: [
+        getMetric("тревога привязанности", attachment.anxiety),
+        getMetric("избегание близости", attachment.avoidance),
+        getMetric("потребность в ясности", clarity)
+      ],
+      details: [
+        {
+          title: "Главный риск",
+          text: attachment.risk
+        },
+        {
+          title: "Что помогает",
+          text: attachment.need
+        },
+        {
+          title: "Как проявляется",
+          text:
+            attachment.id === "secure"
+              ? "В стабильной среде вы можете выдерживать паузы, говорить прямо и возвращаться к контакту без сильных проверок."
+              : attachment.id === "avoidant"
+                ? "Когда близость становится слишком плотной, психика может уходить в дистанцию, рациональность или молчаливое восстановление контроля."
+                : attachment.id === "fearful"
+                  ? "Важный человек одновременно притягивает и пугает: хочется ясности, но при сильном напряжении может включаться отстранение или давление."
+                  : "Молчание, холодный тон и неопределенность могут быстро запускать поиск подтверждений, тревожный анализ или проверку контакта."
+        }
+      ]
     },
     {
       title: "Совместимость",
       icon: "link",
-      text:
+      score: modelScoreFromMap(map, [
+        { scale: "S2", weight: 0.9 },
+        { scale: "S3", weight: 0.8 },
+        { scale: "S7", weight: 0.55 },
+        { scale: "S6", weight: 0.35 },
+        { scale: "S1", weight: 0.35 }
+      ]),
+      kicker: "с кем легко, с кем тянет, но ломает",
+      summary:
         autonomy >= 60
-          ? "Вам подходят люди, которые не ломятся в вашу закрытость и не требуют постоянного слияния. Но слишком похожий партнер может превратить пару в двух соседей."
-          : "Вам подходят люди, которые дают тепло, ясность и регулярный контакт. Но если человек слишком доступен, вы можете начать проверять его на прочность."
+          ? "Вам подходят люди, которые уважают дистанцию и не путают близость со слиянием."
+          : "Вам подходят люди, которые дают тепло, регулярность и понятные сигналы заинтересованности.",
+      metrics: [getMetric("тревога", attachment.anxiety), getMetric("избегание", attachment.avoidance), getMetric("проверка", suspicion)],
+      details: [
+        {
+          title: "Кто подходит",
+          text:
+            control >= 60
+              ? "Партнеры и команды, которые держат договоренности, не хаотичны и умеют говорить конкретно."
+              : "Партнеры и команды, где есть воздух, гибкость и возможность обсуждать правила без давления."
+        },
+        {
+          title: "С кем будет сложно",
+          text:
+            clarity >= 60
+              ? "С холодными, исчезающими и двусмысленными людьми: они быстро включают тревогу и проверки."
+              : "С людьми, которые требуют постоянной отчетности, эмоционального присутствия и немедленных объяснений."
+        },
+        { title: "Важно", text: "Точная совместимость появляется, когда есть два WHOAMI-профиля. Здесь показан ваш половинный рисунок совместимости." }
+      ]
     },
     {
-      title: "Как со мной общаться",
+      title: "Карьера и сферы деятельности",
+      icon: "briefcase-business",
+      score: modelScoreFromMap(map, [
+        { scale: "S6", weight: 0.75 },
+        { scale: "S12", weight: 0.75 },
+        { scale: "S9", weight: 0.55 },
+        { scale: "S4", weight: 0.5 },
+        { scale: "S8", weight: 0.45 }
+      ]),
+      kicker: "стиль работы, амбиции, роли и риск выгорания",
+      summary: `Ваш рабочий профиль ближе к роли, где важны ${topScore.label.toLowerCase()} и ${profile.primaryAccent.compact}.`,
+      metrics: [getMetric("структура", control), getMetric("инициатива", initiative), getMetric("анализ", analysis)],
+      details: [
+        { title: "Подходящие роли", text: getCareerRoleHint(map) },
+        {
+          title: "Как вы работаете",
+          text:
+            initiative >= 60
+              ? "Включаетесь через движение, людей, вызов и ощущение, что можно быстро влиять на результат."
+              : "Лучше раскрываетесь там, где можно спокойно понять задачу, выстроить качество и не жить в вечной срочности."
+        },
+        {
+          title: "Риск выгорания",
+          text:
+            control >= 60
+              ? "Перегруз начинается, когда все держится на вас, а делегирование кажется потерей качества."
+              : "Перегруз начинается, когда пропадает смысл, свобода или видимая динамика результата."
+        }
+      ]
+    },
+    {
+      title: "Деньги и риск",
+      icon: "wallet-cards",
+      score: modelScoreFromMap(map, [
+        { scale: "S8", weight: 0.9 },
+        { scale: "S6", weight: 0.65 },
+        { scale: "S9", weight: 0.6 },
+        { scale: "S4", weight: 0.45 },
+        { scale: "S11", weight: 0.35 }
+      ]),
+      kicker: "как вы решаете, тратите, контролируете и боитесь ошибок",
+      summary:
+        impulse >= 60
+          ? "Деньги могут включать азарт, скорость и желание действовать до полного расчета."
+          : "Финансовые решения чаще проходят через контроль, осторожность и проверку последствий.",
+      metrics: [getMetric("риск", impulse), getMetric("контроль", control), getMetric("страх ошибки", analysis)],
+      details: [
+        {
+          title: "Финансовый импульс",
+          text:
+            impulse >= 60
+              ? "В сильном состоянии вы можете тратить, обещать или входить в идею быстрее, чем успеваете проверить цену."
+              : "Вы скорее тормозите решение, пока не появится ощущение достаточной надежности."
+        },
+        {
+          title: "Статусный слой",
+          text:
+            recognition >= 60
+              ? "Часть денежных решений может быть связана с уровнем, признанием и доказательством собственной ценности."
+              : "Статус влияет меньше: важнее безопасность, смысл или практическая польза."
+        },
+        { title: "Правило безопасности", text: "Разделяйте деньги на контур риска и контур стабильности, чтобы азарт или тревога не управляли всем бюджетом." }
+      ]
+    },
+    {
+      title: "Конфликты",
+      icon: "messages-square",
+      score: modelScoreFromMap(map, [
+        { scale: "S1", weight: 0.8 },
+        { scale: "S6", weight: 0.65 },
+        { scale: "S7", weight: 0.65 },
+        { scale: "S11", weight: 0.65 },
+        { scale: "S8", weight: 0.35 }
+      ]),
+      kicker: "как вы спорите, давите, молчите, доказываете или уходите",
+      summary:
+        hardness >= 60
+          ? "В споре вы можете быстро переходить в жесткую позицию, особенно если видите слабость, хаос или несправедливость."
+          : "В споре у вас сильнее включается внутренняя реакция: тревога, анализ, обида или дистанция.",
+      metrics: [getMetric("эмоция", emotion), getMetric("жесткость", hardness), getMetric("подозрительность", suspicion)],
+      details: [
+        {
+          title: "Первый автоматизм",
+          text:
+            emotion >= 60
+              ? "Сначала эмоция, потом объяснение. Вы можете говорить резче, чем планировали, если боль уже включилась."
+              : "Сначала контроль или дистанция. Снаружи может казаться, что вам все равно, хотя внутри идет обработка."
+        },
+        {
+          title: "Что вас триггерит",
+          text:
+            suspicion >= 60
+              ? "Скрытые мотивы, неуважение, нарушение договоренностей и ощущение, что вас пытаются провести."
+              : "Грубый тон, давление, обесценивание или требование немедленно реагировать."
+        },
+        { title: "Как мириться", text: "Лучше работает конкретика: что случилось, что это значило для вас, что меняем дальше." }
+      ]
+    },
+    {
+      title: "Стресс и саморегуляция",
+      icon: "activity",
+      score: modelScoreFromMap(map, [
+        { scale: "S1", weight: 0.75 },
+        { scale: "S9", weight: 0.75 },
+        { scale: "S6", weight: 0.55 },
+        { scale: "S8", weight: 0.45 },
+        { scale: "S10", weight: 0.35 }
+      ]),
+      kicker: "что происходит, когда психика перегружена",
+      summary:
+        analysis >= 60
+          ? "Под нагрузкой вы можете уходить в сценарии, риски и попытку додумать все до безопасного финала."
+          : "Под нагрузкой вы скорее уходите в действие, дистанцию или резкое переключение.",
+      metrics: [getMetric("анализ", analysis), getMetric("эмоциональность", emotion), getMetric("импульс", impulse)],
+      details: [
+        {
+          title: "Ваш стресс-режим",
+          text: pickByScore(
+            Math.max(analysis, control, impulse, emotion),
+            analysis >= control && analysis >= impulse ? "думать до изнеможения" : control >= impulse ? "усиливать контроль" : "действовать быстрее, чем успеваете стабилизироваться",
+            "сначала держаться, потом резко проседать, если напряжение не разрядилось",
+            "сохранять ровность, пока не накопится усталость"
+          )
+        },
+        { title: "Что ухудшает", text: "Неопределенность, слишком много открытых решений и люди, которые требуют реакции, не дав времени восстановиться." },
+        { title: "Что стабилизирует", text: "Короткий план на ближайший шаг, телесная пауза, ясная граница и перевод тревоги в действие." }
+      ]
+    },
+    {
+      title: "Секс и интимность 18+",
       icon: "sparkles",
-      text:
-        initiative >= 60
-          ? "С вами лучше не разговаривать как с ребенком. Дайте пространство для решения, признайте вклад и обсуждайте ограничения как договор, а не как контроль."
-          : "Вам нужно время на обработку. Если вас торопят с реакцией, вы можете согласиться внешне, но внутренне закрыться и выйти из контакта."
+      score: modelScoreFromMap(map, [
+        { scale: "S2", weight: 0.65 },
+        { scale: "S3", weight: 0.65 },
+        { scale: "S10", weight: 0.55 },
+        { scale: "S6", weight: 0.35 },
+        { scale: "S4", weight: 0.35 }
+      ]),
+      kicker: "близость, желание, стыд, контроль и подтверждение",
+      summary: "Аккуратный 18+ блок: вывод строится по близости, стыду, контролю и дистанции, а не по прямым сексуальным вопросам.",
+      metrics: [getMetric("подтверждение", clarity), getMetric("дистанция", autonomy), getMetric("стыд/оценка", sensitivity)],
+      details: [
+        {
+          title: "Как включается близость",
+          text:
+            clarity >= 60
+              ? "Через ощущение желанности, выбранности и понятного эмоционального контакта."
+              : "Через безопасность, уважение границ и отсутствие давления на немедленную открытость."
+        },
+        {
+          title: "Где зажим",
+          text:
+            sensitivity >= 60
+              ? "Оценка, неловкость и страх быть не таким могут снижать спонтанность сильнее, чем вы показываете."
+              : "Главный зажим чаще связан не со стыдом, а с контролем, скукой или потерей ощущения свободы."
+        },
+        { title: "Как говорить", text: "Без стыда и допроса: лучше через желания, границы и конкретные сигналы, чем через претензии или сравнение." }
+      ]
+    },
+    {
+      title: "Дружба и социальный круг",
+      icon: "users-round",
+      score: modelScoreFromMap(map, [
+        { scale: "S3", weight: 0.55 },
+        { scale: "S5", weight: 0.55 },
+        { scale: "S7", weight: 0.45 },
+        { scale: "S12", weight: 0.45 },
+        { scale: "S10", weight: 0.35 }
+      ]),
+      kicker: "кого вы выбираете, кому доверяете и почему отдаляетесь",
+      summary:
+        expression >= 60 || initiative >= 60
+          ? "Вы можете быстро создавать контакт, но качество доверия зависит от того, выдерживает ли человек ваш настоящий ритм."
+          : "Вы выбираете круг осторожнее: меньше людей, больше смысла, выше ценность тишины и надежности.",
+      metrics: [getMetric("социальная энергия", initiative), getMetric("выразительность", expression), getMetric("доверие", suspicion)],
+      details: [
+        { title: "Кого выбираете", text: suspicion >= 60 ? "Людей, которые подтверждают слова делами и не требуют доверия авансом." : "Людей, рядом с которыми можно быть живым, расслабленным и не играть роль сильнее, чем хочется." },
+        { title: "Почему отдаляетесь", text: autonomy >= 60 ? "Из-за перегруза контактом, вторжения в личное пространство или ощущения, что от вас слишком много хотят." : "Из-за холода, неясности, конкуренции, обесценивания или чувства, что контакт стал односторонним." },
+        { title: "Социальный риск", text: "Либо слишком долго проверять людей, либо слишком быстро включаться в сильный контакт. Баланс - скорость сближения плюс проверка реальностью." }
+      ]
+    },
+    {
+      title: "Семья",
+      icon: "home",
+      score: modelScoreFromMap(map, [
+        { scale: "S2", weight: 0.55 },
+        { scale: "S3", weight: 0.5 },
+        { scale: "S6", weight: 0.55 },
+        { scale: "S7", weight: 0.4 },
+        { scale: "S10", weight: 0.4 }
+      ]),
+      kicker: "долг, вина, дистанция, контроль и границы",
+      summary: "Семейный блок показывает перенос ваших базовых защит на родителей, детей и родственников.",
+      metrics: [getMetric("долг/близость", clarity), getMetric("границы", autonomy), getMetric("контроль", control)],
+      details: [
+        { title: "Ваша роль", text: control >= 60 ? "Вы можете становиться тем, кто держит порядок, ответственность и стандарт, даже когда устал." : "Вы можете быть тем, кто либо сглаживает напряжение, либо уходит в дистанцию, когда система давит." },
+        { title: "Где конфликт", text: sensitivity >= 60 ? "Вина, оценка и критика могут попадать глубже, чем обычные рабочие замечания." : "Конфликт чаще появляется вокруг свободы, правил, контроля и права жить не по чужому сценарию." },
+        { title: "Здоровая граница", text: "Отделять любовь от обязанности быть удобным: семья важна, но не должна иметь полный доступ к вашей нервной системе." }
+      ]
+    },
+    {
+      title: "Лидерство",
+      icon: "crown",
+      score: modelScoreFromMap(map, [
+        { scale: "S6", weight: 0.75 },
+        { scale: "S11", weight: 0.75 },
+        { scale: "S12", weight: 0.65 },
+        { scale: "S4", weight: 0.45 },
+        { scale: "S9", weight: 0.3 }
+      ]),
+      kicker: "как вы управляете, ведете, влияете и выдерживаете власть",
+      summary:
+        hardness >= 60 || control >= 60
+          ? "Ваше лидерство может быть сильным, требовательным и системным."
+          : "Ваше лидерство раскрывается через контакт, идею, энергию или тонкое считывание людей.",
+      metrics: [getMetric("контроль", control), getMetric("доминирование", hardness), getMetric("инициатива", initiative)],
+      details: [
+        { title: "Сильная сторона", text: initiative >= 60 ? "Вы умеете запускать движение и заражать людей ощущением, что пора действовать." : "Вы умеете держать качество, видеть риски и не разваливаться, когда другим нужна опора." },
+        { title: "Слепая зона", text: hardness >= 60 ? "Люди могут бояться ошибки и скрывать проблемы, если рядом слишком много давления." : "Вы можете слишком долго ждать готовности или согласия, хотя группе уже нужна ясная позиция." },
+        { title: "Как управлять вами", text: "Через уважение, конкретику и взрослый договор. Давление сверху быстро включает сопротивление, холод или внутренний выход из контакта." }
+      ]
+    },
+    {
+      title: "Коммуникация",
+      icon: "message-circle",
+      score: modelScoreFromMap(map, [
+        { scale: "S10", weight: 0.65 },
+        { scale: "S7", weight: 0.55 },
+        { scale: "S6", weight: 0.45 },
+        { scale: "S3", weight: 0.35 },
+        { scale: "S2", weight: 0.35 }
+      ]),
+      kicker: "как с вами говорить и что нельзя говорить",
+      summary:
+        sensitivity >= 60
+          ? "Вам важен тон: вы слышите не только смысл, но и скрытое отношение."
+          : "С вами лучше работает прямота, ясность и отсутствие эмоциональных игр.",
+      metrics: [getMetric("оценка", sensitivity), getMetric("настороженность", suspicion), getMetric("структура", control)],
+      details: [
+        { title: "Как говорить", text: control >= 60 ? "Конкретно: факты, договоренности, последствия, зона ответственности." : "Живо и прямо: без намеков, пассивной агрессии и театральных проверок." },
+        { title: "Что нельзя", text: sensitivity >= 60 ? "Грубые обобщения, публичное пристыжение и фразы, где критика звучит как отвержение." : "Манипулятивная неопределенность, нарушение договоренностей и попытка управлять вами через вину." },
+        { title: "Как давать фидбек", text: "Сначала признать вклад, потом назвать конкретное поведение, затем договориться о следующем шаге." }
+      ]
+    },
+    {
+      title: "Темная сторона",
+      icon: "flame",
+      score: leadingRadical.score,
+      kicker: "жесткие радикалы, давление, манипуляции и защита",
+      summary: `${leadingRadical.title} сейчас самый заметный жесткий слой профиля: ${leadingRadical.score}%.`,
+      metrics: radicals.slice(0, 3).map((item) => getMetric(item.compact, item.score)),
+      details: [
+        { title: "Что это значит", text: leadingRadical.decode },
+        { title: "Как проявляется", text: leadingRadical.example },
+        { title: "Главный риск", text: leadingRadical.risk }
+      ]
+    },
+    {
+      title: "Самосаботаж",
+      icon: "ban",
+      score: sabotage.score,
+      kicker: "где вы сами себе мешаете",
+      summary: `Главный самосаботаж сейчас похож на ${sabotage.title}: ${sabotage.text}.`,
+      metrics: [getMetric("анализ", analysis), getMetric("контроль", control), getMetric("импульс", impulse)],
+      details: [
+        { title: "Как вы себя стопорите", text: sabotage.text },
+        { title: "Как это маскируется", text: "Обычно это выглядит как здравый смысл: еще подготовиться, еще проверить, еще доказать или резко все обнулить." },
+        { title: "Антидот", text: "Ставить маленький следующий шаг с ограничением по времени. Нужна не идеальная уверенность, а управляемый запуск." }
+      ]
+    },
+    {
+      title: "Как меня видят другие",
+      icon: "eye",
+      score: modelScoreFromMap(map, [
+        { scale: "S4", weight: 0.55 },
+        { scale: "S5", weight: 0.55 },
+        { scale: "S11", weight: 0.45 },
+        { scale: "S10", weight: 0.35 },
+        { scale: "S3", weight: 0.35 }
+      ]),
+      kicker: "что люди чувствуют рядом с вами",
+      summary:
+        expression >= 60 || recognition >= 60
+          ? "Люди могут считывать в вас заметность, уровень и сильное поле присутствия."
+          : "Люди могут считывать в вас сдержанность, глубину и неочевидную внутреннюю сложность.",
+      metrics: [getMetric("видимость", expression), getMetric("статус", recognition), getMetric("дистанция", autonomy)],
+      details: [
+        { title: "За что выбирают", text: initiative >= 60 ? "За энергию, движение, умение включаться и создавать ощущение возможности." : "За надежность, глубину, точность, вкус к качеству или способность не суетиться." },
+        { title: "Чего могут бояться", text: hardness >= 60 ? "Вашей жесткости, оценки, холодного решения или способности давить, когда ставка высокая." : autonomy >= 60 ? "Вашей закрытости: человеку может быть непонятно, нужен он вам или уже нет." : "Вашей эмоциональной реакции, если контакт стал слишком неопределенным." },
+        { title: "Что не видно сразу", text: "Снаружи люди видят поведение. Внутри чаще работает связка из защиты, потребности и страха потерять важный контроль." }
+      ]
+    },
+    {
+      title: "Личная инструкция",
+      icon: "file-user",
+      score: modelScoreFromMap(map, [
+        { scale: "S2", weight: 0.45 },
+        { scale: "S3", weight: 0.45 },
+        { scale: "S6", weight: 0.45 },
+        { scale: "S10", weight: 0.35 },
+        { scale: "S11", weight: 0.35 }
+      ]),
+      kicker: "как меня любить, продавать, вести и с чем ко мне нельзя",
+      summary: `Короткая инструкция к вам: учитывайте ${topScore.label.toLowerCase()}, не ломайте границы и говорите конкретно.`,
+      metrics: [getMetric("границы", autonomy), getMetric("ясность", clarity), getMetric("фидбек", sensitivity)],
+      details: [
+        { title: "Как меня любить", text: attachment.id === "avoidant" ? "Давать тепло без вторжения: обозначать чувства, но уважать время, личное пространство и право на паузу." : "Давать ясность: словами, регулярностью, предсказуемостью и прямым подтверждением, что контакт живой." },
+        { title: "Как мной управлять нельзя", text: hardness >= 60 || control >= 60 ? "Через хаос, унижение, давление авторитетом и требования без логики." : "Через холод, игнор, стыд и эмоциональную неопределенность." },
+        { title: "Как мне продавать идею", text: recognition >= 60 ? "Показывать уровень, статус, пользу для образа и то, почему это достойно вашего внимания." : "Показывать смысл, безопасность, конкретный следующий шаг и отсутствие лишнего давления." }
+      ]
+    },
+    {
+      title: "Паспорт для сторис",
+      icon: "badge-check",
+      score: topScore.score,
+      kicker: "что можно красиво показать наружу",
+      summary: `Публичная формула профиля: ${brandType}. Это витринный слой без личных ответов и чувствительных деталей.`,
+      metrics: [
+        getMetric("главный сигнал", topScore.score),
+        getMetric("темный слой", leadingRadical.score),
+        getMetric("узнаваемость", modelScoreFromMap(map, [
+          { scale: "S4", weight: 0.5 },
+          { scale: "S5", weight: 0.5 }
+        ]))
+      ],
+      details: [
+        { title: "Что показывать", text: `Архетип ${brandType}, WHOAMI-код, 3 главные шкалы и ведущий стиль привязанности. Этого достаточно для вирусности.` },
+        { title: "Что скрывать", text: "Ответы на вопросы, email, личные детали, семейные и интимные выводы. Публичная карточка должна быть статусной, не исповедальной." },
+        { title: "Виральный крючок", text: "Лучше всего работают формулировки: «что люди чувствуют рядом со мной», «мой темный радикал» и «с кем я совместим(а)»." }
+      ]
     }
   ];
 
-  elements.lifeMap.innerHTML = blocks
-    .map(
-      (block) => `
-        <article class="life-card">
-          <i data-lucide="${block.icon}" aria-hidden="true"></i>
-          <div>
-            <h5>${block.title}</h5>
-            <p>${block.text}</p>
-          </div>
-        </article>
-      `
-    )
-    .join("");
+  const activeIndex = Math.min(Math.max(state.activeCategoryIndex, 0), categories.length - 1);
+  state.activeCategoryIndex = activeIndex;
+
+  elements.lifeMap.innerHTML = `
+    <section class="domain-report" aria-label="Глубокие блоки отчета">
+      <div class="domain-report-head">
+        <div>
+          <span>Глубокие сферы</span>
+          <h4>Открывайте блоки в любом порядке</h4>
+          <p>Каждый блок показывает одну область жизни. Выберите то, что сейчас важнее: отношения, деньги, карьеру, привязанность, темную сторону или личную инструкцию.</p>
+        </div>
+        <strong>${activeIndex + 1}/${categories.length}</strong>
+      </div>
+      <div class="category-tabs" aria-label="Быстрый выбор блока">
+        ${categories
+          .map(
+            (category, index) => `
+              <button class="${index === activeIndex ? "is-active" : ""}" type="button" data-category-toggle="${index}">
+                ${String(index + 1).padStart(2, "0")}
+              </button>
+            `
+          )
+          .join("")}
+      </div>
+      <div class="domain-category-list">
+        ${categories
+          .map((category, index) => {
+            const isActive = index === activeIndex;
+            const status = `${category.score}%`;
+
+            return `
+              <article class="category-panel is-available ${isActive ? "is-active" : ""}" data-category-panel="${index}">
+                <button class="category-toggle" type="button" data-category-toggle="${index}">
+                  <span class="category-icon">
+                    <i data-lucide="${category.icon}" aria-hidden="true"></i>
+                  </span>
+                  <span class="category-title">
+                    <small>${String(index + 1).padStart(2, "0")}</small>
+                    <strong>${category.title}</strong>
+                    <em>${category.kicker}</em>
+                  </span>
+                  <b>${status}</b>
+                  <i data-lucide="${isActive ? "chevron-up" : "chevron-down"}" aria-hidden="true"></i>
+                </button>
+                ${
+                  isActive
+                    ? `
+                      <div class="category-body">
+                        <p class="category-summary">${category.summary}</p>
+                        <div class="category-metrics">
+                          ${category.metrics
+                            .map(
+                              (metric) => `
+                                <div>
+                                  <span>${metric.value}%</span>
+                                  <small>${metric.title}</small>
+                                </div>
+                              `
+                            )
+                            .join("")}
+                        </div>
+                        <div class="category-detail-grid">
+                          ${category.details
+                            .map(
+                              (detail) => `
+                                <article>
+                                  <span>${detail.title}</span>
+                                  <p>${detail.text}</p>
+                                </article>
+                              `
+                            )
+                            .join("")}
+                        </div>
+                      </div>
+                    `
+                    : ""
+                }
+              </article>
+            `;
+          })
+          .join("")}
+      </div>
+    </section>
+  `;
 
   if (window.lucide) window.lucide.createIcons();
 }
@@ -2507,24 +4653,95 @@ function unlockReport(options = {}) {
   state.latestTier = "paid";
 
   renderPaidVerdict(state.latestScores);
-  renderPassportShare(state.latestScores);
-  renderAttachmentStyle(state.latestScores);
-  renderDarkRadicals(state.latestScores);
-  renderResultDecoder(state.latestScores);
   renderScoreList(state.latestScores);
-  renderMiddleRecommendations(state.latestScores);
-  renderLifeMap(state.latestScores);
   renderAnswerArchive();
+  elements.passportDossier.innerHTML = "";
+  elements.passportShare.innerHTML = "";
+  elements.attachmentStyle.innerHTML = "";
+  elements.darkRadicals.innerHTML = "";
+  elements.resultDecoder.innerHTML = "";
+  elements.growthZones.innerHTML = "";
+  elements.middleRecommendations.innerHTML = "";
+  elements.lifeMap.innerHTML = "";
   elements.middleReport.hidden = false;
   elements.upgrade.classList.add("is-unlocked");
   elements.upgrade.innerHTML = '<i data-lucide="check" aria-hidden="true"></i> Платный отчет открыт';
 
   elements.refLink.value = makeResultUrl(state.latestTier);
+  if (elements.compatibilityLink) {
+    elements.compatibilityLink.href = makeCompatibilityUrl(state.latestTier);
+  }
   if (options.submit !== false) submitResult("paid_unlock", state.latestTier);
   if (window.lucide) window.lucide.createIcons();
   if (options.scroll !== false) {
     elements.middleReport.scrollIntoView({ behavior: "smooth", block: "start" });
   }
+}
+
+function feedbackStorageKey() {
+  return `whoami_feedback_${state.profileCode || "latest"}`;
+}
+
+function getFeedbackRating(name) {
+  return elements.feedbackForm?.querySelector(`input[name="${name}"]:checked`)?.value || "";
+}
+
+function updateFeedbackSubmitState() {
+  if (!elements.feedbackSubmit) return;
+  const hasDescription = Boolean(getFeedbackRating("description"));
+  const hasRecommendations = Boolean(getFeedbackRating("recommendations"));
+  elements.feedbackSubmit.disabled = !(hasDescription && hasRecommendations);
+}
+
+function openFeedbackPrompt() {
+  if (!elements.feedbackModal || !state.profileCode) return;
+  if (window.localStorage.getItem(feedbackStorageKey())) return;
+
+  elements.feedbackModal.hidden = false;
+  elements.feedbackThanks.hidden = true;
+  updateFeedbackSubmitState();
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function closeFeedbackPrompt(saveDismiss = true) {
+  if (!elements.feedbackModal) return;
+  elements.feedbackModal.hidden = true;
+  window.clearTimeout(state.feedbackTimer);
+
+  if (saveDismiss && state.profileCode && !window.localStorage.getItem(feedbackStorageKey())) {
+    window.localStorage.setItem(
+      feedbackStorageKey(),
+      JSON.stringify({
+        status: "dismissed",
+        profileCode: state.profileCode,
+        createdAt: new Date().toISOString()
+      })
+    );
+  }
+}
+
+function scheduleFeedbackPrompt() {
+  if (!elements.feedbackModal) return;
+  window.clearTimeout(state.feedbackTimer);
+  state.feedbackTimer = window.setTimeout(openFeedbackPrompt, 900);
+}
+
+function handleFeedbackSubmit(event) {
+  event.preventDefault();
+  if (!state.profileCode) return;
+
+  const payload = {
+    status: "submitted",
+    profileCode: state.profileCode,
+    description: Number(getFeedbackRating("description")),
+    recommendations: Number(getFeedbackRating("recommendations")),
+    createdAt: new Date().toISOString()
+  };
+
+  window.localStorage.setItem(feedbackStorageKey(), JSON.stringify(payload));
+  elements.feedbackThanks.hidden = false;
+  elements.feedbackSubmit.disabled = true;
+  window.setTimeout(() => closeFeedbackPrompt(false), 850);
 }
 
 function showResult() {
@@ -2535,6 +4752,7 @@ function showResult() {
   resetUnlockedReports();
   renderBasicResult(scores, state.profileCode);
   submitResult("result", state.latestTier);
+  scheduleFeedbackPrompt();
 
   window.requestAnimationFrame(() => {
     elements.progressBar.style.width = "100%";
@@ -2631,41 +4849,96 @@ elements.copy.addEventListener("click", async () => {
 
 elements.upgrade.addEventListener("click", () => unlockReport());
 
-elements.compatibilityRun?.addEventListener("click", runCompatibility);
+elements.paidVerdict.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-dashboard-block]");
+  if (!button || !state.latestScores.length) return;
 
-elements.compatibilitySelfInput?.addEventListener("keydown", (event) => {
-  if (event.key !== "Enter") return;
-  event.preventDefault();
-  runCompatibility();
+  const nextBlock = button.dataset.dashboardBlock;
+  state.activeDashboardBlock = state.activeDashboardBlock === nextBlock ? "" : nextBlock;
+  renderPaidVerdict(state.latestScores);
+
+  if (window.lucide) window.lucide.createIcons();
 });
 
-elements.compatibilityOtherInput?.addEventListener("keydown", (event) => {
-  if (event.key !== "Enter") return;
-  event.preventDefault();
-  runCompatibility();
+if (elements.avatarInput) {
+  elements.avatarInput.addEventListener("change", handleAvatarInputChange);
+}
+
+if (elements.avatarRegenerate) {
+  elements.avatarRegenerate.addEventListener("click", handleAvatarRegenerate);
+}
+
+if (elements.avatarVariants) {
+  elements.avatarVariants.addEventListener("click", handleAvatarVariantClick);
+}
+
+if (elements.feedbackForm) {
+  elements.feedbackForm.addEventListener("change", updateFeedbackSubmitState);
+  elements.feedbackForm.addEventListener("submit", handleFeedbackSubmit);
+}
+
+elements.feedbackClose.forEach((button) => {
+  button.addEventListener("click", () => closeFeedbackPrompt(true));
 });
 
-elements.compatibilityModeInputs.forEach((input) => {
-  input.addEventListener("change", () => {
-    state.compatibilityMode = input.value;
-    if (state.compatibilitySelf && state.compatibilityOther) {
-      renderCompatibilityReport(state.compatibilitySelf, state.compatibilityOther, state.compatibilityMode, false);
-    }
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && elements.feedbackModal && !elements.feedbackModal.hidden) {
+    closeFeedbackPrompt(true);
+  }
+});
+
+if (elements.compareCheck) {
+  elements.compareCheck.addEventListener("click", handleCompatibilityCheck);
+}
+
+if (elements.compareInput) {
+  elements.compareInput.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter") return;
+    event.preventDefault();
+    handleCompatibilityCheck();
+  });
+}
+
+elements.lifeMap.addEventListener("click", (event) => {
+  const toggleButton = event.target.closest("[data-category-toggle]");
+
+  if (!state.latestScores.length || !toggleButton) return;
+
+  const index = Number(toggleButton.dataset.categoryToggle);
+  if (!Number.isFinite(index)) return;
+
+  state.activeCategoryIndex = index;
+
+  renderLifeMap(state.latestScores);
+  window.requestAnimationFrame(() => {
+    elements.lifeMap.querySelector(`[data-category-panel="${index}"]`)?.scrollIntoView({
+      behavior: "smooth",
+      block: "center"
+    });
   });
 });
 
-document.querySelector("[data-use-result-for-compatibility]")?.addEventListener("click", () => {
-  syncCurrentResultToCompatibility();
+document.addEventListener("click", (event) => {
+  const passportButton = event.target.closest("[data-download-passport]");
+  const documentButton = event.target.closest("[data-download-passport-doc]");
+  if (passportButton) {
+    downloadPassportImage();
+  }
+  if (documentButton) {
+    downloadPassportDocument();
+  }
 });
 
 document.addEventListener("click", (event) => {
-  const button = event.target.closest("[data-download-passport]");
-  if (!button) return;
-  downloadPassportImage();
+  const button = event.target.closest("[data-open-avatar]");
+  if (!button || !elements.avatarInput) return;
+  scrollToAvatarStudio();
+  elements.avatarInput.click();
 });
 
 if (window.lucide) {
   window.lucide.createIcons();
 }
 
+resetAvatarStudio();
 showSharedResultFromUrl();

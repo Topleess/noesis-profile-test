@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>WHOAMI | партнерский кабинет</title>
+    <meta
+      name="description"
+      content="Партнерский кабинет WHOAMI для авторов: реферальный код, переходы, продажи паспортов и выплаты."
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop stop-color='%230f6a62'/%3E%3Cstop offset='.55' stop-color='%237f2e3c'/%3E%3Cstop offset='1' stop-color='%23b48a45'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='32' cy='32' r='28' fill='url(%23g)'/%3E%3Ccircle cx='32' cy='32' r='9' fill='%23fffdf7' fill-opacity='.82'/%3E%3C/svg%3E"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&family=Literata:opsz,wght@7..72,500;7..72,650&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css?v=whoami-language-menu1" />
+  </head>
+  <body class="partner-dashboard-body">
+    <header class="site-header">
+      <a class="brand" href="./index.html" aria-label="WHOAMI">
+        <span class="brand-mark"></span>
+        <span>WHOAMI</span>
+      </a>
+      <nav class="nav-links" aria-label="Основная навигация">
+        <a href="./index.html">Общая</a>
+        <a href="./passport.html">Паспорт</a>
+        <a href="./compatibility.html">Совместимость</a>
+        <a href="./partners.html">Партнерам</a>
+      </nav>
+      <div class="header-actions">
+        <details class="language-switcher" data-language-switcher>
+          <summary aria-label="Выбор языка">
+            <span data-current-language>RU</span>
+          </summary>
+          <div class="language-options" role="group" aria-label="Выбор языка">
+            <button type="button" data-lang-option="ru">Русский</button>
+            <button type="button" data-lang-option="en">English</button>
+            <button type="button" data-lang-option="ar">العربية</button>
+          </div>
+        </details>
+        <a class="header-cta" href="./passport.html?ref=CREATOR-001">
+          <i data-lucide="link" aria-hidden="true"></i>
+          Моя ссылка
+        </a>
+      </div>
+    </header>
+
+    <main class="partner-dashboard">
+      <section class="partner-dashboard-head" aria-labelledby="partner-dashboard-title">
+        <div>
+          <p class="eyebrow">WHOAMI Partners</p>
+          <h1 id="partner-dashboard-title">Кабинет автора и партнерские выплаты</h1>
+          <p>
+            Здесь автор видит свой реферальный код, переходы, оплаченные паспорта,
+            начисления и материалы для запуска аудитории в тест.
+          </p>
+        </div>
+        <div class="partner-balance-card">
+          <span>Доступно к выплате</span>
+          <strong>$384</strong>
+          <p>Следующая выплата: 30 июня 2026</p>
+          <button class="price-button dark" type="button">
+            <i data-lucide="wallet" aria-hidden="true"></i>
+            Запросить выплату
+          </button>
+        </div>
+      </section>
+
+      <section class="partner-dashboard-grid" aria-label="Партнерские показатели">
+        <article class="partner-dashboard-card referral-card">
+          <div class="partner-card-head">
+            <span>Реферальный код</span>
+            <i data-lucide="badge-dollar-sign" aria-hidden="true"></i>
+          </div>
+          <label>
+            Код автора
+            <input data-referral-code type="text" value="CREATOR-001" readonly />
+          </label>
+          <label>
+            Ссылка для аудитории
+            <input data-referral-link type="text" value="https://whoami.example/passport.html?ref=CREATOR-001" readonly />
+          </label>
+          <button class="price-button" type="button" data-copy-referral>
+            <i data-lucide="copy" aria-hidden="true"></i>
+            Скопировать ссылку
+          </button>
+        </article>
+
+        <article class="partner-dashboard-card">
+          <div class="partner-card-head">
+            <span>Статистика месяца</span>
+            <i data-lucide="bar-chart-3" aria-hidden="true"></i>
+          </div>
+          <div class="partner-metric-list">
+            <div>
+              <strong>2 418</strong>
+              <span>переходов</span>
+            </div>
+            <div>
+              <strong>681</strong>
+              <span>начатых анкет</span>
+            </div>
+            <div>
+              <strong>94</strong>
+              <span>оплаченных паспортов</span>
+            </div>
+            <div>
+              <strong>13.8%</strong>
+              <span>конверсия в оплату</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="partner-dashboard-card">
+          <div class="partner-card-head">
+            <span>Выплаты</span>
+            <i data-lucide="receipt-text" aria-hidden="true"></i>
+          </div>
+          <div class="payout-list">
+            <div>
+              <span>15 июня</span>
+              <strong>$192</strong>
+              <small>в обработке</small>
+            </div>
+            <div>
+              <span>31 мая</span>
+              <strong>$448</strong>
+              <small>выплачено</small>
+            </div>
+            <div>
+              <span>30 апреля</span>
+              <strong>$304</strong>
+              <small>выплачено</small>
+            </div>
+          </div>
+        </article>
+
+        <article class="partner-dashboard-card">
+          <div class="partner-card-head">
+            <span>Материалы</span>
+            <i data-lucide="megaphone" aria-hidden="true"></i>
+          </div>
+          <div class="creator-kit-list">
+            <a href="./passport.html?ref=CREATOR-001">
+              <strong>Ссылка на тест</strong>
+              <span>Для stories, bio и Telegram-поста</span>
+            </a>
+            <a href="./compatibility.html">
+              <strong>Сценарий про совместимость</strong>
+              <span>Контент для пар, друзей и аудитории про отношения</span>
+            </a>
+            <a href="./index.html">
+              <strong>Общая страница проекта</strong>
+              <span>Когда нужно объяснить, что такое WHOAMI</span>
+            </a>
+          </div>
+        </article>
+      </section>
+
+      <section class="partner-dashboard-card partner-wide-card" aria-labelledby="partner-flow-title">
+        <div class="partner-card-head">
+          <span>Воронка автора</span>
+          <i data-lucide="route" aria-hidden="true"></i>
+        </div>
+        <h2 id="partner-flow-title">Контент ведет в тест, тест ведет в паспорт, паспорт ведет в вашу работу</h2>
+        <div class="partner-flow">
+          <div>
+            <i data-lucide="video" aria-hidden="true"></i>
+            <strong>Греете контентом</strong>
+            <p>Разборы про типы, отношения, токсичные сценарии и совместимость ведут в WHOAMI.</p>
+          </div>
+          <div>
+            <i data-lucide="fingerprint" aria-hidden="true"></i>
+            <strong>Сегментируете паспортом</strong>
+            <p>Профиль показывает, какая тема человеку ближе: отношения, самооценка, контроль, тревога или рост.</p>
+          </div>
+          <div>
+            <i data-lucide="wallet" aria-hidden="true"></i>
+            <strong>Получаете выплаты</strong>
+            <p>Кабинет фиксирует продажи по коду и готовит выплаты по партнерской модели.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script src="./language.js?v=lang7"></script>
+    <script src="./partners.js?v=nav2"></script>
+  </body>
+</html>

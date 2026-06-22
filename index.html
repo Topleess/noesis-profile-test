@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>WHOAMI | паспорт личности и психологический профиль</title>
+    <title>WHOAMI | тест личности, паспорт и совместимость</title>
     <meta
       name="description"
-      content="WHOAMI собирает паспорт личности, карту отношений и расширенный отчет по личным паттернам на основе методологии NOESIS."
+      content="WHOAMI собирает психологический паспорт, карту совместимости и партнерскую систему для авторов на базе методологии NOESIS."
     />
     <link
       rel="icon"
@@ -18,70 +18,80 @@
       href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&family=Literata:opsz,wght@7..72,500;7..72,650&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="./styles.css?v=compat2" />
+    <link rel="stylesheet" href="./styles.css?v=whoami-language-menu1" />
   </head>
-  <body>
-    <header class="site-header" data-header>
-      <a class="brand" href="#top" aria-label="WHOAMI">
+  <body class="home-body">
+    <header class="site-header">
+      <a class="brand" href="./index.html" aria-label="WHOAMI">
         <span class="brand-mark"></span>
         <span>WHOAMI</span>
       </a>
       <nav class="nav-links" aria-label="Основная навигация">
-        <a href="#method">Методология</a>
-        <a href="#sample">Пример</a>
-        <a href="#test">Тест</a>
-        <a href="#compatibility">Совместимость</a>
-        <a href="#partners">Партнерам</a>
+        <a href="./index.html">Общая</a>
+        <a href="./passport.html">Паспорт</a>
+        <a href="./compatibility.html">Совместимость</a>
+        <a href="./partners.html">Партнерам</a>
       </nav>
-      <a class="header-cta" href="#test">
-        <i data-lucide="scan-line" aria-hidden="true"></i>
-        Начать
-      </a>
+      <div class="header-actions">
+        <details class="language-switcher" data-language-switcher>
+          <summary aria-label="Выбор языка">
+            <span data-current-language>RU</span>
+          </summary>
+          <div class="language-options" role="group" aria-label="Выбор языка">
+            <button type="button" data-lang-option="ru">Русский</button>
+            <button type="button" data-lang-option="en">English</button>
+            <button type="button" data-lang-option="ar">العربية</button>
+          </div>
+        </details>
+        <a class="header-cta" href="./passport.html">
+          <i data-lucide="scan-line" aria-hidden="true"></i>
+          Пройти тест
+        </a>
+      </div>
     </header>
 
     <main id="top">
       <section class="hero" aria-labelledby="hero-title">
-        <div class="hero-bg" role="img" aria-label="Абстрактная лаборатория психологического профиля"></div>
+        <div class="hero-bg" role="img" aria-label="Лаборатория психологического профиля"></div>
         <div class="hero-overlay"></div>
         <div class="hero-inner">
           <p class="eyebrow">WHOAMI Passport · методология NOESIS</p>
           <h1 id="hero-title">Паспорт личности, который хочется показать</h1>
           <p class="hero-copy">
-            Ответьте на серию точных вопросов и получите первое зеркало своих реакций,
-            отношений и внутренних паттернов. WHOAMI собирает статусный паспорт личности:
-            базовый вывод открыт бесплатно, а главный типологический разбор можно открыть
-            после результата.
+            WHOAMI помогает человеку пройти анкету, увидеть свой психологический паспорт,
+            сравнить совместимость с другими профилями и использовать результат как точку
+            входа в более глубокий саморазбор.
           </p>
           <div class="hero-actions">
-            <a class="primary-button" href="#test">
+            <a class="primary-button" href="./passport.html">
               <i data-lucide="play" aria-hidden="true"></i>
-              Получить базовый результат
+              Перейти к паспорту
             </a>
-            <a class="ghost-button" href="#sample">
+            <a class="ghost-button" href="#product-map">
               <i data-lucide="layout-dashboard" aria-hidden="true"></i>
-              Посмотреть пример
+              Посмотреть структуру
             </a>
           </div>
-          <dl class="hero-metrics hero-promises" aria-label="Что получит пользователь">
+          <dl class="hero-metrics hero-promises" aria-label="Главные блоки продукта">
             <div>
-              <dt>База</dt>
-              <dd>мягкий первый вывод</dd>
+              <dt>120</dt>
+              <dd>вопросов анкеты</dd>
             </div>
             <div>
-              <dt>Код</dt>
-              <dd>ссылка для сравнения</dd>
+              <dt>12</dt>
+              <dd>шкал профиля</dd>
             </div>
             <div>
-              <dt>12 мин</dt>
-              <dd>в среднем</dd>
+              <dt>4</dt>
+              <dd>раздела продукта</dd>
             </div>
           </dl>
         </div>
-        <div class="hero-preview" aria-label="Пример закрытого отчета">
+        <div class="hero-preview" aria-label="Пример карты профиля">
           <div class="preview-panel">
             <div class="preview-topline">
-              <span>PROFILE MAP</span>
-              <strong>72%</strong>
+              <span>PRODUCT MAP</span>
+              <strong>4</strong>
             </div>
             <div class="radar-shell">
               <div class="radar-grid"></div>
@@ -92,416 +102,192 @@
               <div class="radar-dot dot-c"></div>
             </div>
             <div class="mini-bars">
-              <span style="--w: 78%"></span>
-              <span style="--w: 56%"></span>
-              <span style="--w: 64%"></span>
+              <span style="--w: 84%"></span>
+              <span style="--w: 66%"></span>
+              <span style="--w: 72%"></span>
             </div>
           </div>
         </div>
       </section>
 
       <section class="signal-strip" aria-label="Позиционирование">
-        <span>Не диагноз</span>
-        <span>Не IQ-кликбейт</span>
         <span>Самооценочный профиль</span>
-        <span>Методология NOESIS</span>
-        <span>Совместимость по WHOAMI-коду</span>
+        <span>Не диагноз</span>
+        <span>Паспорт личности</span>
+        <span>Совместимость</span>
+        <span>Партнерская система</span>
       </section>
 
-      <section class="section method" id="method" aria-labelledby="method-title">
-        <div class="section-kicker">Методология NOESIS</div>
-        <h2 id="method-title">Сначала любопытство и узнавание, потом желание открыть глубже</h2>
+      <section class="section" id="product-map" aria-labelledby="product-map-title">
+        <div class="section-kicker">Структура продукта</div>
+        <h2 id="product-map-title">Четыре раздела, чтобы проект не был одной длинной страницей</h2>
+        <div class="module-grid">
+          <a class="module-card" href="./index.html">
+            <i data-lucide="compass" aria-hidden="true"></i>
+            <span>Общая</span>
+            <h3>Что такое WHOAMI</h3>
+            <p>Объясняет идею теста, методологию, пользу и сценарии использования.</p>
+          </a>
+          <a class="module-card" href="./passport.html">
+            <i data-lucide="fingerprint" aria-hidden="true"></i>
+            <span>Паспорт</span>
+            <h3>Анкета и личный отчет</h3>
+            <p>Здесь человек проходит тест, получает код, базовый вывод и полный паспорт.</p>
+          </a>
+          <a class="module-card" href="./compatibility.html">
+            <i data-lucide="heart-handshake" aria-hidden="true"></i>
+            <span>Совместимость</span>
+            <h3>Карта пары</h3>
+            <p>Сравнение двух профилей: резонанс, трение, привязанность и зоны роста.</p>
+          </a>
+          <a class="module-card" href="./partners.html">
+            <i data-lucide="badge-dollar-sign" aria-hidden="true"></i>
+            <span>Партнерам</span>
+            <h3>Кабинет автора</h3>
+            <p>Реферальный код, выплаты, статистика переходов и оплаченных паспортов.</p>
+          </a>
+        </div>
+      </section>
+
+      <section class="section method" aria-labelledby="method-title">
+        <div class="section-kicker">Научная основа</div>
+        <h2 id="method-title">WHOAMI соединяет психометрику, теорию привязанности и AI-интерпретацию</h2>
+        <p class="method-lead">
+          Тест построен как самооценочный профиль: он не ставит диагнозы, а переводит ответы
+          человека в карту устойчивых поведенческих паттернов. Поэтому WHOAMI особенно силен
+          для понимания личности в реальной жизни: в отношениях, карьере, деньгах, конфликтах,
+          стрессе и выборе партнеров.
+        </p>
         <div class="method-grid">
           <article class="method-item">
             <span class="step">01</span>
-            <h3>Спокойный guided-flow</h3>
-            <p>Один вопрос на экран, без ощущения экзамена, медицинской анкеты или IQ-кликбейта.</p>
+            <h3>Черты личности</h3>
+            <p>
+              Логика шкал опирается на традицию дифференциальной психологии и психометрики:
+              Big Five у Costa &amp; McCrae и Goldberg, факторный подход Cattell, темпераментальные
+              модели Eysenck. Это помогает видеть не ярлык, а устойчивый рисунок поведения.
+            </p>
           </article>
           <article class="method-item">
             <span class="step">02</span>
-            <h3>Бесплатное зеркало</h3>
-            <p>Пользователь видит аккуратный базовый вывод без названия акцентуации, типа личности или диагноза.</p>
+            <h3>Привязанность и близость</h3>
+            <p>
+              Блок отношений и совместимости использует идеи Bowlby, Ainsworth, Bartholomew
+              и Horowitz: тревога привязанности, избегание близости, потребность в ясности,
+              дистанция, страх потери контакта и способы восстановления безопасности.
+            </p>
           </article>
           <article class="method-item">
             <span class="step">03</span>
-            <h3>Платная глубина</h3>
-            <p>После доверия открывается главный вывод: акцентуация, личностный паттерн, отношения, работа и риски.</p>
+            <h3>Решения, стресс и защиты</h3>
+            <p>
+              Интерпретация конфликтов, риска, самосаботажа и саморегуляции учитывает работы
+              Beck, Lazarus &amp; Folkman, Kahneman &amp; Tversky, McClelland, Millon и Kernberg:
+              как человек оценивает угрозу, выбирает стратегию и защищает самооценку.
+            </p>
           </article>
+        </div>
+        <div class="ai-method-card">
+          <div>
+            <span>AI-слой NOESIS</span>
+            <h3>Искусственный интеллект переосмысляет данные и собирает персональный язык отчета</h3>
+          </div>
+          <p>
+            AI не заменяет психолога и не выносит клинический вердикт. Его задача — увидеть
+            сочетания шкал, найти повторяющиеся паттерны, связать их с жизненными сценариями
+            и сформировать понятные рекомендации: как человеку думать о себе, где он ошибается
+            в выборе, как общаться, как снижать стресс и какие стратегии поведения ему подходят.
+          </p>
+        </div>
+        <div class="citation-strip" aria-label="Авторы и научные опоры">
+          <span>Costa &amp; McCrae · NEO PI-R</span>
+          <span>Goldberg · Big Five</span>
+          <span>Bowlby · Attachment and Loss</span>
+          <span>Ainsworth · Patterns of Attachment</span>
+          <span>Bartholomew &amp; Horowitz · Attachment Styles</span>
+          <span>Beck · Cognitive Therapy</span>
+          <span>Kahneman &amp; Tversky · Prospect Theory</span>
+          <span>Lazarus &amp; Folkman · Stress, Appraisal, and Coping</span>
         </div>
       </section>
 
-      <section class="section sample" id="sample" aria-labelledby="sample-title">
+      <section class="section sample" aria-labelledby="overview-sample-title">
+        <div class="value-strip" aria-label="Практическая ценность самопонимания">
+          <article>
+            <i data-lucide="trending-up" aria-hidden="true"></i>
+            <h3>Деньги приходят быстрее, когда вы меньше платите за неверные решения</h3>
+            <p>
+              Самопонимание не гарантирует доход, но снижает цену ошибок: вы быстрее
+              понимаете свои сильные роли, выбираете подходящих партнеров, не входите
+              в разрушительные союзы и точнее ведете переговоры.
+            </p>
+          </article>
+          <article>
+            <i data-lucide="briefcase-business" aria-hidden="true"></i>
+            <h3>В бизнесе профиль помогает видеть не только талант, но и риск кооперации</h3>
+            <p>
+              WHOAMI показывает, где человек будет усиливать команду, где может давить,
+              избегать, конкурировать, тормозить решения или выгорать. Это ускоряет
+              распределение ролей, найм, делегирование и партнерские договоренности.
+            </p>
+          </article>
+        </div>
         <div class="sample-copy">
-          <div class="section-kicker">Пример результата</div>
-          <h2 id="sample-title">Сначала человек получает зеркало, потом покупает карту</h2>
+          <div class="section-kicker">Как это ощущается</div>
+          <h2 id="overview-sample-title">Человек не просто проходит тест, а получает рабочую карту себя</h2>
           <p>
-            Базовый результат не использует клинические ярлыки и не имитирует диагноз.
-            Он показывает общую динамику и аккуратно объясняет, где профиль может влиять
-            на отношения, работу и стресс.
+            После анкеты появляется WHOAMI-код, базовый результат, ссылка на паспорт и
+            возможность перейти в совместимость. Это делает результат не одноразовым,
+            а возвращаемым: его можно показывать, сравнивать и использовать в консультациях.
           </p>
+          <div class="hero-actions">
+            <a class="primary-button" href="./passport.html">
+              <i data-lucide="scan-line" aria-hidden="true"></i>
+              Начать с паспорта
+            </a>
+            <a class="ghost-button light" href="./compatibility.html">
+              <i data-lucide="heart-handshake" aria-hidden="true"></i>
+              Открыть совместимость
+            </a>
+          </div>
         </div>
         <div class="sample-report">
           <div class="report-header">
-            <span>Basic passport</span>
+            <span>WHOAMI flow</span>
             <strong>готов</strong>
           </div>
-          <h3>Ваш профиль выглядит контрастным</h3>
+          <h3>Анкета → паспорт → совместимость → партнерский канал</h3>
           <p>
-            В ответах заметно сочетание сильной внутренней аналитики и повышенной
-            чувствительности к качеству контакта. Это может давать точность в людях,
-            но усиливать напряжение в неопределенности.
+            Такая структура позволяет развивать продукт по частям: сначала личный отчет,
+            затем сравнение профилей, затем личный кабинет авторов и выплаты.
           </p>
           <div class="locked-row">
-            <i data-lucide="lock" aria-hidden="true"></i>
-            Точные шкалы и типологическая карта закрыты в полном отчете.
+            <i data-lucide="route" aria-hidden="true"></i>
+            Основной сценарий теперь начинается на странице паспорта.
           </div>
         </div>
       </section>
 
-      <section class="section test-section" id="test" aria-labelledby="test-title">
-        <div class="test-layout">
-          <aside class="test-aside">
-            <div class="section-kicker">Тест</div>
-            <h2 id="test-title">Начните с бесплатного результата</h2>
-            <p>
-              Сначала человек получает короткий честный вывод о своем профиле. Только после
-              этого появляется один платный разбор с более прямой интерпретацией.
-            </p>
-            <ul class="clean-list">
-              <li><i data-lucide="check" aria-hidden="true"></i> Базовый текстовый вывод сразу после прохождения</li>
-              <li><i data-lucide="check" aria-hidden="true"></i> WHOAMI-код для совместимости</li>
-              <li><i data-lucide="check" aria-hidden="true"></i> Платный отчет с акцентуацией и типом личности</li>
-            </ul>
-          </aside>
-
-          <div class="test-card" data-screen="lead">
-            <div class="lead-form" data-lead-screen>
-              <div class="form-header">
-                <span>Шаг 1</span>
-                <h3>Сохранить результат</h3>
-                <p>Минимальные данные нужны для доступа к отчету и WHOAMI-коду.</p>
-              </div>
-              <form id="leadForm">
-                <label>
-                  Имя
-                  <input name="name" type="text" placeholder="Например, Анна" required />
-                </label>
-                <label>
-                  Email
-                  <input name="email" type="email" placeholder="name@email.com" required />
-                </label>
-                <div class="form-row">
-                  <label>
-                    Цель
-                    <select name="goal" required>
-                      <option value="">Выбрать</option>
-                      <option>Самопонимание</option>
-                      <option>Отношения</option>
-                      <option>Карьера</option>
-                      <option>Совместимость</option>
-                    </select>
-                  </label>
-                  <label>
-                    Род деятельности
-                    <input name="occupation" type="text" placeholder="Маркетинг, учеба, бизнес" />
-                  </label>
-                </div>
-                <label>
-                  Код партнера или автора
-                  <input name="partnerCode" type="text" placeholder="Опционально" />
-                </label>
-                <label class="consent">
-                  <input name="consent" type="checkbox" required />
-                  <span>Я согласен(на) с обработкой данных и понимаю, что тест не является медицинской диагностикой.</span>
-                </label>
-                <button class="primary-button full" type="submit">
-                  <i data-lucide="scan-line" aria-hidden="true"></i>
-                  Начать тест
-                </button>
-              </form>
-            </div>
-
-            <div class="quiz" data-quiz-screen hidden>
-              <div class="quiz-top">
-                <div>
-                  <span data-step-label>Шаг 1</span>
-                  <h3 data-question-text></h3>
-                </div>
-                <button class="icon-button" type="button" data-reset aria-label="Сбросить тест">
-                  <i data-lucide="rotate-ccw" aria-hidden="true"></i>
-                </button>
-              </div>
-              <div class="progress" aria-hidden="true">
-                <span data-progress-bar></span>
-              </div>
-              <div class="quiz-teaser" data-quiz-teaser hidden>
-                <div>
-                  <span>Паспорт собирается</span>
-                  <strong data-teaser-title>Первые сигналы появятся скоро</strong>
-                </div>
-                <b data-teaser-percent>0%</b>
-              </div>
-              <div class="answers" data-answers></div>
-              <div class="signal-dock" data-signal-dock hidden>
-                <div class="signal-dock-head">
-                  <span>Предварительные сигналы</span>
-                  <strong data-signal-status>Недостаточно данных</strong>
-                </div>
-                <div class="signal-chips" data-signal-chips></div>
-              </div>
-              <div class="teaser-toast" data-teaser-toast hidden>
-                <span>WHOAMI</span>
-                <strong data-toast-title></strong>
-                <p data-toast-text></p>
-              </div>
-              <div class="quiz-actions">
-                <button class="ghost-button compact" type="button" data-back>
-                  <i data-lucide="arrow-left" aria-hidden="true"></i>
-                  Назад
-                </button>
-                <span data-save-state>Ответ сохраняется автоматически</span>
-              </div>
-            </div>
-
-            <div class="result" data-result-screen hidden>
-              <div class="result-top">
-                <span>Basic passport</span>
-                <strong data-profile-code></strong>
-              </div>
-              <h3 data-result-title></h3>
-              <p data-result-summary></p>
-              <div class="basic-insights" data-basic-insights></div>
-              <div class="upgrade-wall">
-                <div>
-                  <span>Паспорт личности</span>
-                  <h4>Ваш закрытый психологический паспорт</h4>
-                </div>
-                <button class="price-button dark" type="button" data-upgrade>
-                  <i data-lucide="lock-keyhole" aria-hidden="true"></i>
-                  Открыть паспорт за $40
-                </button>
-              </div>
-              <section class="unlocked-report" data-middle-report hidden aria-live="polite">
-                <div class="report-section-head">
-                  <span>WHOAMI passport unlocked</span>
-                  <h4>Паспорт личности WHOAMI</h4>
-                  <p>Статусная карта профиля, стиль привязанности, темные радикалы, две системы интерпретации по методологии NOESIS и резкий разбор по сферам жизни.</p>
-                </div>
-                <div class="paid-verdict" data-paid-verdict></div>
-                <div class="passport-share" data-passport-share></div>
-                <div class="attachment-style" data-attachment-style></div>
-                <div class="dark-radicals" data-dark-radicals></div>
-                <div class="result-decoder" data-result-decoder></div>
-                <div class="score-list" data-score-list></div>
-                <div class="recommendation-grid" data-middle-recommendations></div>
-                <div class="life-map" data-life-map></div>
-                <details class="answer-archive">
-                  <summary>Показать ответы на все вопросы</summary>
-                  <div class="answer-list" data-answer-list></div>
-                </details>
-              </section>
-              <div class="share-box">
-                <label>
-                  Ссылка на этот результат
-                  <input data-ref-link type="text" readonly />
-                </label>
-                <button class="icon-button" type="button" data-copy aria-label="Скопировать ссылку">
-                  <i data-lucide="copy" aria-hidden="true"></i>
-                </button>
-              </div>
-              <div class="compatibility-jump" data-compatibility-jump hidden>
-                <div>
-                  <span>Совместимость</span>
-                  <strong>Сравните этот профиль с другим человеком</strong>
-                  <p>Пара, дружба или команда: риски общения, сильные стороны и правила контакта.</p>
-                </div>
-                <a class="price-button dark" href="#compatibility" data-use-result-for-compatibility>
-                  <i data-lucide="heart-handshake" aria-hidden="true"></i>
-                  Построить карту
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="section compatibility-section" id="compatibility" aria-labelledby="compatibility-title">
-        <div class="compatibility-copy">
-          <div class="section-kicker">Совместимость без матчинга</div>
-          <h2 id="compatibility-title">Карта взаимодействия двух WHOAMI-профилей</h2>
-          <p>
-            Это не поиск пары и не рейтинг людей. WHOAMI сравнивает два результата и показывает,
-            где между вами будет естественный резонанс, где возникнет неправильное считывание,
-            какие риски появятся в общении и какие правила помогут сохранить контакт.
-          </p>
-          <div class="compatibility-value-grid" aria-label="Что показывает совместимость">
-            <article>
-              <i data-lucide="sparkles" aria-hidden="true"></i>
-              <strong>Сильные стороны союза</strong>
-              <p>Что будет давать легкость, доверие, притяжение, рабочую синергию или чувство “мы понимаем друг друга”.</p>
-            </article>
-            <article>
-              <i data-lucide="triangle-alert" aria-hidden="true"></i>
-              <strong>Риски контакта</strong>
-              <p>Где один может давить, другой закрываться, где появятся обиды, конкуренция, проверки или борьба за контроль.</p>
-            </article>
-            <article>
-              <i data-lucide="list-checks" aria-hidden="true"></i>
-              <strong>Правила взаимодействия</strong>
-              <p>Что договорить заранее: паузы, обратную связь, границы, роли, темп решений и способ чинить конфликт.</p>
-            </article>
-          </div>
-        </div>
-
-        <div class="compatibility-console" aria-label="Форма сравнения WHOAMI-профилей">
-          <div class="compatibility-console-head">
-            <span>WHOAMI compare</span>
-            <h3>Выберите контекст</h3>
-            <p>Один и тот же профиль читается по-разному в любви, дружбе и совместной работе.</p>
-          </div>
-
-          <fieldset class="compat-mode-group" aria-label="Тип совместимости">
-            <label>
-              <input type="radio" name="compat-mode" value="couple" data-compat-mode checked />
-              <span>
-                <strong>Пара</strong>
-                <small>близость, привязанность, ревность, дистанция</small>
-              </span>
-            </label>
-            <label>
-              <input type="radio" name="compat-mode" value="friends" data-compat-mode />
-              <span>
-                <strong>Друзья</strong>
-                <small>доверие, легкость, границы, конкуренция</small>
-              </span>
-            </label>
-            <label>
-              <input type="radio" name="compat-mode" value="team" data-compat-mode />
-              <span>
-                <strong>Команда</strong>
-                <small>роли, лидерство, решения, фидбек</small>
-              </span>
-            </label>
-          </fieldset>
-
-          <div class="compatibility-fields">
-            <label>
-              Ваш WHOAMI-результат
-              <input data-compat-self type="text" placeholder="Ссылка результата, result=... или NP-код" autocomplete="off" />
-              <small data-compat-self-status>После прохождения теста ваш результат подставится сюда автоматически.</small>
-            </label>
-            <label>
-              Результат другого человека
-              <input data-compat-other type="text" placeholder="NP-XXXXXX или ссылка результата другого человека" autocomplete="off" />
-              <small data-compat-other-status>Для точного расчета лучше вставить полную ссылку результата.</small>
-            </label>
-          </div>
-
-          <button class="price-button dark full" type="button" data-run-compatibility>
-            <i data-lucide="heart-handshake" aria-hidden="true"></i>
-            Построить карту совместимости
-          </button>
-        </div>
-
-        <div class="compatibility-output" data-compatibility-output hidden></div>
-      </section>
-
-      <section class="section partner-section" id="partners" aria-labelledby="partner-title">
-        <div class="partner-copy">
-          <div class="section-kicker">Партнерская программа</div>
-          <h2 id="partner-title">У вас уже есть аудитория. Дайте ей продукт, который хочется купить</h2>
-          <p>
-            WHOAMI создан для блогеров, инфлюенсеров, психологов, коучей и каналов
-            про отношения, нарциссизм, ПРЛ, акцентуации, совместимость и саморазбор.
-            Вы даете людям тест, получаете оплату за паспорт, а потом можете вести
-            аудиторию дальше: в консультации, разборы, клубы, курсы или сопровождение.
-          </p>
-          <div class="partner-actions">
-            <a class="primary-button" href="#test">
-              <i data-lucide="badge-dollar-sign" aria-hidden="true"></i>
-              Протестировать воронку
-            </a>
-            <a class="ghost-button light" href="#sample">
-              <i data-lucide="sparkles" aria-hidden="true"></i>
-              Посмотреть пример отчета
-            </a>
-          </div>
-        </div>
-
-        <div class="partner-panel" aria-label="Условия партнерской программы">
-          <div class="partner-topline">
-            <span>WHOAMI creators</span>
-            <strong>rev-share model</strong>
-          </div>
-          <div class="partner-stats">
-            <article>
-              <span>40%</span>
-              <p>с каждого оплаченного паспорта по вашему коду</p>
-            </article>
-            <article>
-              <span>10%</span>
-              <p>со второго уровня авторов, которых вы привели</p>
-            </article>
-            <article>
-              <span>$16</span>
-              <p>примерно с одного паспорта за $40 до комиссий платежки</p>
-            </article>
-          </div>
-          <div class="partner-funnel">
-            <span>Воронка автора</span>
-            <strong>Тест не заканчивает контакт. Он открывает следующую продажу.</strong>
-            <p>
-              Результат WHOAMI сегментирует человека по типу, акцентуации, темным радикалам,
-              привязанности и совместимости. На базе результата вы можете предлагать
-              персональный разбор, консультацию, парную диагностику, закрытый эфир,
-              мини-курс или длительную работу в рамках своей компетенции.
-            </p>
-          </div>
-          <div class="partner-flow">
-            <div>
-              <i data-lucide="video" aria-hidden="true"></i>
-              <strong>Греете контентом</strong>
-              <p>Разборы про типы, отношения, токсичные сценарии и совместимость ведут в тест.</p>
-            </div>
-            <div>
-              <i data-lucide="link" aria-hidden="true"></i>
-              <strong>Сегментируете тестом</strong>
-              <p>Человек получает результат, узнает себя и становится теплее к дальнейшей работе.</p>
-            </div>
-            <div>
-              <i data-lucide="wallet" aria-hidden="true"></i>
-              <strong>Монетизируете дальше</strong>
-              <p>Сначала доля с паспорта, потом свои консультации, продукты и сопровождение.</p>
-            </div>
-          </div>
-          <p class="partner-note">
-            Это не рекламная интеграция на один пост, а продуктовая кирка для авторов:
-            вы копаете своим контентом, WHOAMI закрывает тест, оплату и результат,
-            а дальше клиент уже приходит к вам с готовой темой для работы.
-          </p>
-        </div>
-      </section>
-
-      <section class="section pricing" id="plans" aria-labelledby="pricing-title">
-        <div class="section-kicker">После базового результата</div>
-        <h2 id="pricing-title">Сначала немного бесплатно, затем один платный разбор</h2>
+      <section class="section pricing" aria-labelledby="pricing-title">
+        <div class="section-kicker">Модель продукта</div>
+        <h2 id="pricing-title">Бесплатный вход, платный паспорт, партнерская дистрибуция</h2>
         <div class="pricing-grid pricing-grid-two">
           <article class="price-card">
             <p class="price-label">WHOAMI Basic</p>
             <h3>Free</h3>
-            <p>Короткий текстовый вывод, несколько главных зон профиля, WHOAMI-код и ссылка на результат.</p>
-            <a class="price-button" href="#test">
+            <p>Короткий вывод, первые зоны профиля, WHOAMI-код и ссылка на результат.</p>
+            <a class="price-button" href="./passport.html">
               <i data-lucide="arrow-right" aria-hidden="true"></i>
-              Начать
+              Пройти тест
             </a>
           </article>
           <article class="price-card accent">
             <p class="price-label">WHOAMI Passport</p>
             <h3>$40</h3>
-            <p>Главный вывод, акцентуация, личностный паттерн, шкалы, отношения, конфликты, карьера и совместимость.</p>
-            <a class="price-button dark" href="#test">
+            <p>Полный разбор: тип, привязанность, шкалы, зоны роста, отношения и совместимость.</p>
+            <a class="price-button dark" href="./passport.html">
               <i data-lucide="unlock" aria-hidden="true"></i>
-              Открывается после теста
+              Открыть после теста
             </a>
           </article>
         </div>
@@ -512,13 +298,14 @@
           WHOAMI является самооценочным инструментом для самопонимания и не
           устанавливает медицинские или психиатрические диагнозы. Методология NOESIS
           помогает структурировать ответы, но не заменяет консультацию специалиста.
-          Если эмоциональное состояние мешает повседневной жизни, стоит обратиться
-          к квалифицированному специалисту.
         </p>
       </section>
     </main>
 
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
-    <script src="./app.js?v=compat1"></script>
+    <script src="./language.js?v=lang7"></script>
+    <script>
+      if (window.lucide) window.lucide.createIcons();
+    </script>
   </body>
 </html>

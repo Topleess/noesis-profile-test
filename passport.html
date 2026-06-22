@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>WHOAMI | паспорт личности</title>
+    <meta
+      name="description"
+      content="Пройдите WHOAMI-анкету и получите базовый результат, WHOAMI-код и полный паспорт личности."
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop stop-color='%230f6a62'/%3E%3Cstop offset='.55' stop-color='%237f2e3c'/%3E%3Cstop offset='1' stop-color='%23b48a45'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='32' cy='32' r='28' fill='url(%23g)'/%3E%3Ccircle cx='32' cy='32' r='9' fill='%23fffdf7' fill-opacity='.82'/%3E%3C/svg%3E"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&family=Literata:opsz,wght@7..72,500;7..72,650&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css?v=whoami-language-menu1" />
+  </head>
+  <body class="passport-body">
+    <header class="site-header" data-header>
+      <a class="brand" href="./index.html" aria-label="WHOAMI">
+        <span class="brand-mark"></span>
+        <span>WHOAMI</span>
+      </a>
+      <nav class="nav-links" aria-label="Основная навигация">
+        <a href="./index.html">Общая</a>
+        <a href="./passport.html">Паспорт</a>
+        <a href="./compatibility.html">Совместимость</a>
+        <a href="./partners.html">Партнерам</a>
+      </nav>
+      <div class="header-actions">
+        <details class="language-switcher" data-language-switcher>
+          <summary aria-label="Выбор языка">
+            <span data-current-language>RU</span>
+          </summary>
+          <div class="language-options" role="group" aria-label="Выбор языка">
+            <button type="button" data-lang-option="ru">Русский</button>
+            <button type="button" data-lang-option="en">English</button>
+            <button type="button" data-lang-option="ar">العربية</button>
+          </div>
+        </details>
+        <a class="header-cta" href="#test">
+          <i data-lucide="scan-line" aria-hidden="true"></i>
+          Начать
+        </a>
+      </div>
+    </header>
+
+    <main id="top">
+      <section class="passport-hero" aria-labelledby="passport-title">
+        <div>
+          <p class="eyebrow">WHOAMI Passport</p>
+          <h1 id="passport-title">Пройдите анкету и соберите личный паспорт</h1>
+          <p>
+            Сначала вы получите базовый результат и WHOAMI-код. После этого можно
+            открыть полный паспорт: типологический вывод, шкалы, стиль привязанности,
+            зоны роста и ссылку для совместимости.
+          </p>
+          <div class="hero-actions">
+            <a class="primary-button" href="#test">
+              <i data-lucide="play" aria-hidden="true"></i>
+              Начать тест
+            </a>
+            <a class="ghost-button light" href="./compatibility.html">
+              <i data-lucide="heart-handshake" aria-hidden="true"></i>
+              Совместимость
+            </a>
+          </div>
+        </div>
+        <aside class="passport-overview-card" aria-label="Что входит в паспорт">
+          <span>В паспорте</span>
+          <ul class="clean-list">
+            <li><i data-lucide="check" aria-hidden="true"></i> Базовый результат сразу после анкеты</li>
+            <li><i data-lucide="check" aria-hidden="true"></i> WHOAMI-код и ссылка результата</li>
+            <li><i data-lucide="check" aria-hidden="true"></i> 12 шкал, привязанность и зоны роста</li>
+            <li><i data-lucide="check" aria-hidden="true"></i> Переход в отдельную карту совместимости</li>
+          </ul>
+        </aside>
+      </section>
+
+      <section class="avatar-studio avatar-studio-standalone" data-avatar-studio aria-labelledby="avatar-studio-title">
+        <div class="avatar-studio-head">
+          <div>
+            <span>AI avatar</span>
+            <h2 id="avatar-studio-title">Аватарка для паспорта</h2>
+            <p>Нажмите “Фото / селфи”. На телефоне откроется камера или галерея; исходник используется только для генерации и не сохраняется в браузере.</p>
+          </div>
+          <div class="avatar-selected-preview" data-avatar-selected-preview aria-label="Выбранная аватарка">
+            <div class="avatar-empty">
+              <i data-lucide="sparkles" aria-hidden="true"></i>
+            </div>
+          </div>
+        </div>
+        <div class="avatar-controls">
+          <input id="avatarPhoto" data-avatar-input type="file" accept="image/*" capture="user" />
+          <label class="avatar-upload-button" for="avatarPhoto">
+            <i data-lucide="camera" aria-hidden="true"></i>
+            Фото / селфи
+          </label>
+          <button class="ghost-button compact" type="button" data-avatar-regenerate hidden>
+            <i data-lucide="refresh-cw" aria-hidden="true"></i>
+            Еще варианты
+          </button>
+          <span data-avatar-status>Нажмите “Фото / селфи”: на телефоне откроется камера или галерея.</span>
+        </div>
+        <div class="avatar-variants" data-avatar-variants aria-live="polite"></div>
+      </section>
+
+      <section class="section test-section" id="test" aria-labelledby="test-title">
+        <div class="test-layout">
+          <aside class="test-aside">
+            <div class="section-kicker">Анкета</div>
+            <h2 id="test-title">Начните с бесплатного результата</h2>
+            <p>
+              Тест занимает около 12 минут. Отвечайте не “как правильно”, а как обычно
+              бывает в отношениях, стрессе, работе и ситуации оценки.
+            </p>
+            <ul class="clean-list">
+              <li><i data-lucide="check" aria-hidden="true"></i> Один вопрос на экран</li>
+              <li><i data-lucide="check" aria-hidden="true"></i> Базовый вывод бесплатно</li>
+              <li><i data-lucide="check" aria-hidden="true"></i> Полный паспорт открывается после результата</li>
+            </ul>
+          </aside>
+
+          <div class="test-card" data-screen="lead">
+            <div class="lead-form" data-lead-screen>
+              <div class="form-header">
+                <span>Шаг 1</span>
+                <h3>Сохранить результат</h3>
+                <p>Минимальные данные нужны для доступа к отчету и WHOAMI-коду.</p>
+              </div>
+              <form id="leadForm">
+                <label>
+                  Имя
+                  <input name="name" type="text" placeholder="Например, Анна" required />
+                </label>
+                <label>
+                  Email
+                  <input name="email" type="email" placeholder="name@email.com" required />
+                </label>
+                <div class="form-row">
+                  <label>
+                    Цель
+                    <select name="goal" required>
+                      <option value="">Выбрать</option>
+                      <option>Самопонимание</option>
+                      <option>Отношения</option>
+                      <option>Карьера</option>
+                      <option>Совместимость</option>
+                    </select>
+                  </label>
+                  <label>
+                    Род деятельности
+                    <input name="occupation" type="text" placeholder="Маркетинг, учеба, бизнес" />
+                  </label>
+                </div>
+                <label>
+                  Код партнера или автора
+                  <input name="partnerCode" type="text" placeholder="Опционально" />
+                </label>
+                <label class="consent">
+                  <input name="consent" type="checkbox" required />
+                  <span>Я согласен(на) с обработкой данных и понимаю, что тест не является медицинской диагностикой.</span>
+                </label>
+                <button class="primary-button full" type="submit">
+                  <i data-lucide="scan-line" aria-hidden="true"></i>
+                  Начать тест
+                </button>
+              </form>
+            </div>
+
+            <div class="quiz" data-quiz-screen hidden>
+              <div class="quiz-top">
+                <div>
+                  <span data-step-label>Шаг 1</span>
+                  <h3 data-question-text></h3>
+                </div>
+                <button class="icon-button" type="button" data-reset aria-label="Сбросить тест">
+                  <i data-lucide="rotate-ccw" aria-hidden="true"></i>
+                </button>
+              </div>
+              <div class="progress" aria-hidden="true">
+                <span data-progress-bar></span>
+              </div>
+              <div class="quiz-teaser" data-quiz-teaser hidden>
+                <div>
+                  <span>Паспорт собирается</span>
+                  <strong data-teaser-title>Первые сигналы появятся скоро</strong>
+                </div>
+                <b data-teaser-percent>0%</b>
+              </div>
+              <div class="answers" data-answers></div>
+              <div class="signal-dock" data-signal-dock hidden>
+                <div class="signal-dock-head">
+                  <span>Предварительные сигналы</span>
+                  <strong data-signal-status>Недостаточно данных</strong>
+                </div>
+                <div class="signal-chips" data-signal-chips></div>
+              </div>
+              <div class="teaser-toast" data-teaser-toast hidden>
+                <span>WHOAMI</span>
+                <strong data-toast-title></strong>
+                <p data-toast-text></p>
+              </div>
+              <div class="quiz-actions">
+                <button class="ghost-button compact" type="button" data-back>
+                  <i data-lucide="arrow-left" aria-hidden="true"></i>
+                  Назад
+                </button>
+                <span data-save-state>Ответ сохраняется автоматически</span>
+              </div>
+            </div>
+
+            <div class="result" data-result-screen hidden>
+              <div class="result-top">
+                <span>Basic passport</span>
+                <strong data-profile-code></strong>
+              </div>
+              <h3 data-result-title></h3>
+              <p data-result-summary></p>
+              <div class="basic-insights" data-basic-insights></div>
+              <div class="upgrade-wall">
+                <div>
+                  <span>Паспорт личности</span>
+                  <h4>Ваш закрытый психологический паспорт</h4>
+                </div>
+                <button class="price-button dark" type="button" data-upgrade>
+                  <i data-lucide="lock-keyhole" aria-hidden="true"></i>
+                  Открыть паспорт за $40
+                </button>
+              </div>
+              <section class="unlocked-report" data-middle-report hidden aria-live="polite">
+                <div class="report-section-head">
+                  <span>WHOAMI dashboard</span>
+                  <h4>Паспорт личности WHOAMI</h4>
+                  <p>Карта профиля в блоках: проценты, шкалы и подробности только по нажатию.</p>
+                </div>
+                <div class="paid-verdict" data-paid-verdict></div>
+                <div class="passport-dossier" data-passport-dossier></div>
+                <div class="passport-share" data-passport-share></div>
+                <div class="attachment-style" data-attachment-style></div>
+                <div class="dark-radicals" data-dark-radicals></div>
+                <div class="result-decoder" data-result-decoder></div>
+                <div class="growth-zones" data-growth-zones></div>
+                <details class="score-archive">
+                  <summary>Показать 12 шкал профиля</summary>
+                  <div class="score-list" data-score-list></div>
+                </details>
+                <div class="recommendation-grid" data-middle-recommendations></div>
+                <div class="category-report" data-life-map></div>
+                <details class="answer-archive">
+                  <summary>Показать ответы на все вопросы</summary>
+                  <div class="answer-list" data-answer-list></div>
+                </details>
+              </section>
+              <div class="share-box">
+                <label>
+                  Ссылка на этот результат
+                  <input data-ref-link type="text" readonly />
+                </label>
+                <button class="icon-button" type="button" data-copy aria-label="Скопировать ссылку">
+                  <i data-lucide="copy" aria-hidden="true"></i>
+                </button>
+              </div>
+              <div class="compatibility-entry">
+                <div>
+                  <span>Совместимость</span>
+                  <h4>Отдельная карта пары</h4>
+                  <p>Сравните этот результат с другим WHOAMI-кодом или ссылкой и получите резонанс, зоны трения и зоны роста пары.</p>
+                </div>
+                <a class="price-button dark" data-compatibility-link href="./compatibility.html">
+                  <i data-lucide="heart-handshake" aria-hidden="true"></i>
+                  Открыть совместимость
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section disclaimer" aria-label="Ограничения">
+        <p>
+          WHOAMI является самооценочным инструментом для самопонимания и не
+          устанавливает медицинские или психиатрические диагнозы. Методология NOESIS
+          помогает структурировать ответы, но не заменяет консультацию специалиста.
+        </p>
+      </section>
+    </main>
+
+    <div class="feedback-modal" data-feedback-modal hidden role="dialog" aria-modal="true" aria-labelledby="feedback-title">
+      <div class="feedback-backdrop" data-feedback-close></div>
+      <form class="feedback-card" data-feedback-form>
+        <button class="feedback-close" type="button" data-feedback-close aria-label="Закрыть окно">
+          <i data-lucide="x" aria-hidden="true"></i>
+        </button>
+        <span>Быстрая обратная связь</span>
+        <h2 id="feedback-title">Насколько WHOAMI попал в ваш профиль?</h2>
+        <p>
+          Это поможет точнее настраивать язык отчета: описание, рекомендации и выводы
+          по вашим реальным реакциям в отношениях, работе, стрессе и общении.
+        </p>
+
+        <fieldset class="feedback-rating">
+          <legend>Описание похоже на то, как вы обычно реагируете?</legend>
+          <div class="feedback-scale">
+            <label><input type="radio" name="description" value="1" data-feedback-description /><span>1</span></label>
+            <label><input type="radio" name="description" value="2" data-feedback-description /><span>2</span></label>
+            <label><input type="radio" name="description" value="3" data-feedback-description /><span>3</span></label>
+            <label><input type="radio" name="description" value="4" data-feedback-description /><span>4</span></label>
+            <label><input type="radio" name="description" value="5" data-feedback-description /><span>5</span></label>
+          </div>
+          <small>1 — совсем не похоже, 5 — очень точно</small>
+        </fieldset>
+
+        <fieldset class="feedback-rating">
+          <legend>Рекомендации можно применить к вашим решениям и отношениям?</legend>
+          <div class="feedback-scale">
+            <label><input type="radio" name="recommendations" value="1" data-feedback-recommendations /><span>1</span></label>
+            <label><input type="radio" name="recommendations" value="2" data-feedback-recommendations /><span>2</span></label>
+            <label><input type="radio" name="recommendations" value="3" data-feedback-recommendations /><span>3</span></label>
+            <label><input type="radio" name="recommendations" value="4" data-feedback-recommendations /><span>4</span></label>
+            <label><input type="radio" name="recommendations" value="5" data-feedback-recommendations /><span>5</span></label>
+          </div>
+          <small>1 — не вижу пользы, 5 — понятно, что делать дальше</small>
+        </fieldset>
+
+        <div class="feedback-actions">
+          <button class="ghost-button compact" type="button" data-feedback-close>Не сейчас</button>
+          <button class="price-button dark" type="submit" data-feedback-submit disabled>
+            <i data-lucide="send" aria-hidden="true"></i>
+            Отправить
+          </button>
+        </div>
+        <p class="feedback-thanks" data-feedback-thanks hidden>Спасибо. Это поможет сделать отчет точнее.</p>
+      </form>
+    </div>
+
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script src="./language.js?v=lang7"></script>
+    <script src="./app.js?v=result-link1"></script>
+  </body>
+</html>

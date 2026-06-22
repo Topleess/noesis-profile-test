@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>WHOAMI | совместимость пары, друзей и команды</title>
+    <meta
+      name="description"
+      content="WHOAMI сравнивает два профиля личности и показывает совместимость пары, друзей или рабочей команды."
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop stop-color='%230f6a62'/%3E%3Cstop offset='.55' stop-color='%237f2e3c'/%3E%3Cstop offset='1' stop-color='%23b48a45'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='32' cy='32' r='28' fill='url(%23g)'/%3E%3Ccircle cx='32' cy='32' r='9' fill='%23fffdf7' fill-opacity='.82'/%3E%3C/svg%3E"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&family=Literata:opsz,wght@7..72,500;7..72,650&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css?v=whoami-language-menu1" />
+  </head>
+  <body class="compatibility-body">
+    <header class="site-header compatibility-header">
+      <a class="brand" href="./index.html" aria-label="WHOAMI">
+        <span class="brand-mark"></span>
+        <span>WHOAMI</span>
+      </a>
+      <nav class="nav-links" aria-label="Основная навигация">
+        <a href="./index.html">Общая</a>
+        <a href="./passport.html">Паспорт</a>
+        <a href="./compatibility.html">Совместимость</a>
+        <a href="./partners.html">Партнерам</a>
+      </nav>
+      <div class="header-actions">
+        <details class="language-switcher" data-language-switcher>
+          <summary aria-label="Выбор языка">
+            <span data-current-language>RU</span>
+          </summary>
+          <div class="language-options" role="group" aria-label="Выбор языка">
+            <button type="button" data-lang-option="ru">Русский</button>
+            <button type="button" data-lang-option="en">English</button>
+            <button type="button" data-lang-option="ar">العربية</button>
+          </div>
+        </details>
+        <a class="header-cta" href="./passport.html">
+          <i data-lucide="scan-line" aria-hidden="true"></i>
+          Пройти тест
+        </a>
+      </div>
+    </header>
+
+    <main class="compatibility-page">
+      <section class="compatibility-workspace" aria-labelledby="compatibility-page-title">
+        <div class="compatibility-title-block">
+          <p class="eyebrow">WHOAMI Compatibility</p>
+          <h1 id="compatibility-page-title">Карта совместимости двух профилей</h1>
+          <p>
+            Вставьте две ссылки результата или WHOAMI-коды. Если вы пришли со страницы
+            результата, первый профиль уже подставлен в расчет. Затем выберите контекст:
+            пара, дружба или совместная работа.
+          </p>
+          <p>
+            WHOAMI показывает не только “подходим или нет”, а риски общения, сильные
+            стороны союза, точки напряжения, правила кооперации и то, на что стоит
+            обратить внимание в отношениях, дружбе, бизнесе или команде.
+          </p>
+        </div>
+
+        <div class="compatibility-shell">
+          <section class="compatibility-console" aria-label="Форма сравнения профилей">
+            <div class="compatibility-console-head">
+              <span>Расчет совместимости</span>
+              <strong>2 профиля · 3 режима · 12 шкал</strong>
+            </div>
+            <div class="compatibility-page-form">
+              <fieldset class="compat-mode-group" aria-label="Тип совместимости">
+                <legend>Тип совместимости</legend>
+                <label>
+                  <input type="radio" name="compat-mode" value="couple" data-compat-mode checked />
+                  <span>
+                    <strong>Пара</strong>
+                    <small>любовь, близость, привязанность</small>
+                  </span>
+                </label>
+                <label>
+                  <input type="radio" name="compat-mode" value="friends" data-compat-mode />
+                  <span>
+                    <strong>Друзья</strong>
+                    <small>доверие, легкость, границы</small>
+                  </span>
+                </label>
+                <label>
+                  <input type="radio" name="compat-mode" value="team" data-compat-mode />
+                  <span>
+                    <strong>Работа</strong>
+                    <small>роли, решения, лидерство</small>
+                  </span>
+                </label>
+              </fieldset>
+              <label>
+                Ваш результат
+                <input data-self-input type="text" placeholder="Ссылка результата, result=... или NP-код" autocomplete="off" />
+              </label>
+              <p class="compatibility-field-note" data-self-status>Можно вставить ссылку результата или открыть эту страницу из результата.</p>
+              <label>
+                Другой профиль
+                <input data-partner-input type="text" placeholder="NP-XXXXXX или ссылка результата другого человека" autocomplete="off" />
+              </label>
+              <p class="compatibility-field-note" data-partner-status>Для полного расчета лучше использовать ссылку результата.</p>
+              <button class="price-button dark" type="button" data-run-compatibility>
+                <i data-lucide="heart-handshake" aria-hidden="true"></i>
+                Рассчитать совместимость
+              </button>
+            </div>
+          </section>
+
+          <aside class="growth-info-card" aria-labelledby="growth-info-title">
+            <span>Три сценария</span>
+            <h2 id="growth-info-title">Один профиль читается по-разному</h2>
+            <p>
+              Совместимость не сводится к проценту. В любви важна привязанность,
+              в дружбе - доверие и легкость, в работе - роли, темп решений и власть.
+            </p>
+            <div class="growth-info-grid">
+              <article>
+                <strong>Пара</strong>
+                <p>Показывает близость, ревность, дистанцию, конфликт и потребность в подтверждении.</p>
+              </article>
+              <article>
+                <strong>Друзья</strong>
+                <p>Показывает доверие, конкуренцию, социальный ритм и устойчивость контакта.</p>
+              </article>
+              <article>
+                <strong>Команда</strong>
+                <p>Показывает рабочие роли, лидерство, делегирование, риск трения и скорость решений.</p>
+              </article>
+              <article>
+                <strong>Зоны роста</strong>
+                <p>Для каждого сценария рекомендации меняются: не один совет на все случаи.</p>
+              </article>
+            </div>
+          </aside>
+        </div>
+
+        <div class="compatibility-page-output" data-compatibility-output hidden></div>
+      </section>
+    </main>
+
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script src="./language.js?v=lang7"></script>
+    <script src="./compatibility.js?v=compatibility4"></script>
+  </body>
+</html>
