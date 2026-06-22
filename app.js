@@ -4672,6 +4672,7 @@ function renderLifeMap(scores) {
                     <small>${String(index + 1).padStart(2, "0")}</small>
                     <strong>${category.title}</strong>
                     <em>${category.kicker}</em>
+                    <span class="category-preview">${category.summary}</span>
                   </span>
                   <b>${status}</b>
                   <i data-lucide="maximize-2" aria-hidden="true"></i>

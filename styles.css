@@ -3919,6 +3919,18 @@ select:focus {
   line-height: 1.35;
 }
 
+.category-preview {
+  display: -webkit-box;
+  margin-top: 9px;
+  color: rgba(98, 106, 107, 0.88);
+  font-size: 13px;
+  font-style: normal;
+  line-height: 1.42;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
 .category-toggle b {
   color: var(--teal);
   font-size: 12px;
